@@ -1,0 +1,308 @@
+/* ==========================================================================
+   CSS RIÊNG CHO GIAO DIỆN 2 (SẢNH CHỜ CON NỢ 00)
+   ========================================================================== */
+
+.hud-chip {
+  display: flex; align-items: center; gap: 7px; padding: 5px 10px;
+  border-radius: 999px; border: 1px solid rgba(var(--rgb-primary), 0.28);
+  font-family: "JetBrains Mono", monospace; font-size: 0.66rem; color: var(--text-muted);
+}
+.chip-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--c-secondary); box-shadow: 0 0 8px var(--c-secondary);
+}
+
+.hub-layout {
+  position: relative;
+  z-index: 10;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 20px 22px 42px;
+  display: grid;
+  grid-template-columns: 280px 1fr 310px;
+  gap: 20px;
+  align-items: start;
+}
+
+.hub-sidebar, .hub-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hub-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.25);
+  background: rgba(var(--rgb-primary), 0.05);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nav-tab small {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 400;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+}
+
+.nav-tab.is-active, .nav-tab:hover {
+  border-color: var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.14);
+  box-shadow: 0 0 16px var(--glow-secondary);
+}
+
+.panel-full {
+  padding: 18px 20px;
+}
+
+/* FORM HỢP ĐỒNG CON NỢ */
+.contract-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field.span-2 {
+  grid-column: 1 / -1;
+}
+
+.field span {
+  font-size: 0.72rem;
+  color: var(--c-primary);
+}
+
+.field input, .field select {
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1px solid rgba(var(--rgb-primary), 0.35);
+  background: rgba(4, 6, 16, 0.58);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.form-actions > * {
+  flex: 1;
+}
+
+.audit-result {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px dashed var(--c-secondary);
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.audit-receipt {
+  white-space: pre-wrap;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--text-main);
+}
+
+/* THẬP ĐIỆN GRID */
+.mini-btn {
+  padding: 5px 10px !important;
+  font-size: 0.68rem !important;
+}
+
+.sectors-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sector-card {
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.32);
+  background: rgba(var(--rgb-primary), 0.06);
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sector-card strong {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.76rem;
+  color: var(--c-primary);
+}
+
+.sector-card span {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sector-card.is-selected, .sector-card:hover {
+  border-color: var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.14);
+  box-shadow: 0 0 14px var(--glow-secondary);
+}
+
+.sector-detail-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--rgb-primary), 0.35);
+  background: rgba(0, 0, 0, 0.34);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sector-detail-box p {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* CHỢ ĐEN & HỆ THỐNG */
+.market-note {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.market-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.market-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.28);
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.market-item h4 {
+  font-size: 0.78rem;
+  color: var(--c-primary);
+  margin-bottom: 3px;
+}
+
+.market-item p {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.market-buy {
+  white-space: nowrap;
+  padding: 7px 11px;
+  font-size: 0.7rem;
+}
+
+/* BÁO ỨNG NET & NHÂN SỰ */
+.forum-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forum-post {
+  padding: 11px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.28);
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.forum-post .author {
+  color: var(--c-secondary);
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.forum-post p {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.48;
+  color: var(--text-main);
+}
+
+.entities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.entity-card {
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.25);
+  background: rgba(var(--rgb-primary), 0.05);
+}
+
+.entity-card strong {
+  display: block;
+  color: var(--c-primary);
+  margin-bottom: 3px;
+}
+
+.entity-card small {
+  display: block;
+  color: var(--c-secondary);
+  margin-bottom: 5px;
+}
+
+.entity-card p {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.77rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+@media (max-width: 1160px) {
+  .hub-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .contract-grid, .sectors-grid, .entities-grid {
+    grid-template-columns: 1fr;
+  }
+  .market-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

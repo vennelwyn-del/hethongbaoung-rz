@@ -186,24 +186,17 @@ portalGate.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
 
   gateTouchCore.classList.add("is-scanning");
-  gateActionText.textContent = "[ ĐANG MỞ CỔNG... ]";
+  gateActionText.textContent = "[ ĐANG TRUYỀN TỐNG... ]";
   coreProgressBar.style.width = "100%";
 
-  setTimeout(() => {
+  setTimeout(async () => {
     state.pb = Number((state.pb - 0.01).toFixed(2));
     localStorage.setItem("bao_ung_pb", String(state.pb));
-    updatePbUI();
-    if (state.username) saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
-
-    pushReceipt("【Biên lai 00】: -0.01 PB phí kích hoạt Cổng Báo Ứng.");
-    gateTouchCore.classList.remove("is-scanning");
-    coreProgressBar.style.width = "0%";
-    gateActionText.textContent = "[ NHẤN VÀO ]";
-    state.isBreaching = false;
-
-    screenGate.classList.add("hidden");
-    screenConsole.classList.remove("hidden");
-  }, 520);
+    if (state.username) {
+      await saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
+    }
+    window.location.href = "./hub.html";
+  }, 550);
 });
 
 document.getElementById("btn-back-gate").addEventListener("click", () => {
