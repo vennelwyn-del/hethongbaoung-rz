@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="acid">
+<html lang="vi" data-theme="cyber-violet">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HỆ THỐNG BÁO ỨNG // AI CORE GATE 00</title>
+  <title>HỆ THỐNG BÁO ỨNG // VR HOLOGRAM TERMINAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -11,243 +11,261 @@
   <link rel="stylesheet" href="./css/gate.css" />
 </head>
 <body>
-  <!-- Nền công nghệ: Canvas Mạng Nơ-ron AI + Lưới Phối Cảnh + Lăng Kính -->
-  <canvas id="neural-canvas" aria-hidden="true"></canvas>
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-prism-glow" aria-hidden="true"></div>
+  <!-- KHÔNG GIAN 3D CANVAS: ĐA DIỆN XOAY + MƯA DỮ LIỆU + SÓNG CHẠM HOLOGRAM -->
+  <canvas id="vr-canvas" aria-hidden="true"></canvas>
+  <div class="vr-floor-grid" aria-hidden="true"></div>
+  <div class="vr-vignette" aria-hidden="true"></div>
   <div class="scanlines" id="scanlines-layer" aria-hidden="true"></div>
+
+  <!-- LỚP CON TRỎ LASER CHẠM MÀN HÌNH -->
+  <div class="touch-hud-cursor" id="touch-cursor" aria-hidden="true">
+    <span id="cursor-coords">X:000 Y:000</span>
+  </div>
 
   <!-- THANH SETTING CỐ ĐỊNH TRÊN CÙNG -->
   <header class="sys-topbar">
-    <!-- BÊN TRÁI: CHỈ DẪN VỀ TRANG CHỦ BÁO ỨNG -->
+    <!-- BÊN TRÁI: VỀ TRANG CHỦ BÁO ỨNG -->
     <div class="topbar-left">
-      <a href="https://vennelwyn-del.github.io/Baoungdoinhau/" class="home-brand" id="btn-home" title="Về Trang Chủ Báo Ứng">
-        <span class="brand-hex"><span>⚖️</span></span>
+      <a href="https://vennelwyn-del.github.io/Baoungdoinhau/" class="home-brand holo-tactile" id="btn-home" title="Về Trang Chủ Báo Ứng">
+        <span class="brand-glyph">⚖️</span>
         <span class="brand-text">
-          <strong>BÁO ỨNG // AI-00</strong>
+          <strong>BÁO ỨNG // VR-00</strong>
           <small>TRANG CHỦ HỆ THỐNG</small>
         </span>
       </a>
-      <div class="sys-node-pill">
-        <span class="pulse-dot"></span>
-        <span>NODE: THẬP ĐIỆN_CORE</span>
+      <div class="hud-chip">
+        <span class="chip-dot"></span>
+        <span>LINK: THẬP ĐIỆN_MAINFRAME</span>
       </div>
     </div>
 
-    <!-- BÊN PHẢI: RADIO + CHUYỂN MÀU 5 TEMPLATE + SETTING + FIREBASE USER -->
+    <!-- BÊN PHẢI: RADIO + 2 TEMPLATE MÀU + SETTING + FIREBASE USER -->
     <div class="topbar-right">
-      <div class="sys-radio" id="sys-radio">
-        <button class="radio-btn" id="radio-toggle" type="button" title="Bật/Tắt Radio">
+      <div class="sys-radio">
+        <button class="radio-btn holo-tactile" id="radio-toggle" type="button" title="Bật/Tắt Radio">
           <span class="radio-icon">▶</span>
         </button>
         <div class="radio-meta">
           <span class="radio-title" id="radio-track-name">CH.01 // VOID DRONE</span>
-          <div class="radio-eq" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i>
-          </div>
+          <canvas id="radio-scope" width="54" height="16"></canvas>
         </div>
-        <button class="radio-btn" id="radio-next" type="button" title="Đổi kênh Radio">⏭</button>
+        <button class="radio-btn holo-tactile" id="radio-next" type="button" title="Đổi kênh">⏭</button>
         <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.05" value="0.35" title="Âm lượng" />
       </div>
 
-      <!-- 2 TEMPLATE MÀU THEO 2 ẢNH -->
-      <div class="theme-switcher" role="group" aria-label="Chuyển đổi 2 giao diện màu">
-        <button class="theme-dot" data-set-theme="acid" title="Template 1: B2F601 / 62C0F6 / 343645">
-          <span style="background: linear-gradient(135deg, #B2F601, #62C0F6, #343645);"></span>
+      <!-- ĐÚNG 2 TEMPLATE MÀU -->
+      <div class="theme-switcher" role="group" aria-label="Chuyển đổi 2 template màu">
+        <button class="theme-dot" data-set-theme="cyber-violet" title="Template 1: #3F136D / #6F1594 / #3BB8F8 / #F787F8">
+          <span style="background: linear-gradient(135deg, #3F136D, #3BB8F8, #F787F8);"></span>
         </button>
-        <button class="theme-dot" data-set-theme="crystal" title="Template 2: 9f99d1 / 86bada / dbaad7 / ffe3b3">
-          <span style="background: linear-gradient(135deg, #9f99d1, #86bada, #dbaad7, #ffe3b3);"></span>
+        <button class="theme-dot" data-set-theme="acid" title="Template 2: #B2F601 / #62C0F6 / #343645">
+          <span style="background: linear-gradient(135deg, #B2F601, #62C0F6, #343645);"></span>
         </button>
       </div>
 
-      <button class="icon-pill" id="btn-settings" type="button" title="Cài đặt hệ thống">
+      <button class="icon-pill holo-tactile" id="btn-settings" type="button">
         <span>⚙</span><span class="pill-label">SETTING</span>
       </button>
 
-      <button class="user-pill" id="btn-auth" type="button">
+      <button class="user-pill holo-tactile" id="btn-auth" type="button">
         <span class="user-status-dot" id="user-dot"></span>
         <span class="user-label" id="user-label">ĐĂNG NHẬP</span>
       </button>
     </div>
   </header>
 
-  <!-- KHÔNG GIAN 3D AI STAGE -->
-  <main class="ai-stage" id="ai-stage">
-    <!-- MẠCH ĐIỆN KẾT NỐI SVG NỀN -->
-    <svg class="circuit-overlay" viewBox="0 0 1440 820" preserveAspectRatio="none" aria-hidden="true">
-      <path class="circuit-line" d="M 80 180 L 310 180 L 380 250 L 560 250" />
-      <path class="circuit-line" d="M 110 610 L 330 610 L 420 510 L 560 510" />
-      <path class="circuit-line" d="M 1360 190 L 1120 190 L 1040 270 L 880 270" />
-      <path class="circuit-line" d="M 1340 600 L 1090 600 L 1010 500 L 880 500" />
-      <circle class="circuit-node" cx="380" cy="250" r="4" />
-      <circle class="circuit-node hot" cx="560" cy="250" r="4.5" />
-      <circle class="circuit-node" cx="420" cy="510" r="4" />
-      <circle class="circuit-node hot" cx="1040" cy="270" r="4.5" />
-      <circle class="circuit-node" cx="1010" cy="500" r="4" />
-    </svg>
+  <!-- PHÒNG ĐIỀU HÀNH THỰC TẾ Ảo 3D -->
+  <main class="vr-room" id="vr-room">
+    <div class="vr-rig" id="vr-rig">
 
-    <!-- CỤM CỬA SỔ AI NỔI BÊN TRÁI (CHỒNG LỚP 3D) -->
-    <section class="holo-cluster cluster-left" data-depth="18">
-      <article class="ai-glass-card card-back">
-        <div class="card-head">
-          <span>AI.KERNEL // KẾ TOÁN 00</span>
-          <span class="micro-badge">v4.0</span>
+      <!-- CỤM MÀN HÌNH KÍNH TRÁI (NGHIÊNG 3D TRONG KHÔNG GIAN) -->
+      <aside class="holo-wing wing-left">
+        <!-- Cửa sổ lớp sâu -->
+        <div class="holo-pane pane-rear">
+          <div class="pane-bar">
+            <span>AI.CORE // KẾ TOÁN VIÊN 00</span>
+            <span>80.0% RAKE</span>
+          </div>
+          <div class="scope-wrap">
+            <canvas id="telemetry-wave" width="260" height="58"></canvas>
+          </div>
+          <div class="mini-bars">
+            <div><label>ĐỒNG BỘ LINH HỒN</label><span class="track"><i style="width: 74%"></i></span></div>
+            <div><label>MẬT ĐỘ HÀO QUANG LẬU</label><span class="track hot"><i style="width: 92%"></i></span></div>
+          </div>
         </div>
-        <div class="metric-bars">
-          <div><label>ĐỒNG BỘ LINH HỒN</label><span class="bar"><i style="width: 78%"></i></span></div>
-          <div><label>TỶ LỆ THU PHÍ DỊCH VỤ</label><span class="bar hot"><i style="width: 80%"></i></span></div>
-          <div><label>MẬT ĐỘ HÀO QUANG LẬU</label><span class="bar"><i style="width: 94%"></i></span></div>
+
+        <!-- Cửa sổ lớp gần (Tương tác chạm trực tiếp) -->
+        <div class="holo-pane pane-front">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>NEURAL.INTERFACE // TERMINAL</span>
+            <span class="tag-live">LIVE</span>
+          </div>
+          <div class="terminal-log" id="telemetry-left">
+            <p>&gt; KHỞI TẠO KHÔNG GIAN THẬP ĐIỆN [10/10]</p>
+            <p>&gt; PHÁN QUAN TẠ VÔ CỮU: TRỰC KIỂM TOÁN</p>
+            <p>&gt; LỤC NHA: CHỢ ĐEN MỞ ĐIỂM MÙ</p>
+            <p>&gt; PHÁT HIỆN TÍN HIỆU MÃ NGUỒN [Sd.]</p>
+          </div>
+          <div class="tactile-pad-row">
+            <button class="holo-switch holo-tactile" data-cmd="PING_RADAR" type="button">[ QUÉT RADAR ]</button>
+            <button class="holo-switch holo-tactile" data-cmd="AUDIT_DEBT" type="button">[ SOI NỢ PB ]</button>
+          </div>
         </div>
-      </article>
+      </aside>
 
-      <article class="ai-glass-card card-front">
-        <span class="corner tl"></span><span class="corner tr"></span>
-        <span class="corner bl"></span><span class="corner br"></span>
-        <div class="card-head">
-          <span>Ai // CAUSALITY MONITOR</span>
-          <span class="live-tag">ACTIVE</span>
+      <!-- TRỤC GATE HOLOGRAM CHÍNH GIỮA -->
+      <section class="gate-center" id="gate-section">
+        <div class="vr-header-strip">
+          <span>SECTOR.PROTOCOL: 01—10</span>
+          <span id="clock-utc">00:00:00</span>
+          <span>DEPTH: Z+0.00</span>
         </div>
-        <div class="telemetry-stream" id="telemetry-left">
-          <p>&gt; KHỞI TẠO MA TRẬN THẬP ĐIỆN [10/10]</p>
-          <p>&gt; TẠ VÔ CỮU: ĐANG KIỂM TOÁN HỒ SƠ</p>
-          <p>&gt; LỤC NHA: CHỢ ĐEN MỞ CỬA (ĐIỂM MÙ)</p>
-          <p>&gt; CẢNH BÁO: PHÁT HIỆN CHỮ KÝ [Sd.]</p>
+
+        <button class="holo-gate" id="portal-gate" type="button" aria-label="Chạm vào màn hình Gate để truy cập">
+          <!-- Vòng tọa độ ngoài -->
+          <svg class="gate-svg g-ring-1" viewBox="0 0 420 420" aria-hidden="true">
+            <circle cx="210" cy="210" r="202" stroke-dasharray="2 9" />
+            <circle cx="210" cy="210" r="188" stroke-dasharray="60 18 12 18" />
+          </svg>
+          <!-- Vòng lục giác + Radar -->
+          <svg class="gate-svg g-ring-2" viewBox="0 0 420 420" aria-hidden="true">
+            <polygon points="210,24 371,117 371,303 210,396 49,303 49,117" />
+            <circle cx="210" cy="210" r="146" stroke-dasharray="12 6" />
+          </svg>
+          <!-- Cung quét năng lượng -->
+          <svg class="gate-svg g-ring-3" viewBox="0 0 420 420" aria-hidden="true">
+            <path d="M 210 86 A 124 124 0 0 1 334 210" class="arc-a" />
+            <path d="M 210 334 A 124 124 0 0 1 86 210" class="arc-b" />
+          </svg>
+
+          <!-- Lõi Kính Cảm Ứng -->
+          <div class="gate-touch-core">
+            <div class="scan-laser" id="gate-scan-laser"></div>
+            <span class="core-kicker">AI // HOLOGRAPHIC GATE</span>
+            <strong class="core-title">BÁO ỨNG</strong>
+            <span class="core-sub" id="gate-action-text">[ CHẠM ĐỂ TRUY CẬP ]</span>
+            <div class="core-meter" id="core-progress"><span></span></div>
+          </div>
+        </button>
+
+        <!-- Dải nút chọn nhanh Điện tương tác -->
+        <div class="sector-touch-bar" id="sector-touch-bar">
+          <button class="sector-key holo-tactile is-selected" data-sector="Đ1 Vọng Ngữ" type="button">01.VỌNG NGỮ</button>
+          <button class="sector-key holo-tactile" data-sector="Đ2 Tham Lam" type="button">02.THAM LAM</button>
+          <button class="sector-key holo-tactile" data-sector="Đ3 Ái Dục" type="button">03.ÁI DỤC</button>
+          <button class="sector-key holo-tactile" data-sector="Đ5 Ngạo Mạn" type="button">05.NGẠO MẠN</button>
+          <button class="sector-key holo-tactile" data-sector="Đ10 Vô Gian" type="button">10.VÔ GIAN</button>
         </div>
-        <div class="hex-matrix" id="hex-matrix">0x4F 9A 00 FF 1E 7C 88 2B</div>
-      </article>
-    </section>
 
-    <!-- LÕI GATE TRUNG TÂM ĐA TẦNG -->
-    <section class="gate-center" id="gate-section" data-depth="8">
-      <div class="top-telemetry">
-        <span>SECTOR.PROTOCOL: 01—10</span>
-        <span>|</span>
-        <span id="clock-utc">SYS.TIME: 00:00:00</span>
-      </div>
+        <p class="gate-hint" id="gate-status-line">
+          【Chạm trực tiếp lên lõi kính Gate hoặc bất kỳ màn hình nổi nào để tương tác mô phỏng.】
+        </p>
+      </section>
 
-      <button class="portal-gate" id="portal-gate" type="button" aria-label="Ấn để kích hoạt Gate Báo Ứng">
-        <!-- Vòng SVG lớp 1: Tọa độ 10 Điện -->
-        <svg class="gate-svg ring-1" viewBox="0 0 380 380" aria-hidden="true">
-          <circle cx="190" cy="190" r="182" stroke-dasharray="2 8" />
-          <circle cx="190" cy="190" r="170" stroke-dasharray="48 16 10 16" />
-        </svg>
-        <!-- Vòng SVG lớp 2: Lục giác & Nhịp quét AI -->
-        <svg class="gate-svg ring-2" viewBox="0 0 380 380" aria-hidden="true">
-          <polygon points="190,26 332,108 332,272 190,354 48,272 48,108" />
-          <circle cx="190" cy="190" r="134" stroke-dasharray="14 6" />
-        </svg>
-        <!-- Vòng SVG lớp 3: Radar quét chéo -->
-        <svg class="gate-svg ring-3" viewBox="0 0 380 380" aria-hidden="true">
-          <path d="M 190 76 A 114 114 0 0 1 304 190" class="radar-arc" />
-          <path d="M 190 304 A 114 114 0 0 1 76 190" class="radar-arc alt" />
-        </svg>
-
-        <!-- Lõi Kính Hologram -->
-        <div class="gate-core">
-          <div class="core-ring-pulse"></div>
-          <span class="core-kicker">RETRIBUTION // AI</span>
-          <strong class="core-title">BÁO ỨNG</strong>
-          <span class="core-sub" id="gate-action-text">[ ẤN VÀO CỔNG ]</span>
-          <div class="core-progress" id="core-progress"><span></span></div>
+      <!-- CỤM MÀN HÌNH KÍNH PHẢI (NGHIÊNG 3D ĐỐI XỨNG) -->
+      <aside class="holo-wing wing-right">
+        <div class="holo-pane pane-rear">
+          <div class="pane-bar">
+            <span>TARGET.RADAR // 360°</span>
+            <span id="hud-pb-preview">-1,482.75 PB</span>
+          </div>
+          <div class="radar-row">
+            <svg class="mini-radar" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="44" />
+              <circle cx="50" cy="50" r="28" />
+              <circle cx="50" cy="50" r="12" />
+              <line x1="50" y1="6" x2="50" y2="94" />
+              <line x1="6" y1="50" x2="94" y2="50" />
+              <g class="radar-sweep"><path d="M50,50 L50,6 A44,44 0 0,1 88,28 Z" /></g>
+              <circle cx="68" cy="30" r="3" class="blip" />
+              <circle cx="34" cy="64" r="2.5" class="blip alt" />
+            </svg>
+            <div class="radar-stats">
+              <div><small>SỐ DƯ CON NỢ</small><strong id="hud-pb-side">-1,482.75</strong></div>
+              <div><small>KHU VỰC CHỌN</small><strong id="hud-sector-side">Đ1 Vọng Ngữ</strong></div>
+            </div>
+          </div>
         </div>
-      </button>
 
-      <div class="sector-orbit-strip">
-        <span>Đ1 Vọng Ngữ</span><span>Đ2 Tham Lam</span><span>Đ3 Ái Dục</span>
-        <span>Đ5 Ngạo Mạn</span><span>Đ10 Vô Gian</span>
-      </div>
-
-      <p class="gate-hint" id="gate-status-line">
-        【Chạm vào lõi Gate để chạy giao thức giải mã hợp đồng lao động. Phí khởi động: -0.01 PB.】
-      </p>
-    </section>
-
-    <!-- CỤM CỬA SỔ AI NỔI BÊN PHẢI (CHỒNG LỚP 3D) -->
-    <section class="holo-cluster cluster-right" data-depth="18">
-      <article class="ai-glass-card card-back">
-        <div class="card-head">
-          <span>NEURAL.ANALYZER</span>
-          <span class="micro-dot"></span>
+        <div class="holo-pane pane-front">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>RECEIPT.STREAM // BIÊN LAI</span>
+            <span class="tag-live alt">SYNC</span>
+          </div>
+          <div class="terminal-log" id="receipt-feed">
+            <p class="muted">&gt; Chờ tín hiệu chạm từ màn hình VR...</p>
+          </div>
+          <div class="hex-line" id="hex-matrix">0x3F 13 6D 3B B8 F8 00</div>
         </div>
-        <div class="mini-grid-stats">
-          <div><small>SỐ DƯ HIỆN TẠI</small><strong id="hud-pb-preview">-1,482.75 PB</strong></div>
-          <div><small>TRẦN NỢ THANH LÝ</small><strong>-5,000.00 PB</strong></div>
+      </aside>
+
+      <!-- CONSOLE MỞ KHÓA SAU KHI CHẠM GATE -->
+      <section class="unlocked-console hidden" id="unlocked-console">
+        <div class="console-header">
+          <div>
+            <span class="console-tag">HOLOGRAPHIC ACCESS GRANTED // SẢNH CHỜ CON NỢ 00</span>
+            <h2>TRUNG TÂM ĐIỀU HÀNH THẬP ĐIỆN BÁO ỨNG</h2>
+          </div>
+          <button class="btn-ghost holo-tactile" id="btn-close-console" type="button">← Trở về Gate 3D</button>
         </div>
-      </article>
 
-      <article class="ai-glass-card card-front">
-        <span class="corner tl"></span><span class="corner tr"></span>
-        <span class="corner bl"></span><span class="corner br"></span>
-        <div class="card-head">
-          <span>RECEIPT.LOG // BIÊN LAI 00</span>
-          <span class="live-tag alt">SYNC</span>
+        <div class="console-grid">
+          <article class="holo-pane console-card">
+            <span class="card-num">NODE // 01</span>
+            <h3>HỒ SƠ CON NỢ</h3>
+            <p>Khởi tạo hợp đồng lao động, random nợ Phước Báu và xuất Hồ sơ Báo Ứng A cho khu vực đã chọn.</p>
+            <button class="btn-primary holo-tactile" id="btn-enter-hub" type="button">KÍCH HOẠT HỒ SƠ</button>
+          </article>
+
+          <article class="holo-pane console-card">
+            <span class="card-num">NODE // 02</span>
+            <h3>FIREBASE CLOUD SYNC</h3>
+            <p>Đồng bộ mã Con nợ, template màu và số dư Phước Báu trực tiếp lên Realtime Database.</p>
+            <button class="btn-secondary holo-tactile" id="btn-open-auth-from-card" type="button">MỞ TÀI KHOẢN</button>
+          </article>
+
+          <article class="holo-pane console-card">
+            <span class="card-num">NODE // 03</span>
+            <h3>TRANG CHỦ BÁO ỨNG</h3>
+            <p>Quay về điểm khởi đầu chính thức của cổng truyền tống Hệ Thống Báo Ứng.</p>
+            <a class="btn-secondary holo-tactile link-btn" href="https://vennelwyn-del.github.io/Baoungdoinhau/">VỀ TRANG CHỦ ↗</a>
+          </article>
         </div>
-        <div class="telemetry-stream" id="receipt-feed">
-          <p class="muted">&gt; Đang chờ tín hiệu kích hoạt từ lõi Gate...</p>
-        </div>
-      </article>
-    </section>
+      </section>
 
-    <!-- MÀN HÌNH CONSOLE SAU KHI ẤN MỞ GATE -->
-    <section class="unlocked-console hidden" id="unlocked-console">
-      <div class="console-header">
-        <div>
-          <span class="console-tag">PROTOCOL UNLOCKED // SẢNH CHỜ CON NỢ 00</span>
-          <h2>TRẠM ĐIỀU PHỐI THẬP ĐIỆN BÁO ỨNG</h2>
-        </div>
-        <button class="btn-ghost" id="btn-close-console" type="button">← Quay lại Gate</button>
-      </div>
-
-      <div class="console-grid">
-        <article class="ai-glass-card console-card">
-          <span class="card-num">MODULE // 01</span>
-          <h3>HỒ SƠ HỢP ĐỒNG CON NỢ</h3>
-          <p>Khởi tạo nhân vật, kiểm toán khoản nợ Phước Báu ngẫu nhiên và xuất Hồ sơ Báo Ứng A.</p>
-          <button class="btn-primary" id="btn-enter-hub" type="button">KHỞI TẠO HỒ SƠ</button>
-        </article>
-
-        <article class="ai-glass-card console-card">
-          <span class="card-num">MODULE // 02</span>
-          <h3>ĐỒNG BỘ FIREBASE CLOUD</h3>
-          <p>Lưu trữ mã Con nợ, số dư Phước Báu và giao diện cá nhân lên hệ thống Realtime Database.</p>
-          <button class="btn-secondary" id="btn-open-auth-from-card" type="button">MỞ TÀI KHOẢN</button>
-        </article>
-
-        <article class="ai-glass-card console-card">
-          <span class="card-num">MODULE // 03</span>
-          <h3>TRANG CHỦ BÁO ỨNG</h3>
-          <p>Quay về cổng gốc hoặc làm mới toàn bộ phiên kết nối Cục Kiểm Toán Nhân Quả.</p>
-          <a class="btn-secondary link-btn" href="https://vennelwyn-del.github.io/Baoungdoinhau/">TRANG CHỦ BÁO ỨNG ↗</a>
-        </article>
-      </div>
-    </section>
+    </div>
   </main>
 
   <!-- MODAL SETTING -->
   <div class="modal-backdrop hidden" id="modal-settings">
     <div class="sys-modal">
       <div class="modal-head">
-        <h3>⚙ CẤU HÌNH HỆ THỐNG AI-00</h3>
+        <h3>⚙ CẤU HÌNH MÔ PHỎNG VR-00</h3>
         <button class="modal-close" data-close-modal="modal-settings" type="button">✕</button>
       </div>
       <div class="modal-body">
         <label class="setting-row">
-          <span>Hiệu ứng quét màn hình (Scanlines)</span>
+          <span>Quét màn hình Hologram (Scanlines)</span>
           <input type="checkbox" id="opt-scanlines" checked />
         </label>
         <label class="setting-row">
-          <span>Hiệu ứng nghiêng 3D theo chuột (Parallax)</span>
+          <span>Góc nhìn không gian 3D theo chuột</span>
           <input type="checkbox" id="opt-parallax" checked />
         </label>
         <label class="setting-row">
-          <span>Âm thanh máy in hóa đơn (SFX)</span>
+          <span>Âm thanh chạm màn hình (SFX)</span>
           <input type="checkbox" id="opt-sfx" checked />
         </label>
         <div class="setting-block">
           <span>URL Radio tùy chỉnh (MP3/Stream):</span>
           <div class="input-group">
             <input type="url" id="custom-radio-url" placeholder="Để trống = dùng Radio AI tích hợp" />
-            <button class="btn-primary" id="btn-apply-radio-url" type="button">Áp dụng</button>
+            <button class="btn-primary holo-tactile" id="btn-apply-radio-url" type="button">Áp dụng</button>
           </div>
         </div>
         <div class="setting-note" id="firebase-config-status">Đang kiểm tra Firebase...</div>
@@ -264,8 +282,8 @@
       </div>
       <div class="modal-body">
         <div id="auth-logged-out">
-          <p class="auth-desc">Đăng nhập để lưu mã Con nợ, template màu và số dư Phước Báu của riêng Báo Ứng.</p>
-          <button class="btn-google" id="btn-google-login" type="button">
+          <p class="auth-desc">Đăng nhập để lưu mã Con nợ, màu template và số dư Phước Báu lên Firebase.</p>
+          <button class="btn-google holo-tactile" id="btn-google-login" type="button">
             <span>G</span> Đăng nhập với Google
           </button>
           <div class="auth-divider"><span>HOẶC EMAIL</span></div>
@@ -273,8 +291,8 @@
             <input type="email" id="auth-email" placeholder="Email..." required />
             <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 6 ký tự)..." required />
             <div class="auth-actions">
-              <button class="btn-primary" type="submit">Đăng nhập</button>
-              <button class="btn-secondary" type="button" id="btn-register-email">Đăng ký</button>
+              <button class="btn-primary holo-tactile" type="submit">Đăng nhập</button>
+              <button class="btn-secondary holo-tactile" type="button" id="btn-register-email">Đăng ký</button>
             </div>
           </form>
           <p class="auth-msg" id="auth-msg"></p>
@@ -290,8 +308,8 @@
             </div>
           </div>
           <div class="auth-actions">
-            <button class="btn-primary" id="btn-sync-now" type="button">Đồng bộ ngay</button>
-            <button class="btn-danger" id="btn-logout" type="button">Đăng xuất</button>
+            <button class="btn-primary holo-tactile" id="btn-sync-now" type="button">Đồng bộ ngay</button>
+            <button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button>
           </div>
           <p class="auth-msg" id="auth-sync-msg"></p>
         </div>

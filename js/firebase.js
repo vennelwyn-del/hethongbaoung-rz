@@ -58,7 +58,7 @@ export async function logoutUser() {
   return signOut(auth);
 }
 
-export async function loadDebtorProfile(uid) {
+export async function loadDebtorProfile(uid) {"cyber-violet"
   if (!uid) return null;
   const userRef = ref(db, `${DB_ROOT}/${uid}`);
   const snap = await get(userRef);

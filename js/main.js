@@ -1,6 +1,6 @@
-// js/main.js — Điều khiển AI 3D Stage, 5 Template Màu, Gate Giải Mã, Radio & Firebase
+// js/main.js — Điều khiển VR 3D Rig, Chạm màn hình ảo, Oscilloscope, 2 Template Màu & Firebase
 
-import { initNeuralCanvas } from "./canvas-bg.js";
+import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
 import {
   isFirebaseConfigured,
@@ -13,15 +13,20 @@ import {
   saveDebtorState
 } from "./firebase.js";
 
-initNeuralCanvas();
+const vrBg = initVRCanvas();
 const radio = new SystemRadio();
 
+const VALID_THEMES = ["cyber-violet", "acid"];
+let savedTheme = localStorage.getItem("bao_ung_theme") || "cyber-violet";
+if (!VALID_THEMES.includes(savedTheme)) savedTheme = "cyber-violet";
+
 const state = {
-  theme: localStorage.getItem("bao_ung_theme") || "acid",
+  theme: savedTheme,
   sfx: localStorage.getItem("bao_ung_sfx") !== "false",
   scanlines: localStorage.getItem("bao_ung_scanlines") !== "false",
   parallax: localStorage.getItem("bao_ung_parallax") !== "false",
   pb: Number(localStorage.getItem("bao_ung_pb") || -1482.75),
+  selectedSector: "Đ1 Vọng Ngữ",
   user: null,
   debtorCode: "#049",
   gateOpened: false,
@@ -29,7 +34,9 @@ const state = {
 };
 
 const htmlEl = document.documentElement;
-const radioWrap = document.getElementById("sys-radio");
+const vrRig = document.getElementById("vr-rig");
+const touchCursor = document.getElementById("touch-cursor");
+const cursorCoords = document.getElementById("cursor-coords");
 const radioToggle = document.getElementById("radio-toggle");
 const radioNext = document.getElementById("radio-next");
 const radioVol = document.getElementById("radio-vol");
@@ -37,22 +44,25 @@ const radioTrackName = document.getElementById("radio-track-name");
 
 const portalGate = document.getElementById("portal-gate");
 const gateSection = document.getElementById("gate-section");
-const unlockedConsole = document.getElementById("unlocked-console");
+const gateTouchCore = document.querySelector(".gate-touch-core");
 const coreProgressBar = document.querySelector("#core-progress span");
 const gateActionText = document.getElementById("gate-action-text");
+const unlockedConsole = document.getElementById("unlocked-console");
 const receiptFeed = document.getElementById("receipt-feed");
-const hudPbPreview = document.getElementById("hud-pb-preview");
 
-// 1. CHUYỂN 5 TEMPLATE MÀU
+// 1. CHUYỂN ĐỔI 2 TEMPLATE MÀU
 function applyTheme(themeName, syncCloud = true) {
-  state.theme = themeName;
-  htmlEl.setAttribute("data-theme", themeName);
-  localStorage.setItem("bao_ung_theme", themeName);
+  const safeTheme = VALID_THEMES.includes(themeName) ? themeName : "cyber-violet";
+  state.theme = safeTheme;
+  htmlEl.setAttribute("data-theme", safeTheme);
+  localStorage.setItem("bao_ung_theme", safeTheme);
+
   document.querySelectorAll(".theme-dot").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.setTheme === themeName);
+    btn.classList.toggle("active", btn.dataset.setTheme === safeTheme);
   });
+
   if (syncCloud && state.user) {
-    saveDebtorState(state.user.uid, { theme: themeName }).catch(() => {});
+    saveDebtorState(state.user.uid, { theme: safeTheme }).catch(() => {});
   }
 }
 
@@ -63,21 +73,65 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) => {
   });
 });
 
-// 2. HIỆU ỨNG PARALLAX 3D CHO CÁC CỬA SỔ AI & ĐỒNG HỒ TELEMETRY
-const clusters = document.querySelectorAll(".holo-cluster");
-window.addEventListener("mousemove", (e) => {
-  if (!state.parallax || window.innerWidth <= 1120) return;
+// 2. TƯƠNG TÁC CHẠM MÀN HÌNH VR & GÓC NHÌN 3D
+window.addEventListener("pointermove", (e) => {
+  if (touchCursor) {
+    touchCursor.style.left = `${e.clientX}px`;
+    touchCursor.style.top = `${e.clientY}px`;
+    cursorCoords.textContent = `X:${String(Math.round(e.clientX)).padStart(3, "0")} Y:${String(Math.round(e.clientY)).padStart(3, "0")}`;
+  }
+  if (!state.parallax || window.innerWidth <= 1140) return;
   const nx = (e.clientX / window.innerWidth - 0.5) * 2;
   const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-  clusters.forEach((el) => {
-    const baseRotY = el.classList.contains("cluster-left") ? 10 : -10;
-    el.style.transform = `rotateY(${baseRotY + nx * 6}deg) rotateX(${-ny * 5}deg)`;
-  });
+  vrRig.style.transform = `rotateY(${nx * 5.5}deg) rotateX(${-ny * 4}deg)`;
 });
+
+window.addEventListener("pointerdown", (e) => {
+  vrBg.spawnTouchRipple(e.clientX, e.clientY);
+});
+
+// 3. OSCILLOSCOPE SÓNG AI & RADIO SCOPE
+const waveCanvas = document.getElementById("telemetry-wave");
+const waveCtx = waveCanvas ? waveCanvas.getContext("2d") : null;
+const rScope = document.getElementById("radio-scope");
+const rCtx = rScope ? rScope.getContext("2d") : null;
+let wavePhase = 0;
+
+function drawScopes() {
+  const styles = getComputedStyle(htmlEl);
+  const p = styles.getPropertyValue("--rgb-primary").trim() || "59, 184, 248";
+  const s = styles.getPropertyValue("--rgb-secondary").trim() || "247, 135, 248";
+  wavePhase += 0.09;
+
+  if (waveCtx) {
+    waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+    waveCtx.strokeStyle = `rgba(${p}, 0.9)`;
+    waveCtx.lineWidth = 1.6;
+    waveCtx.beginPath();
+    for (let x = 0; x < waveCanvas.width; x++) {
+      const y = 29 + Math.sin(x * 0.05 + wavePhase) * 12 + Math.cos(x * 0.13 - wavePhase * 1.4) * 7;
+      x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+    }
+    waveCtx.stroke();
+  }
+
+  if (rCtx) {
+    rCtx.clearRect(0, 0, rScope.width, rScope.height);
+    rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
+    for (let i = 0; i < 9; i++) {
+      const barH = radio.isPlaying
+        ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12
+        : 3;
+      rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
+    }
+  }
+  requestAnimationFrame(drawScopes);
+}
+drawScopes();
 
 setInterval(() => {
   const now = new Date();
-  document.getElementById("clock-utc").textContent = `SYS.TIME: ${now.toTimeString().slice(0, 8)}`;
+  document.getElementById("clock-utc").textContent = now.toTimeString().slice(0, 8);
   const hexEl = document.getElementById("hex-matrix");
   if (hexEl) {
     const bytes = Array.from({ length: 7 }, () =>
@@ -87,11 +141,10 @@ setInterval(() => {
   }
 }, 1000);
 
-// 3. RADIO
+// 4. RADIO CONTROLS
 radioTrackName.textContent = radio.currentTrackName;
 radioToggle.addEventListener("click", () => {
   const playing = radio.toggle();
-  radioWrap.classList.toggle("is-playing", playing);
   radioToggle.querySelector(".radio-icon").textContent = playing ? "❚❚" : "▶";
 });
 radioNext.addEventListener("click", () => {
@@ -99,7 +152,7 @@ radioNext.addEventListener("click", () => {
 });
 radioVol.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. GATE GIẢI MÃ & MỞ CỔNG
+// 5. CHỌN ĐIỆN & TƯƠNG TÁC NÚT TRÊN MÀN HÌNH ẢO
 function pushReceipt(text) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -108,39 +161,64 @@ function pushReceipt(text) {
 
 function updatePbUI() {
   const formatted = `${state.pb.toFixed(2)} PB`;
-  hudPbPreview.textContent = formatted;
+  document.getElementById("hud-pb-preview").textContent = formatted;
+  document.getElementById("hud-pb-side").textContent = state.pb.toFixed(2);
   const profilePb = document.getElementById("profile-pb");
   if (profilePb) profilePb.textContent = formatted;
 }
 
+document.querySelectorAll(".sector-key").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    document.querySelectorAll(".sector-key").forEach((b) => b.classList.remove("is-selected"));
+    btn.classList.add("is-selected");
+    state.selectedSector = btn.dataset.sector;
+    document.getElementById("hud-sector-side").textContent = state.selectedSector;
+    pushReceipt(`> Đã khóa tọa độ cổng: [${state.selectedSector}]`);
+  });
+});
+
+document.querySelectorAll(".holo-switch").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    const cmd = btn.dataset.cmd;
+    if (cmd === "PING_RADAR") {
+      pushReceipt(`【RADAR】: Phát hiện 4 luồng hào quang lậu tại ${state.selectedSector}.`);
+    } else if (cmd === "AUDIT_DEBT") {
+      pushReceipt(`【KIỂM TOÁN 00】: Số dư nợ hiện tại ${state.pb.toFixed(2)} PB (Lãi kỳ sau +10%).`);
+    }
+  });
+});
+
+// 6. CHẠM LÕI GATE ĐỂ QUÉT LASER & MỞ CỔNG
 portalGate.addEventListener("click", () => {
   if (state.isBreaching) return;
   state.isBreaching = true;
   if (state.sfx) radio.playClickChime();
 
-  gateActionText.textContent = "[ ĐANG GIẢI MÃ... ]";
+  gateTouchCore.classList.add("is-scanning");
+  gateActionText.textContent = "[ ĐANG QUÉT SINH TRẮC... ]";
   coreProgressBar.style.width = "100%";
-  pushReceipt("【Hệ Thống 00】: Đang xác thực chữ ký linh hồn qua 10 Điện...");
+  pushReceipt(`【Hệ Thống 00】: Đang mở khóa kênh truyền tống -> ${state.selectedSector}...`);
 
   setTimeout(() => {
     state.pb = Number((state.pb - 0.01).toFixed(2));
     localStorage.setItem("bao_ung_pb", String(state.pb));
     updatePbUI();
-    if (state.user) {
-      saveDebtorState(state.user.uid, { meritBalance: state.pb }).catch(() => {});
-    }
+    if (state.user) saveDebtorState(state.user.uid, { meritBalance: state.pb }).catch(() => {});
 
-    pushReceipt("【Biên lai 00】: -0.01 PB (Phí khởi chạy cổng AI-00).");
-    state.gateOpened = true;
-    state.isBreaching = false;
+    pushReceipt("【Biên lai 00】: -0.01 PB phí chạm màn hình hologram.");
+    gateTouchCore.classList.remove("is-scanning");
     coreProgressBar.style.width = "0%";
-    gateActionText.textContent = "[ ẤN VÀO CỔNG ]";
+    gateActionText.textContent = "[ CHẠM ĐỂ TRUY CẬP ]";
+    state.isBreaching = false;
+    state.gateOpened = true;
 
     gateSection.classList.add("hidden");
-    document.querySelector(".cluster-left").classList.add("hidden");
-    document.querySelector(".cluster-right").classList.add("hidden");
+    document.querySelector(".wing-left").classList.add("hidden");
+    document.querySelector(".wing-right").classList.add("hidden");
     unlockedConsole.classList.remove("hidden");
-  }, 520);
+  }, 560);
 });
 
 document.getElementById("btn-close-console").addEventListener("click", () => {
@@ -148,16 +226,16 @@ document.getElementById("btn-close-console").addEventListener("click", () => {
   state.gateOpened = false;
   unlockedConsole.classList.add("hidden");
   gateSection.classList.remove("hidden");
-  document.querySelector(".cluster-left").classList.remove("hidden");
-  document.querySelector(".cluster-right").classList.remove("hidden");
+  document.querySelector(".wing-left").classList.remove("hidden");
+  document.querySelector(".wing-right").classList.remove("hidden");
 });
 
 document.getElementById("btn-enter-hub").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  alert("Gate AI-00 đã mở! Khi sẵn sàng, mình sẽ tạo tiếp trang Hồ Sơ & Giao Diện Chơi Hệ Thống Báo Ứng nối vào nút này.");
+  alert(`Đã xác thực Gate tại [${state.selectedSector}]! Khi bạn chốt giao diện Gate này, mình sẽ code tiếp trang Hồ Sơ & Nhập Vai nối thẳng vào đây.`);
 });
 
-// 5. MODALS & SETTINGS
+// 7. MODALS & SETTING
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 
@@ -186,6 +264,7 @@ optScanlines.addEventListener("change", (e) => {
 optParallax.addEventListener("change", (e) => {
   state.parallax = e.target.checked;
   localStorage.setItem("bao_ung_parallax", String(state.parallax));
+  if (!state.parallax) vrRig.style.transform = "none";
 });
 optSfx.addEventListener("change", (e) => {
   state.sfx = e.target.checked;
@@ -199,7 +278,7 @@ document.getElementById("firebase-config-status").textContent = isFirebaseConfig
   ? "Firebase Realtime Database: Đã kết nối sẵn sàng."
   : "Firebase: Chưa cấu hình.";
 
-// 6. FIREBASE AUTH
+// 8. FIREBASE AUTH
 const authOut = document.getElementById("auth-logged-out");
 const authIn = document.getElementById("auth-logged-in");
 const authMsg = document.getElementById("auth-msg");
@@ -224,10 +303,10 @@ subscribeAuth(async (user) => {
       state.debtorCode = data.debtorCode || "#049";
       state.pb = typeof data.meritBalance === "number" ? data.meritBalance : state.pb;
       document.getElementById("profile-name").textContent = `Con nợ ${state.debtorCode}`;
-      if (data.theme) applyTheme(data.theme, false);
+      if (data.theme && VALID_THEMES.includes(data.theme)) applyTheme(data.theme, false);
       updatePbUI();
     }
-    pushReceipt(`【Hệ Thống 00】: Đã đồng bộ hồ sơ (${state.debtorCode}).`);
+    pushReceipt(`【Hệ Thống 00】: Đồng bộ Firebase thành công (${state.debtorCode}).`);
   } else {
     document.getElementById("user-dot").classList.remove("online");
     document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
