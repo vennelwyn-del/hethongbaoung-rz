@@ -1,4 +1,4 @@
-// js/hub.js — Kho Tệp Dữ Liệu 3D nổi, Phóng cửa sổ tệp, Ký thử/Chính thức & BXH 24h GMT+7
+// js/hub.js — Quỹ đạo 3D Nổi-Ẩn (Three.js + CSS Z-Depth) + Thanh trượt web tự nhiên
 
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
@@ -33,8 +33,7 @@ const state = {
   selectedSector: "Điện 1 — Khu Vọng Ngữ",
   username: getSavedSessionUsername(),
   lastDossierText: "",
-  rankItems: [],
-  rankIndex: 0
+  activeOrbitIdx: 0
 };
 
 const SECTORS = [
@@ -83,14 +82,13 @@ const ARCHETYPE_RANGES = {
 
 const htmlEl = document.documentElement;
 const bgImageLayer = document.getElementById("bg-image-layer");
-const vaultRack = document.getElementById("vault-rack");
-const popoutOverlay = document.getElementById("popout-overlay");
 const receiptFeed = document.getElementById("receipt-feed");
 const touchCursor = document.getElementById("touch-cursor");
 const cursorCoords = document.getElementById("cursor-coords");
+const terminalShell = document.getElementById("terminal-3d-shell");
 document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
-// 1. THEME + BG IMAGE
+// 1. THEME & BG IMAGE
 function updateBackgroundImage(themeName) {
   const cfg = SITE_CONFIG.backgroundImage;
   const imgUrl = (cfg.byTheme && cfg.byTheme[themeName]) || cfg.defaultUrl || "";
@@ -122,17 +120,18 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) =>
   })
 );
 
-// 2. CON TRỎ + NGHIÊNG KHO TỆP 3D THEO CHUỘT + SÓNG CHẠM
+// 2. ẢO GIÁC NGHIÊNG 3D THEO CHUỘT + CON TRỎ + SÓNG NỔ WEBGL
 window.addEventListener("pointermove", (e) => {
-  if (touchCursor) {
+  if (touchCursor && cursorCoords) {
     touchCursor.style.left = `${e.clientX}px`;
     touchCursor.style.top = `${e.clientY}px`;
     cursorCoords.textContent = `X:${String(Math.round(e.clientX)).padStart(3, "0")} Y:${String(Math.round(e.clientY)).padStart(3, "0")}`;
   }
-  if (!state.parallax || window.innerWidth <= 1120 || !popoutOverlay.classList.contains("hidden")) return;
-  const nx = (e.clientX / window.innerWidth - 0.5) * 2;
-  const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-  vaultRack.style.transform = `rotateY(${nx * 7}deg) rotateX(${-ny * 5}deg)`;
+  if (state.parallax && terminalShell && window.innerWidth > 900) {
+    const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+    terminalShell.style.transform = `rotateY(${nx * 2.4}deg) rotateX(${-ny * 1.8}deg)`;
+  }
 });
 window.addEventListener("pointerdown", (e) => vrBg.spawnTouchRipple(e.clientX, e.clientY));
 
@@ -169,7 +168,85 @@ document.getElementById("radio-next").addEventListener("click", () => {
 });
 document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. MỞ / THU TỆP DỮ LIỆU 3D
+// 4. VÒNG QUỸ ĐẠO 3D NỔI ẨN (ORBITAL HOLO-CAROUSEL)
+const slabs = Array.from(document.querySelectorAll(".holo-slab"));
+const totalSlabs = slabs.length;
+
+function layoutOrbit() {
+  const radiusX = window.innerWidth < 780 ? 185 : 320;
+  const radiusZ = window.innerWidth < 780 ? 150 : 240;
+
+  slabs.forEach((slab, idx) => {
+    let diff = idx - state.activeOrbitIdx;
+    if (diff > totalSlabs / 2) diff -= totalSlabs;
+    if (diff < -totalSlabs / 2) diff += totalSlabs;
+
+    const angle = diff * (Math.PI * 2 / totalSlabs);
+    const tx = Math.sin(angle) * radiusX;
+    const tz = (Math.cos(angle) - 1) * radiusZ; // Tệp trước = 0, tệp sau chìm sâu âm Z
+    const rotY = -diff * 34;
+    const absD = Math.abs(diff);
+
+    const opacity = absD === 0 ? 1 : absD === 1 ? 0.62 : 0.25;
+    const blur = absD === 0 ? 0 : absD === 1 ? 0.8 : 2.4;
+    const scale = absD === 0 ? 1.05 : absD === 1 ? 0.84 : 0.68;
+
+    slab.style.transform = `translate3d(${tx}px, 0px, ${tz}px) rotateY(${rotY}deg) scale(${scale})`;
+    slab.style.opacity = String(opacity);
+    slab.style.filter = blur ? `blur(${blur}px)` : "none";
+    slab.style.zIndex = String(10 - absD * 3);
+    slab.classList.toggle("is-front", diff === 0);
+  });
+}
+
+function selectTab(tabId, scrollToTerminal = false) {
+  document.querySelectorAll(".win-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tabId));
+  document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
+
+  const targetSlabIdx = slabs.findIndex((s) => s.dataset.tab === tabId);
+  if (targetSlabIdx !== -1) {
+    state.activeOrbitIdx = targetSlabIdx;
+    layoutOrbit();
+  }
+  if (tabId === "tab-ranking") loadAndRenderLeaderboard();
+  if (scrollToTerminal) {
+    document.getElementById("projected-terminal").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+slabs.forEach((slab, idx) => {
+  slab.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    const wasFront = idx === state.activeOrbitIdx;
+    state.activeOrbitIdx = idx;
+    layoutOrbit();
+    selectTab(slab.dataset.tab, wasFront); // Chạm 1 lần để kéo ra trước, chạm tiếp (hoặc tệp trước) cuộn xuống chi tiết
+  });
+});
+
+document.querySelectorAll(".win-tab").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    selectTab(btn.dataset.tab, false);
+  })
+);
+
+document.getElementById("btn-orbit-prev").addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  state.activeOrbitIdx = (state.activeOrbitIdx - 1 + totalSlabs) % totalSlabs;
+  selectTab(slabs[state.activeOrbitIdx].dataset.tab, false);
+});
+
+document.getElementById("btn-orbit-next").addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  state.activeOrbitIdx = (state.activeOrbitIdx + 1) % totalSlabs;
+  selectTab(slabs[state.activeOrbitIdx].dataset.tab, false);
+});
+
+window.addEventListener("resize", layoutOrbit);
+layoutOrbit();
+
+// 5. RECEIPT & STATS
 function pushReceipt(text) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -187,36 +264,7 @@ function updateStatsUI() {
   if (profilePb) profilePb.textContent = pbText;
 }
 
-function openFileWindow(tabId) {
-  if (state.sfx) radio.playClickChime();
-  vaultRack.classList.add("is-dimmed");
-  popoutOverlay.classList.remove("hidden");
-
-  document.querySelectorAll(".win-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tabId));
-  document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
-
-  if (tabId === "tab-ranking") loadAndRenderLeaderboard();
-}
-
-function closeFileWindow() {
-  if (state.sfx) radio.playClickChime();
-  popoutOverlay.classList.add("hidden");
-  vaultRack.classList.remove("is-dimmed");
-}
-
-document.querySelectorAll("[data-open-file]").forEach((folderBtn) => {
-  folderBtn.addEventListener("click", () => openFileWindow(folderBtn.dataset.openFile));
-});
-document.querySelectorAll(".win-tab").forEach((tabBtn) => {
-  tabBtn.addEventListener("click", () => openFileWindow(tabBtn.dataset.tab));
-});
-document.getElementById("btn-close-file").addEventListener("click", closeFileWindow);
-popoutOverlay.addEventListener("click", (e) => {
-  if (e.target === popoutOverlay) closeFileWindow();
-});
-document.getElementById("btn-goto-rank").addEventListener("click", () => openFileWindow("tab-ranking"));
-
-// 5. HỢP ĐỒNG: CHỖ 1 (KÝ THỬ SỬA ĐƯỢC) vs CHỖ 2 (KÝ CHÍNH THỨC KHÓA CỨNG)
+// 6. HỢP ĐỒNG: 2 CHỖ KÝ
 function buildAuditBundle() {
   const name = document.getElementById("f-name").value.trim() || "Ký chủ vô danh";
   const age = document.getElementById("f-age").value || 24;
@@ -239,13 +287,7 @@ function buildAuditBundle() {
     : sectorChoice;
   const code = `#${Math.floor(100 + Math.random() * 899)}`;
 
-  return {
-    code,
-    finalPB,
-    pickedSector,
-    profileData: { name, age, gender, orient, arch, sector: pickedSector, skill, sin, quote },
-    fees: { fee1, fee2, fee3 }
-  };
+  return { code, finalPB, pickedSector, profileData: { name, age, gender, orient, arch, sector: pickedSector, skill, sin, quote }, fees: { fee1, fee2, fee3 } };
 }
 
 function renderAuditReceipt(bundle, isOfficial) {
@@ -282,26 +324,10 @@ function lockContractFormUI(profileObj) {
     document.getElementById("f-sin").value = lp.sin || "";
     document.getElementById("f-quote").value = lp.quote || "";
   }
-
   const locked = Boolean(profileObj.contractLocked);
   form.querySelectorAll("input, select, button").forEach((el) => { el.disabled = locked; });
   document.getElementById("contract-lock-banner").classList.toggle("hidden", !locked);
   document.getElementById("contract-status-badge").textContent = locked ? "ĐÃ NIÊM PHONG (1/1)" : "CHƯA KÝ CHÍNH THỨC";
-
-  if (locked && profileObj.lastProfile) {
-    const lp = profileObj.lastProfile;
-    const sealedText = [
-      `⚖️ 【HỢP ĐỒNG CHÍNH THỨC ĐÃ NIÊM PHONG — ${profileObj.debtorCode}】`,
-      `▸ Ký chủ: ${lp.name} (${lp.age}t | ${lp.gender} | ${lp.orient})`,
-      `▸ Điện tiếp nhận: ${lp.sector}`,
-      `▸ Kỹ năng: ${lp.skill} | Nghiệp cũ: ${lp.sin}`,
-      `▸ Số dư Phước Báu đã đồng bộ: ${Number(profileObj.meritBalance).toFixed(2)} PB`,
-      `▸ Câu thoại: "${lp.quote}"`
-    ].join("\n");
-    state.lastDossierText = sealedText;
-    document.getElementById("audit-receipt-box").textContent = sealedText;
-    document.getElementById("audit-result").classList.remove("hidden");
-  }
 }
 
 document.getElementById("btn-sign-draft").addEventListener("click", () => {
@@ -316,7 +342,6 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
   e.preventDefault();
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
-
   if (!state.username) {
     pushReceipt("【CẢNH BÁO】: Hãy đăng nhập / tạo tài khoản trước khi Ký Chính Thức.");
     openModal("modal-auth");
@@ -344,8 +369,9 @@ document.getElementById("btn-copy-dossier").addEventListener("click", () => {
   navigator.clipboard?.writeText(state.lastDossierText);
   pushReceipt("> Đã copy hồ sơ vào Clipboard.");
 });
+document.getElementById("btn-goto-rank").addEventListener("click", () => selectTab("tab-ranking", true));
 
-// 6. BẢNG XẾP HẠNG 24H GMT+7 (BLOCK + NÚT TRƯỢT LÊN/XUỐNG)
+// 7. BẢNG XẾP HẠNG 24H GMT+7 (CUỘN BẰNG THANH TRƯỢT WEB TỰ NHIÊN)
 function getGMT7Info() {
   const gmt7Ms = Date.now() + 7 * 3600 * 1000;
   const d = new Date(gmt7Ms);
@@ -378,66 +404,32 @@ async function loadAndRenderLeaderboard() {
   try {
     const users = await fetchLeaderboardUsers();
     users.sort((a, b) => hashSeed(`${dateKey}:${a.username}`) - hashSeed(`${dateKey}:${b.username}`));
-    state.rankItems = users;
-    state.rankIndex = 0;
     document.getElementById("rank-total-count").textContent = String(users.length);
-    renderRankBlocks();
+    if (!users.length) {
+      track.innerHTML = `<p class="muted" style="padding:14px;">Chưa có tài khoản nào ký Hợp đồng chính thức để lên bảng.</p>`;
+      return;
+    }
+    track.innerHTML = "";
+    users.forEach((u, idx) => {
+      const tag = DAILY_TAGS[hashSeed(`${dateKey}:tag:${u.username}`) % DAILY_TAGS.length];
+      const block = document.createElement("div");
+      block.className = `rank-block ${u.username === state.username ? "is-me" : ""}`;
+      block.innerHTML = `
+        <div class="rank-num">#${String(idx + 1).padStart(2, "0")}</div>
+        <img class="rank-avt" src="${u.avatarUrl || DEFAULT_AVATAR}" alt="Avatar" />
+        <div class="rank-info">
+          <strong>${u.displayName} (${u.debtorCode})</strong>
+          <small>@${u.username} • ${u.sector}</small>
+        </div>
+        <div class="rank-pb">${u.meritBalance.toFixed(2)} PB<small>${tag}</small></div>
+      `;
+      track.appendChild(block);
+    });
   } catch (err) {
     track.innerHTML = `<p class="muted" style="padding:12px;">Lỗi đồng bộ: ${err.message}</p>`;
   }
 }
 
-function renderRankBlocks() {
-  const track = document.getElementById("rank-track");
-  const { dateKey } = getGMT7Info();
-  if (!state.rankItems.length) {
-    track.innerHTML = `<p class="muted" style="padding:16px;">Chưa có tài khoản nào ký Hợp đồng chính thức để lên bảng.</p>`;
-    document.getElementById("rank-page-info").textContent = "BLOCK 0 / 0";
-    return;
-  }
-
-  track.innerHTML = "";
-  state.rankItems.forEach((u, idx) => {
-    const tag = DAILY_TAGS[hashSeed(`${dateKey}:tag:${u.username}`) % DAILY_TAGS.length];
-    const block = document.createElement("div");
-    block.className = `rank-block ${u.username === state.username ? "is-me" : ""}`;
-    block.innerHTML = `
-      <div class="rank-num">#${String(idx + 1).padStart(2, "0")}</div>
-      <img class="rank-avt" src="${u.avatarUrl || DEFAULT_AVATAR}" alt="Avatar" />
-      <div class="rank-info">
-        <strong>${u.displayName} (${u.debtorCode})</strong>
-        <small>@${u.username} • ${u.sector}</small>
-      </div>
-      <div class="rank-pb">
-        ${u.meritBalance.toFixed(2)} PB
-        <small>${tag}</small>
-      </div>
-    `;
-    track.appendChild(block);
-  });
-  applyRankSlide();
-}
-
-function applyRankSlide() {
-  const track = document.getElementById("rank-track");
-  const total = state.rankItems.length;
-  const maxIdx = Math.max(0, total - 4);
-  state.rankIndex = Math.max(0, Math.min(state.rankIndex, maxIdx));
-  track.style.transform = `translateY(-${state.rankIndex * 90}px)`;
-  document.getElementById("rank-page-info").textContent =
-    total ? `BLOCK ${state.rankIndex + 1}–${Math.min(state.rankIndex + 4, total)} / ${total}` : "BLOCK 0 / 0";
-}
-
-document.getElementById("btn-rank-up").addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  state.rankIndex -= 1;
-  applyRankSlide();
-});
-document.getElementById("btn-rank-down").addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  state.rankIndex += 1;
-  applyRankSlide();
-});
 document.getElementById("btn-refresh-rank").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   loadAndRenderLeaderboard();
@@ -449,16 +441,12 @@ setInterval(() => {
   const cdEl = document.getElementById("rank-countdown");
   const dtEl = document.getElementById("rank-date-gmt7");
   if (cdEl) cdEl.textContent = countdown;
-  if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) {
-    loadAndRenderLeaderboard();
-  }
-  const bytes = Array.from({ length: 3 }, () =>
-    Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0")
-  );
+  if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) loadAndRenderLeaderboard();
+  const bytes = Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0"));
   document.getElementById("hex-matrix").textContent = `0x${bytes.join(" ")}`;
 }, 1000);
 
-// 7. THẬP ĐIỆN, CHỢ ĐEN & DIỄN ĐÀN
+// 8. THẬP ĐIỆN, CHỢ ĐEN & DIỄN ĐÀN
 const sectorsGrid = document.getElementById("sectors-grid");
 let previewSector = SECTORS[0];
 function renderSectors() {
@@ -540,7 +528,7 @@ for (const ent of BUREAU_ENTITIES) {
   entitiesGrid.appendChild(card);
 }
 
-// 8. MODAL TÀI KHOẢN & ĐỔI AVATAR
+// 9. MODAL TÀI KHOẢN & ĐỔI AVATAR
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) =>
@@ -604,8 +592,7 @@ function compressImageToDataUrl(file) {
       img.onerror = () => reject(new Error("File không phải ảnh hợp lệ."));
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = 128; canvas.height = 128;
         const ctx = canvas.getContext("2d");
         const minSide = Math.min(img.width, img.height);
         ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, 128, 128);
@@ -621,8 +608,7 @@ document.getElementById("btn-save-avatar-url").addEventListener("click", async (
   if (!state.username) return;
   const url = document.getElementById("avatar-url-input").value.trim();
   await saveDebtorState(state.username, { avatarUrl: url });
-  const updated = await fetchDebtorByUsername(state.username);
-  applyProfileUI(updated);
+  applyProfileUI(await fetchDebtorByUsername(state.username));
   document.getElementById("auth-sync-msg").textContent = "Đã lưu Avatar lên Firebase.";
 });
 
@@ -632,8 +618,7 @@ document.getElementById("avatar-file-input").addEventListener("change", async (e
   try {
     const dataUrl = await compressImageToDataUrl(file);
     await saveDebtorState(state.username, { avatarUrl: dataUrl });
-    const updated = await fetchDebtorByUsername(state.username);
-    applyProfileUI(updated);
+    applyProfileUI(await fetchDebtorByUsername(state.username));
     document.getElementById("auth-sync-msg").textContent = "Đã tải Avatar lên Firebase.";
   } catch (err) {
     document.getElementById("auth-sync-msg").textContent = err.message;

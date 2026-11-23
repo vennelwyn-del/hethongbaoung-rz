@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HỆ THỐNG BÁO ỨNG // KHO TỆP DỮ LIỆU 3D</title>
+  <title>HỆ THỐNG BÁO ỨNG // KHO TỆP QUỸ ĐẠO 3D</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -14,7 +14,6 @@
 <body class="hub-body">
   <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
   <canvas id="vr-canvas" aria-hidden="true"></canvas>
-  <div class="vr-floor-grid" aria-hidden="true"></div>
   <div class="vr-vignette" aria-hidden="true"></div>
   <div class="scanlines" id="scanlines-layer" aria-hidden="true"></div>
 
@@ -28,13 +27,13 @@
       <a href="./index.html" class="home-brand holo-tactile" title="Về Trang Chủ Báo Ứng (Gate)">
         <span class="brand-glyph">⚖️</span>
         <span class="brand-text">
-          <strong>BÁO ỨNG // VR-00</strong>
+          <strong>BÁO ỨNG // 3000</strong>
           <small>← VỀ TRANG CHỦ BÁO ỨNG</small>
         </span>
       </a>
       <div class="hud-chip">
         <span class="chip-dot"></span>
-        <span>KHO TỆP DỮ LIỆU 3D</span>
+        <span>HOLO.ARCHIVE // Z-AXIS</span>
       </div>
     </div>
 
@@ -66,110 +65,113 @@
     </div>
   </header>
 
-  <!-- KHÔNG GIAN KHO TỆP 3D -->
-  <main class="vault-stage" id="vault-stage">
-    <!-- THANH TRẠNG THÁI GÓC TRÊN PHẢI NỔI 3D -->
-    <div class="floating-telemetry top-right-hud">
-      <div><small>PHƯỚC BÁU:</small> <strong id="hud-pb-side">CHƯA KÝ HỢP ĐỒNG</strong></div>
-      <div><small>MÃ:</small> <strong id="hud-code-side">CHƯA CẤP</strong></div>
-      <div><small>ĐIỆN:</small> <strong id="hud-sector-badge">Đ1 Vọng Ngữ</strong></div>
-    </div>
+  <main class="hub-universe">
+    <!-- THANH TRẠNG THÁI ẢO GIÁC NỔI -->
+    <section class="holo-status-ribbon">
+      <div class="ribbon-item"><small>SỐ DƯ PHƯỚC BÁU</small><strong id="hud-pb-side">CHƯA KÝ HỢP ĐỒNG</strong></div>
+      <div class="ribbon-item"><small>MÃ CON NỢ</small><strong id="hud-code-side">CHƯA CẤP</strong></div>
+      <div class="ribbon-item"><small>ĐIỆN ĐÃ KHÓA</small><strong id="hud-sector-badge">Đ1 Vọng Ngữ</strong></div>
+      <div class="ribbon-item"><small>ĐỒNG HỒ GMT+7</small><strong id="clock-utc">00:00:00</strong></div>
+    </section>
 
-    <!-- XẤP THƯ MỤC TỆP DỮ LIỆU 3D LƠ LỬNG -->
-    <section class="vault-rack" id="vault-rack">
-      <div class="vault-title-strip">
-        <span>ARCHIVE.VAULT // CHẠM VÀO TỆP ĐỂ PHÓNG MÀN HÌNH 3D</span>
-        <span id="clock-utc">00:00:00 +7</span>
+    <!-- KHU VỰC 1: VÒNG QUỸ ĐẠO 3D NỔI ẨN (ORBITAL HOLO-CAROUSEL) -->
+    <section class="orbital-stage" id="orbital-stage">
+      <div class="orbital-controls">
+        <button class="holo-switch holo-tactile" id="btn-orbit-prev" type="button">◀ XOAY TRÁI</button>
+        <span class="orbit-hint" id="orbit-hint">QUỸ ĐẠO TỆP 3D // CHẠM TỆP ĐỂ XOAY HOẶC MỞ CHI TIẾT</span>
+        <button class="holo-switch holo-tactile" id="btn-orbit-next" type="button">XOAY PHẢI ▶</button>
       </div>
 
-      <div class="folder-deck" id="folder-deck">
-        <button class="folder-3d holo-tactile" data-open-file="tab-profile" style="--i:-2;" type="button">
-          <span class="folder-ear">📁 FILE_01 // KÝ HỢP ĐỒNG</span>
-          <div class="folder-body">
-            <span class="f-code">DOC-01</span>
-            <strong>HỒ SƠ CON NỢ &amp; RANDOM PB</strong>
-            <p>2 chế độ ký: Bản nháp sửa lại được &amp; Hợp đồng chính thức khóa 1 lần.</p>
-            <span class="f-action">[ CHẠM ĐỂ MỞ TỆP ↗ ]</span>
-          </div>
-        </button>
+      <!-- Sân khấu 3D có Đế chiếu Hologram & 5 Tệp xoay quanh trục Z -->
+      <div class="holo-carousel-wrap" id="holo-carousel-wrap">
+        <div class="holo-emitter-cone" aria-hidden="true"></div>
+        <div class="holo-emitter-disc" aria-hidden="true"></div>
 
-        <button class="folder-3d holo-tactile" data-open-file="tab-ranking" style="--i:-1;" type="button">
-          <span class="folder-ear">📁 FILE_02 // BẢNG XẾP HẠNG</span>
-          <div class="folder-body">
-            <span class="f-code">DOC-02</span>
-            <strong>XẾP HẠNG USER (24H GMT+7)</strong>
-            <p>Khối block đồng bộ Firebase, đảo ngẫu nhiên mỗi 00:00 GMT+7, trượt bằng nút.</p>
-            <span class="f-action">[ CHẠM ĐỂ MỞ TỆP ↗ ]</span>
+        <div class="holo-ring" id="holo-ring">
+          <!-- TỆP 0 -->
+          <div class="holo-slab" data-slot="0" data-tab="tab-profile">
+            <div class="slab-depth-back"></div>
+            <div class="slab-face">
+              <div class="slab-ear">FILE_01 // HỢP ĐỒNG</div>
+              <span class="slab-code">VOLUMETRIC.DOC-01</span>
+              <h3>HỒ SƠ &amp; RANDOM PB</h3>
+              <p>Ký nháp sửa tự do hoặc Ký chính thức khóa vĩnh viễn để cấp Phước Báu.</p>
+              <span class="slab-cta">[ CHẠM ĐỂ TRÍCH XUẤT 3D ↗ ]</span>
+            </div>
           </div>
-        </button>
 
-        <button class="folder-3d holo-tactile is-center" data-open-file="tab-sectors" style="--i:0;" type="button">
-          <span class="folder-ear">📁 FILE_03 // THẬP ĐIỆN</span>
-          <div class="folder-body">
-            <span class="f-code">DOC-03</span>
-            <strong>BẢN ĐỒ 10 ĐIỆN BÁO ỨNG</strong>
-            <p>10 Khu Vọng Ngữ, Tham Lam, Ái Dục, Ngạo Mạn, Vô Gian &amp; Random Trọng Án.</p>
-            <span class="f-action">[ CHẠM ĐỂ MỞ TỆP ↗ ]</span>
+          <!-- TỆP 1 -->
+          <div class="holo-slab" data-slot="1" data-tab="tab-ranking">
+            <div class="slab-depth-back"></div>
+            <div class="slab-face">
+              <div class="slab-ear">FILE_02 // XẾP HẠNG</div>
+              <span class="slab-code">SYNC.RANK-24H</span>
+              <h3>BẢNG XẾP HẠNG GMT+7</h3>
+              <p>Đồng bộ user đã ký lên mạng, đảo thứ hạng ngẫu nhiên mỗi 24h theo GMT+7.</p>
+              <span class="slab-cta">[ CHẠM ĐỂ TRÍCH XUẤT 3D ↗ ]</span>
+            </div>
           </div>
-        </button>
 
-        <button class="folder-3d holo-tactile" data-open-file="tab-market" style="--i:1;" type="button">
-          <span class="folder-ear">📁 FILE_04 // CHỢ ĐEN</span>
-          <div class="folder-body">
-            <span class="f-code">DOC-04</span>
-            <strong>HỆ THỐNG 00 vs LỤC NHA</strong>
-            <p>Vay nặng lãi PB, thuốc cầm cự sinh lý &amp; đồ nghề điều tra thực tế.</p>
-            <span class="f-action">[ CHẠM ĐỂ MỞ TỆP ↗ ]</span>
+          <!-- TỆP 2 -->
+          <div class="holo-slab" data-slot="2" data-tab="tab-sectors">
+            <div class="slab-depth-back"></div>
+            <div class="slab-face">
+              <div class="slab-ear">FILE_03 // THẬP ĐIỆN</div>
+              <span class="slab-code">SECTOR.MAP-10</span>
+              <h3>BẢN ĐỒ 10 KHU VỰC</h3>
+              <p>Vọng Ngữ, Tham Lam, Ái Dục, Ngạo Mạn, Vô Gian &amp; Random Trọng Án.</p>
+              <span class="slab-cta">[ CHẠM ĐỂ TRÍCH XUẤT 3D ↗ ]</span>
+            </div>
           </div>
-        </button>
 
-        <button class="folder-3d holo-tactile" data-open-file="tab-forum" style="--i:2;" type="button">
-          <span class="folder-ear">📁 FILE_05 // BÁO ỨNG NET</span>
-          <div class="folder-body">
-            <span class="f-code">DOC-05</span>
-            <strong>DIỄN ĐÀN &amp; NHÂN SỰ CỤC</strong>
-            <p>Tin nội bộ Con nợ, Tạ Vô Cữu, Ngu Hồng Diệp, Tiểu Thất &amp; hồ sơ Sd.</p>
-            <span class="f-action">[ CHẠM ĐỂ MỞ TỆP ↗ ]</span>
+          <!-- TỆP 3 -->
+          <div class="holo-slab" data-slot="3" data-tab="tab-market">
+            <div class="slab-depth-back"></div>
+            <div class="slab-face">
+              <div class="slab-ear">FILE_04 // CHỢ ĐEN</div>
+              <span class="slab-code">BLACK.MARKET-LN</span>
+              <h3>HỆ THỐNG 00 vs LỤC NHA</h3>
+              <p>Giao dịch vay PB, thuốc cầm cự sinh lý &amp; thiết bị điều tra thực tế.</p>
+              <span class="slab-cta">[ CHẠM ĐỂ TRÍCH XUẤT 3D ↗ ]</span>
+            </div>
           </div>
-        </button>
+
+          <!-- TỆP 4 -->
+          <div class="holo-slab" data-slot="4" data-tab="tab-forum">
+            <div class="slab-depth-back"></div>
+            <div class="slab-face">
+              <div class="slab-ear">FILE_05 // INTRANET</div>
+              <span class="slab-code">BAOUNG.NET-v4</span>
+              <h3>BÁO ỨNG NET &amp; CỤC</h3>
+              <p>Diễn đàn nội bộ Con nợ và hồ sơ Tạ Vô Cữu, Lục Nha, Ngu Hồng Diệp, Sd.</p>
+              <span class="slab-cta">[ CHẠM ĐỂ TRÍCH XUẤT 3D ↗ ]</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- LOG BIÊN LAI MINI NỔI GÓC DƯỚI PHẢI -->
-    <aside class="floating-receipt-mini" id="floating-receipt-mini">
-      <div class="pane-bar">
-        <span>RECEIPT.LOG</span>
-        <span class="hex-mini" id="hex-matrix">0x3F 13 6D</span>
-      </div>
-      <div class="mini-log-list" id="receipt-feed">
-        <p class="muted">&gt; Kho tệp 3D sẵn sàng. Chọn 1 thư mục để mở.</p>
-      </div>
-    </aside>
+    <!-- KHU VỰC 2: MÀN HÌNH CHI TIẾT PHÓNG NỔI 3D (DÙNG THANH TRƯỢT WEB BÌNH THƯỜNG) -->
+    <section class="projected-terminal" id="projected-terminal">
+      <div class="terminal-3d-shell" id="terminal-3d-shell">
+        <div class="shell-back-grid" aria-hidden="true"></div>
+        <div class="shell-chromatic" aria-hidden="true"></div>
 
-    <!-- =========================================================
-         CỬA SỔ MÀN HÌNH 3D BUNG RA KHI CHỌN 1 TỆP
-         ========================================================= -->
-    <section class="popout-overlay hidden" id="popout-overlay">
-      <div class="popout-window" id="popout-window">
-        <i class="bracket tl"></i><i class="bracket tr"></i>
-        <i class="bracket bl"></i><i class="bracket br"></i>
-
-        <!-- HÀNG TAI THƯ MỤC ĐỂ NHẢY TỆP NGAY LẬP TỨC -->
+        <!-- Thanh chuyển tệp nổi phía trên -->
         <div class="window-folder-tabs">
-          <div class="folder-tab-strip" id="folder-tab-strip">
-            <button class="win-tab holo-tactile" data-tab="tab-profile" type="button">📁 01.HỢP ĐỒNG</button>
+          <div class="folder-tab-strip">
+            <button class="win-tab holo-tactile is-active" data-tab="tab-profile" type="button">📁 01.HỢP ĐỒNG</button>
             <button class="win-tab holo-tactile" data-tab="tab-ranking" type="button">📁 02.BXH 24H</button>
             <button class="win-tab holo-tactile" data-tab="tab-sectors" type="button">📁 03.THẬP ĐIỆN</button>
             <button class="win-tab holo-tactile" data-tab="tab-market" type="button">📁 04.CHỢ ĐEN</button>
             <button class="win-tab holo-tactile" data-tab="tab-forum" type="button">📁 05.BÁO ỨNG NET</button>
           </div>
-          <button class="btn-close-file holo-tactile" id="btn-close-file" type="button">✕ THU TỆP VÀO KHO</button>
+          <span class="hex-mini" id="hex-matrix">0x3F 13 6D</span>
         </div>
 
-        <!-- NỘI DUNG TỆP ĐƯỢC CHỌN -->
-        <div class="window-content-scroll">
-          <!-- TỆP 1: HỒ SƠ & 2 CHỖ KÝ -->
-          <div class="hub-panel hidden" id="tab-profile">
+        <div class="shell-inner-body">
+          <!-- TỆP 1 -->
+          <div class="hub-panel" id="tab-profile">
             <div class="pane-bar">
               <span>FILE_01 // HỒ SƠ HỢP ĐỒNG LAO ĐỘNG — CỤC BÁO ỨNG</span>
               <span class="tag-live" id="contract-status-badge">CHƯA KÝ CHÍNH THỨC</span>
@@ -180,26 +182,12 @@
             </div>
 
             <form id="contract-form" class="contract-grid">
-              <label class="field">
-                <span>Họ và tên Ký chủ</span>
-                <input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required />
-              </label>
-              <label class="field">
-                <span>Tuổi</span>
-                <input type="number" id="f-age" min="18" max="99" value="24" required />
-              </label>
-              <label class="field">
-                <span>Giới tính &amp; Xưng hô</span>
-                <input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required />
-              </label>
+              <label class="field"><span>Họ và tên Ký chủ</span><input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required /></label>
+              <label class="field"><span>Tuổi</span><input type="number" id="f-age" min="18" max="99" value="24" required /></label>
+              <label class="field"><span>Giới tính &amp; Xưng hô</span><input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required /></label>
               <label class="field">
                 <span>Xu hướng tính dục</span>
-                <select id="f-orient">
-                  <option value="Tự do">Tự do</option>
-                  <option value="Thẳng">Thẳng</option>
-                  <option value="Đồng tính">Đồng tính</option>
-                  <option value="Song tính">Song tính</option>
-                </select>
+                <select id="f-orient"><option value="Tự do">Tự do</option><option value="Thẳng">Thẳng</option><option value="Đồng tính">Đồng tính</option><option value="Song tính">Song tính</option></select>
               </label>
 
               <label class="field span-2">
@@ -230,33 +218,18 @@
                 </select>
               </label>
 
-              <label class="field">
-                <span>Kỹ năng sinh tồn thực tế</span>
-                <input type="text" id="f-skill" placeholder="vd: Kiểm toán, luật, diễn xuất..." required />
-              </label>
-
-              <label class="field span-2">
-                <span>Thói xấu / Nghiệp chướng kiếp trước</span>
-                <input type="text" id="f-sin" placeholder="vd: Thức đêm, khẩu nghiệp chửi sếp..." required />
-              </label>
-
-              <label class="field span-2">
-                <span>Câu thoại cửa miệng</span>
-                <input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." />
-              </label>
+              <label class="field"><span>Kỹ năng sinh tồn thực tế</span><input type="text" id="f-skill" placeholder="vd: Kiểm toán, luật, diễn xuất..." required /></label>
+              <label class="field span-2"><span>Thói xấu / Nghiệp chướng kiếp trước</span><input type="text" id="f-sin" placeholder="vd: Thức đêm, khẩu nghiệp chửi sếp..." required /></label>
+              <label class="field span-2"><span>Câu thoại cửa miệng</span><input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." /></label>
 
               <div class="span-2 dual-sign-box">
                 <div class="sign-slot">
                   <small>CHỖ 1 // BẢN NHÁP RANDOM (Sửa thoải mái)</small>
-                  <button class="btn-secondary holo-tactile" id="btn-sign-draft" type="button">
-                    🎲 KÝ THỬ &amp; RANDOM NỢ (SỬA ĐƯỢC)
-                  </button>
+                  <button class="btn-secondary holo-tactile" id="btn-sign-draft" type="button">🎲 KÝ THỬ &amp; RANDOM NỢ (SỬA ĐƯỢC)</button>
                 </div>
                 <div class="sign-slot">
                   <small>CHỖ 2 // CHÍNH THỨC (Chỉ 1 lần / Khóa vĩnh viễn)</small>
-                  <button class="btn-primary holo-tactile" id="btn-sign-official" type="submit">
-                    ⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC
-                  </button>
+                  <button class="btn-primary holo-tactile" id="btn-sign-official" type="submit">⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC</button>
                 </div>
               </div>
             </form>
@@ -265,36 +238,26 @@
               <div class="audit-receipt" id="audit-receipt-box"></div>
               <div class="form-actions" style="margin-top: 10px;">
                 <button class="btn-secondary holo-tactile" id="btn-copy-dossier" type="button">SAO CHÉP HỒ SƠ</button>
-                <button class="btn-primary holo-tactile" id="btn-goto-rank" type="button">MỞ TỆP XẾP HẠNG 24H →</button>
+                <button class="btn-primary holo-tactile" id="btn-goto-rank" type="button">XEM BẢNG XẾP HẠNG 24H →</button>
               </div>
             </div>
           </div>
 
-          <!-- TỆP 2: BẢNG XẾP HẠNG USER 24H GMT+7 (DẠNG BLOCK TRƯỢT BẰNG NÚT) -->
+          <!-- TỆP 2: BẢNG XẾP HẠNG (MỞ THANH TRƯỢT WEB TỰ DO, KHÔNG KHÓA BLOCK) -->
           <div class="hub-panel hidden" id="tab-ranking">
             <div class="pane-bar">
               <span>FILE_02 // BẢNG XẾP HẠNG CON NỢ — CHU KỲ 24H (GMT+7)</span>
               <button class="btn-secondary holo-tactile mini-btn" id="btn-refresh-rank" type="button">↻ ĐỒNG BỘ FIREBASE</button>
             </div>
-
             <div class="rank-meta-bar">
               <span>CHU KỲ (GMT+7): <strong id="rank-date-gmt7">----/--/--</strong></span>
               <span>ĐẢO HẠNG SAU: <strong id="rank-countdown">00:00:00</strong></span>
               <span>TỔNG USER ĐÃ KÝ: <strong id="rank-total-count">0</strong></span>
             </div>
-
-            <div class="rank-slide-controls">
-              <button class="holo-switch holo-tactile" id="btn-rank-up" type="button">▲ TRƯỢT LÊN</button>
-              <span class="rank-page-info" id="rank-page-info">BLOCK 0 / 0</span>
-              <button class="holo-switch holo-tactile" id="btn-rank-down" type="button">▼ TRƯỢT XUỐNG</button>
-            </div>
-
-            <div class="rank-viewport" id="rank-viewport">
-              <div class="rank-track" id="rank-track"></div>
-            </div>
+            <div class="rank-scroll-list" id="rank-track"></div>
           </div>
 
-          <!-- TỆP 3: BẢN ĐỒ THẬP ĐIỆN -->
+          <!-- TỆP 3: THẬP ĐIỆN -->
           <div class="hub-panel hidden" id="tab-sectors">
             <div class="pane-bar">
               <span>FILE_03 // BẢN ĐỒ THẬP ĐIỆN BÁO ỨNG — 10 KHU VỰC</span>
@@ -318,7 +281,7 @@
             <div class="market-list" id="market-list"></div>
           </div>
 
-          <!-- TỆP 5: BÁO ỨNG NET & CỤC -->
+          <!-- TỆP 5: BÁO ỨNG NET -->
           <div class="hub-panel hidden" id="tab-forum">
             <div class="pane-bar">
               <span>FILE_05 // BÁO ỨNG NET v4.0 — MẠNG NỘI BỘ CON NỢ</span>
@@ -327,6 +290,12 @@
             <div class="forum-feed" id="forum-feed"></div>
             <div class="pane-bar" style="margin-top: 16px;"><span>HỒ SƠ NHÂN SỰ CỤC</span><span class="tag-live">CLASSIFIED</span></div>
             <div class="entities-grid" id="entities-grid"></div>
+          </div>
+
+          <!-- DÒNG BIÊN LAI TRỰC TIẾP Ở ĐÁY TERMINAL -->
+          <div class="terminal-footer-log">
+            <span>RECEIPT.LOG:</span>
+            <div class="inline-log" id="receipt-feed"><p class="muted">&gt; Hệ thống chiếu 3D sẵn sàng.</p></div>
           </div>
         </div>
       </div>
