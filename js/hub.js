@@ -1,4 +1,4 @@
-// js/hub.js — Giao diện 2: Ký thử / Ký chính thức (1 lần), Đổi Avatar & Bảng Xếp Hạng Block 24h GMT+7
+// js/hub.js — Kho Tệp Dữ Liệu 3D nổi, Phóng cửa sổ tệp, Ký thử/Chính thức & BXH 24h GMT+7
 
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
@@ -26,7 +26,8 @@ const state = {
   theme: savedTheme,
   sfx: SITE_CONFIG.effects.sfx,
   scanlines: SITE_CONFIG.effects.scanlines,
-  pb: null,                      // Null cho tới khi Ký Hợp Đồng Chính Thức
+  parallax: SITE_CONFIG.effects.parallax3D,
+  pb: null,
   debtorCode: "CHƯA CẤP",
   contractLocked: false,
   selectedSector: "Điện 1 — Khu Vọng Ngữ",
@@ -82,10 +83,12 @@ const ARCHETYPE_RANGES = {
 
 const htmlEl = document.documentElement;
 const bgImageLayer = document.getElementById("bg-image-layer");
+const vaultRack = document.getElementById("vault-rack");
+const popoutOverlay = document.getElementById("popout-overlay");
 const receiptFeed = document.getElementById("receipt-feed");
 const touchCursor = document.getElementById("touch-cursor");
 const cursorCoords = document.getElementById("cursor-coords");
-document.getElementById("scanlines-layer").classList.toggle("hidden", !state.scanlines);
+document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
 // 1. THEME + BG IMAGE
 function updateBackgroundImage(themeName) {
@@ -119,40 +122,30 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) =>
   })
 );
 
-// 2. CON TRỎ & SÓNG CHẠM
+// 2. CON TRỎ + NGHIÊNG KHO TỆP 3D THEO CHUỘT + SÓNG CHẠM
 window.addEventListener("pointermove", (e) => {
   if (touchCursor) {
     touchCursor.style.left = `${e.clientX}px`;
     touchCursor.style.top = `${e.clientY}px`;
     cursorCoords.textContent = `X:${String(Math.round(e.clientX)).padStart(3, "0")} Y:${String(Math.round(e.clientY)).padStart(3, "0")}`;
   }
+  if (!state.parallax || window.innerWidth <= 1120 || !popoutOverlay.classList.contains("hidden")) return;
+  const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+  const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+  vaultRack.style.transform = `rotateY(${nx * 7}deg) rotateX(${-ny * 5}deg)`;
 });
 window.addEventListener("pointerdown", (e) => vrBg.spawnTouchRipple(e.clientX, e.clientY));
 
-// 3. SCOPES & RADIO
-const waveCanvas = document.getElementById("telemetry-wave");
-const waveCtx = waveCanvas?.getContext("2d");
+// 3. RADIO SCOPE
 const rScope = document.getElementById("radio-scope");
 const rCtx = rScope?.getContext("2d");
 let wavePhase = 0;
-
-function drawScopes() {
-  const styles = getComputedStyle(htmlEl);
-  const p = styles.getPropertyValue("--rgb-primary").trim() || "59, 184, 248";
-  const s = styles.getPropertyValue("--rgb-secondary").trim() || "247, 135, 248";
-  wavePhase += 0.1;
-  if (waveCtx) {
-    waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-    waveCtx.strokeStyle = `rgba(${p}, 0.92)`;
-    waveCtx.lineWidth = 1.6;
-    waveCtx.beginPath();
-    for (let x = 0; x < waveCanvas.width; x++) {
-      const y = 29 + Math.sin(x * 0.06 + wavePhase) * 13 + Math.cos(x * 0.16 - wavePhase * 1.7) * 8;
-      x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
-    }
-    waveCtx.stroke();
-  }
+function drawRadioScope() {
   if (rCtx) {
+    const styles = getComputedStyle(htmlEl);
+    const p = styles.getPropertyValue("--rgb-primary").trim() || "59, 184, 248";
+    const s = styles.getPropertyValue("--rgb-secondary").trim() || "247, 135, 248";
+    wavePhase += 0.1;
     rCtx.clearRect(0, 0, rScope.width, rScope.height);
     rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
     for (let i = 0; i < 9; i++) {
@@ -160,9 +153,9 @@ function drawScopes() {
       rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
     }
   }
-  requestAnimationFrame(drawScopes);
+  requestAnimationFrame(drawRadioScope);
 }
-drawScopes();
+drawRadioScope();
 
 const radioToggle = document.getElementById("radio-toggle");
 const radioTrackName = document.getElementById("radio-track-name");
@@ -176,7 +169,7 @@ document.getElementById("radio-next").addEventListener("click", () => {
 });
 document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. TIỆN ÍCH & CHUYỂN TAB
+// 4. MỞ / THU TỆP DỮ LIỆU 3D
 function pushReceipt(text) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -194,21 +187,36 @@ function updateStatsUI() {
   if (profilePb) profilePb.textContent = pbText;
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll(".nav-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tabId));
+function openFileWindow(tabId) {
+  if (state.sfx) radio.playClickChime();
+  vaultRack.classList.add("is-dimmed");
+  popoutOverlay.classList.remove("hidden");
+
+  document.querySelectorAll(".win-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tabId));
   document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
+
   if (tabId === "tab-ranking") loadAndRenderLeaderboard();
 }
 
-document.querySelectorAll(".nav-tab").forEach((btn) =>
-  btn.addEventListener("click", () => {
-    if (state.sfx) radio.playClickChime();
-    switchTab(btn.dataset.tab);
-  })
-);
-document.getElementById("btn-goto-rank").addEventListener("click", () => switchTab("tab-ranking"));
+function closeFileWindow() {
+  if (state.sfx) radio.playClickChime();
+  popoutOverlay.classList.add("hidden");
+  vaultRack.classList.remove("is-dimmed");
+}
 
-// 5. HỢP ĐỒNG: CHỖ 1 (KÝ THỬ SỬA ĐƯỢC) vs CHỖ 2 (KÝ CHÍNH THỨC KHÓA CỨNG 1 LẦN)
+document.querySelectorAll("[data-open-file]").forEach((folderBtn) => {
+  folderBtn.addEventListener("click", () => openFileWindow(folderBtn.dataset.openFile));
+});
+document.querySelectorAll(".win-tab").forEach((tabBtn) => {
+  tabBtn.addEventListener("click", () => openFileWindow(tabBtn.dataset.tab));
+});
+document.getElementById("btn-close-file").addEventListener("click", closeFileWindow);
+popoutOverlay.addEventListener("click", (e) => {
+  if (e.target === popoutOverlay) closeFileWindow();
+});
+document.getElementById("btn-goto-rank").addEventListener("click", () => openFileWindow("tab-ranking"));
+
+// 5. HỢP ĐỒNG: CHỖ 1 (KÝ THỬ SỬA ĐƯỢC) vs CHỖ 2 (KÝ CHÍNH THỨC KHÓA CỨNG)
 function buildAuditBundle() {
   const name = document.getElementById("f-name").value.trim() || "Ký chủ vô danh";
   const age = document.getElementById("f-age").value || 24;
@@ -276,12 +284,9 @@ function lockContractFormUI(profileObj) {
   }
 
   const locked = Boolean(profileObj.contractLocked);
-  form.querySelectorAll("input, select, button").forEach((el) => {
-    el.disabled = locked;
-  });
+  form.querySelectorAll("input, select, button").forEach((el) => { el.disabled = locked; });
   document.getElementById("contract-lock-banner").classList.toggle("hidden", !locked);
   document.getElementById("contract-status-badge").textContent = locked ? "ĐÃ NIÊM PHONG (1/1)" : "CHƯA KÝ CHÍNH THỨC";
-  document.getElementById("sync-bar-fill").style.width = locked ? "100%" : "15%";
 
   if (locked && profileObj.lastProfile) {
     const lp = profileObj.lastProfile;
@@ -299,16 +304,14 @@ function lockContractFormUI(profileObj) {
   }
 }
 
-// CHỖ 1: KÝ THỬ RANDOM (Sửa thoải mái, không đồng bộ PB chính thức)
 document.getElementById("btn-sign-draft").addEventListener("click", () => {
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
   const bundle = buildAuditBundle();
   renderAuditReceipt(bundle, false);
-  pushReceipt(`【BẢN NHÁP】: Random thử ${bundle.finalPB.toFixed(2)} PB (Chưa lưu).`);
+  pushReceipt(`【BẢN NHÁP】: Random thử ${bundle.finalPB.toFixed(2)} PB.`);
 });
 
-// CHỖ 2: KÝ CHÍNH THỨC (Khóa vĩnh viễn 1 lần, đồng bộ PB & lên Bảng Xếp Hạng)
 document.getElementById("contract-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (state.contractLocked) return;
@@ -319,9 +322,7 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
     openModal("modal-auth");
     return;
   }
-
-  const ok = confirm("XÁC NHẬN KÝ HỢP ĐỒNG CHÍNH THỨC?\nSau khi ký, hồ sơ sẽ KHÓA VĨNH VIỄN. Muốn sửa bắt buộc phải tạo tài khoản mới!");
-  if (!ok) return;
+  if (!confirm("XÁC NHẬN KÝ HỢP ĐỒNG CHÍNH THỨC?\nSau khi ký, hồ sơ sẽ KHÓA VĨNH VIỄN. Muốn sửa bắt buộc tạo tài khoản mới!")) return;
 
   try {
     const bundle = buildAuditBundle();
@@ -332,7 +333,7 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
     });
     renderAuditReceipt(bundle, true);
     applyProfileUI(updated);
-    pushReceipt(`【CHÍNH THỨC】: Đã ký ${bundle.code} (${bundle.finalPB.toFixed(2)} PB) & đẩy lên Bảng Xếp Hạng.`);
+    pushReceipt(`【CHÍNH THỨC】: Đã ký ${bundle.code} (${bundle.finalPB.toFixed(2)} PB).`);
   } catch (err) {
     alert(err.message);
   }
@@ -344,11 +345,11 @@ document.getElementById("btn-copy-dossier").addEventListener("click", () => {
   pushReceipt("> Đã copy hồ sơ vào Clipboard.");
 });
 
-// 6. BẢNG XẾP HẠNG 24H THEO MÚI GIỜ GMT+7 (KHỐI BLOCK + NÚT TRƯỢT LÊN/XUỐNG)
+// 6. BẢNG XẾP HẠNG 24H GMT+7 (BLOCK + NÚT TRƯỢT LÊN/XUỐNG)
 function getGMT7Info() {
   const gmt7Ms = Date.now() + 7 * 3600 * 1000;
   const d = new Date(gmt7Ms);
-  const dateKey = d.toISOString().slice(0, 10); // YYYY-MM-DD ở GMT+7
+  const dateKey = d.toISOString().slice(0, 10);
   const nextMidnightMs = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1, 0, 0, 0);
   const diffSec = Math.max(0, Math.floor((nextMidnightMs - gmt7Ms) / 1000));
   const hh = String(Math.floor(diffSec / 3600)).padStart(2, "0");
@@ -376,7 +377,6 @@ async function loadAndRenderLeaderboard() {
 
   try {
     const users = await fetchLeaderboardUsers();
-    // Random thứ tự theo ngày GMT+7 (cố định trong suốt 24h hôm nay, sang 00:00 GMT+7 sẽ đảo lại)
     users.sort((a, b) => hashSeed(`${dateKey}:${a.username}`) - hashSeed(`${dateKey}:${b.username}`));
     state.rankItems = users;
     state.rankIndex = 0;
@@ -421,9 +421,9 @@ function renderRankBlocks() {
 function applyRankSlide() {
   const track = document.getElementById("rank-track");
   const total = state.rankItems.length;
-  const maxIdx = Math.max(0, total - 4); // Mỗi khung hiện 4 khối
+  const maxIdx = Math.max(0, total - 4);
   state.rankIndex = Math.max(0, Math.min(state.rankIndex, maxIdx));
-  track.style.transform = `translateY(-${state.rankIndex * 90}px)`; // 80px block + 10px gap
+  track.style.transform = `translateY(-${state.rankIndex * 90}px)`;
   document.getElementById("rank-page-info").textContent =
     total ? `BLOCK ${state.rankIndex + 1}–${Math.min(state.rankIndex + 4, total)} / ${total}` : "BLOCK 0 / 0";
 }
@@ -450,9 +450,9 @@ setInterval(() => {
   const dtEl = document.getElementById("rank-date-gmt7");
   if (cdEl) cdEl.textContent = countdown;
   if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) {
-    loadAndRenderLeaderboard(); // Qua 00:00 GMT+7 tự random lại
+    loadAndRenderLeaderboard();
   }
-  const bytes = Array.from({ length: 7 }, () =>
+  const bytes = Array.from({ length: 3 }, () =>
     Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0")
   );
   document.getElementById("hex-matrix").textContent = `0x${bytes.join(" ")}`;
@@ -502,7 +502,7 @@ for (const item of MARKET_ITEMS) {
   row.querySelector("button").addEventListener("click", async () => {
     if (state.sfx) radio.playClickChime();
     if (!state.contractLocked) {
-      pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có tài khoản Phước Báu để giao dịch.");
+      pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch.");
       return;
     }
     state.pb = Number((state.pb + item.costPB).toFixed(2));
@@ -523,7 +523,7 @@ for (const post of FORUM_POSTS) {
 document.getElementById("btn-refresh-forum").addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
   if (!state.contractLocked) {
-    pushReceipt("【BÁO ỨNG NET】: Chế độ khách xem miễn phí (chưa có PB để trừ).");
+    pushReceipt("【BÁO ỨNG NET】: Chế độ khách xem miễn phí.");
     return;
   }
   state.pb = Number((state.pb - 0.5).toFixed(2));
@@ -539,17 +539,6 @@ for (const ent of BUREAU_ENTITIES) {
   card.innerHTML = `<strong>${ent.name}</strong><small>${ent.role}</small><p>${ent.desc}</p>`;
   entitiesGrid.appendChild(card);
 }
-
-document.getElementById("btn-scan-radar").addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  pushReceipt(`【RADAR 360°】: Đang quét hào quang lậu tại ${state.selectedSector}...`);
-});
-document.getElementById("btn-audit-pb").addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  pushReceipt(state.contractLocked
-    ? `【KIỂM TOÁN 00】: Nợ hiện tại ${state.pb.toFixed(2)} PB.`
-    : "【KIỂM TOÁN 00】: Tài khoản chưa ký Hợp đồng chính thức.");
-});
 
 // 8. MODAL TÀI KHOẢN & ĐỔI AVATAR
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
