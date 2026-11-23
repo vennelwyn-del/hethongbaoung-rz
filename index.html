@@ -11,23 +11,20 @@
   <link rel="stylesheet" href="./css/gate.css" />
 </head>
 <body>
-  <!-- LỚP ẢNH NỀN TÙY CHỈNH TỪ js/config.js + KHÔNG GIAN 3D VR -->
   <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
   <canvas id="vr-canvas" aria-hidden="true"></canvas>
   <div class="vr-floor-grid" aria-hidden="true"></div>
   <div class="vr-vignette" aria-hidden="true"></div>
   <div class="scanlines" id="scanlines-layer" aria-hidden="true"></div>
 
-  <!-- CON TRỎ TỌA ĐỘ ẢO -->
   <div class="touch-hud-cursor" id="touch-cursor" aria-hidden="true">
     <span id="cursor-coords">X:000 Y:000</span>
   </div>
 
-  <!-- THANH TRÊN CÙNG (KHÔNG CÓ NÚT SETTING CHO USER) -->
+  <!-- THANH TRÊN CÙNG -->
   <header class="sys-topbar">
-    <!-- BÊN TRÁI: VỀ TRANG CHỦ BÁO ỨNG -->
     <div class="topbar-left">
-      <a href="https://vennelwyn-del.github.io/Baoungdoinhau/" class="home-brand holo-tactile" id="btn-home" title="Về Trang Chủ Báo Ứng">
+      <a href="./index.html" class="home-brand holo-tactile" id="btn-home" title="Về Trang Chủ Báo Ứng">
         <span class="brand-glyph">⚖️</span>
         <span class="brand-text">
           <strong>BÁO ỨNG // VR-00</strong>
@@ -36,7 +33,6 @@
       </a>
     </div>
 
-    <!-- BÊN PHẢI: RADIO + CHUYỂN 2 TEMPLATE MÀU + TÀI KHOẢN FIREBASE -->
     <div class="topbar-right">
       <div class="sys-radio">
         <button class="radio-btn holo-tactile" id="radio-toggle" type="button" title="Bật/Tắt Radio">
@@ -50,7 +46,6 @@
         <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.05" value="0.35" title="Âm lượng" />
       </div>
 
-      <!-- 2 TEMPLATE MÀU -->
       <div class="theme-switcher" role="group" aria-label="Chuyển đổi 2 template màu">
         <button class="theme-dot" data-set-theme="cyber-violet" title="Template 1: #3F136D / #6F1594 / #3BB8F8 / #F787F8">
           <span style="background: linear-gradient(135deg, #3F136D, #3BB8F8, #F787F8);"></span>
@@ -67,10 +62,8 @@
     </div>
   </header>
 
-  <main class="vr-room" id="vr-room">
-    <!-- =========================================================
-         GIAO DIỆN 1: CHỈ HIỆN GATE ĐỂ NHẤN VÀO
-         ========================================================= -->
+  <!-- GIAO DIỆN 1: CHỈ HIỆN GATE -->
+  <main class="vr-room">
     <section class="gate-stage-1" id="screen-gate">
       <button class="holo-gate" id="portal-gate" type="button" aria-label="Chạm vào cổng để vào Hệ Thống Báo Ứng">
         <svg class="gate-svg g-ring-1" viewBox="0 0 420 420" aria-hidden="true">
@@ -95,5 +88,47 @@
         </div>
       </button>
     </section>
+  </main>
+
+  <!-- MODAL TÀI KHOẢN FIREBASE -->
+  <div class="modal-backdrop hidden" id="modal-auth">
+    <div class="sys-modal">
+      <div class="modal-head">
+        <h3>🪪 TÀI KHOẢN CON NỢ // LƯU DỮ LIỆU</h3>
+        <button class="modal-close" data-close-modal="modal-auth" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="auth-logged-out">
+          <p class="auth-desc">Tạo nhanh Tên tài khoản &amp; Mật khẩu để lưu mã Con nợ, màu giao diện và Phước Báu.</p>
+          <form id="simple-auth-form" class="auth-form">
+            <input type="text" id="auth-username" placeholder="Tên tài khoản (vd: conno01)..." required />
+            <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 4 ký tự)..." required />
+            <div class="auth-actions">
+              <button class="btn-primary holo-tactile" type="submit">Đăng nhập</button>
+              <button class="btn-secondary holo-tactile" type="button" id="btn-register-simple">Tạo tài khoản mới</button>
+            </div>
+          </form>
+          <p class="auth-msg" id="auth-msg"></p>
+        </div>
+
+        <div id="auth-logged-in" class="hidden">
+          <div class="profile-box">
+            <div>
+              <strong id="profile-name">Con nợ #000</strong>
+              <p id="profile-username">@username</p>
+              <p class="pb-tag">Phước Báu: <span id="profile-pb">-1,482.75 PB</span></p>
+            </div>
+          </div>
+          <div class="auth-actions">
+            <button class="btn-primary holo-tactile" id="btn-sync-now" type="button">Đồng bộ ngay</button>
+            <button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button>
+          </div>
+          <p class="auth-msg" id="auth-sync-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
