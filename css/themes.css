@@ -1,72 +1,46 @@
 /* ==========================================================================
-   4 BỘ GIAO DIỆN MÀU CHUYỂN ĐỔI THEO ẢNH THAM CHIẾU
-   1. obsidian : Màn hình cong đen - bạc - cam hổ phách (Ảnh 1)
-   2. acid     : Cyber Acid #B2F601 / #62C0F6 / #343645 (Ảnh 2)
-   3. prism    : Lăng kính thủy tinh phản quang đa sắc (Ảnh 3)
-   4. crystal  : Tinh thể cầu vồng sáng #9f99d1 / #86bada / #dbaad7 / #ffe3b3 (Ảnh 4)
+   2 TEMPLATE MÀU CHUẨN THEO 2 ẢNH BẢNG MÀU
    ========================================================================== */
 
+/* TEMPLATE 1: BẢNG MÀU B2F601 / 62C0F6 / 343645 */
 :root,
-[data-theme="obsidian"] {
-  --bg-base: #05070b;
-  --bg-elevated: rgba(14, 18, 26, 0.78);
-  --bg-panel: rgba(12, 15, 22, 0.68);
-  --text-main: #eef3f9;
-  --text-muted: #8b9bb0;
-  --accent-1: #ff8c42;
-  --accent-2: #d8e6f7;
-  --accent-3: #4ea8de;
-  --border-glow: rgba(255, 140, 66, 0.35);
-  --border-subtle: rgba(216, 230, 247, 0.14);
-  --grid-color: rgba(216, 230, 247, 0.06);
-  --prism-grad: radial-gradient(circle at 50% 45%, rgba(255, 140, 66, 0.16), rgba(78, 168, 222, 0.08) 45%, transparent 72%);
-  --gate-shadow: 0 0 45px rgba(255, 140, 66, 0.25), inset 0 0 32px rgba(216, 230, 247, 0.12);
-}
-
 [data-theme="acid"] {
   --bg-base: #1f212b;
   --bg-elevated: rgba(52, 54, 69, 0.86); /* #343645 */
-  --bg-panel: rgba(38, 40, 52, 0.78);
-  --text-main: #f3fce8;
-  --text-muted: #a6b4c8;
+  --bg-panel: rgba(52, 54, 69, 0.72);
+  --bg-panel-solid: rgba(42, 44, 58, 0.88);
+  --text-main: #f4fce8;
+  --text-on-glass: #f4fce8;
+  --text-muted: #9eb6cc;
   --accent-1: #B2F601;
   --accent-2: #62C0F6;
   --accent-3: #343645;
-  --border-glow: rgba(178, 246, 1, 0.5);
-  --border-subtle: rgba(98, 192, 246, 0.25);
-  --grid-color: rgba(98, 192, 246, 0.09);
-  --prism-grad: radial-gradient(circle at 50% 45%, rgba(178, 246, 1, 0.16), rgba(98, 192, 246, 0.18) 45%, transparent 72%);
-  --gate-shadow: 0 0 48px rgba(178, 246, 1, 0.28), inset 0 0 32px rgba(98, 192, 246, 0.22);
+  --border-glow: rgba(178, 246, 1, 0.55);
+  --border-subtle: rgba(98, 192, 246, 0.32);
+  --grid-color: rgba(98, 192, 246, 0.11);
+  --canvas-rgb: 98, 192, 246;
+  --canvas-hot-rgb: 178, 246, 1;
+  --prism-grad: radial-gradient(circle at 50% 45%, rgba(178, 246, 1, 0.16), rgba(98, 192, 246, 0.2) 48%, transparent 74%);
+  --gate-shadow: 0 0 52px rgba(178, 246, 1, 0.28), inset 0 0 34px rgba(98, 192, 246, 0.24);
 }
 
-[data-theme="prism"] {
-  --bg-base: #06070f;
-  --bg-elevated: rgba(15, 18, 34, 0.72);
-  --bg-panel: rgba(18, 22, 42, 0.56);
-  --text-main: #f5f9ff;
-  --text-muted: #98a8cc;
-  --accent-1: #72f5ff;
-  --accent-2: #ff7ae5;
-  --accent-3: #ffd87a;
-  --border-glow: rgba(114, 245, 255, 0.45);
-  --border-subtle: rgba(255, 122, 229, 0.22);
-  --grid-color: rgba(114, 245, 255, 0.1);
-  --prism-grad: conic-gradient(from 90deg at 50% 50%, rgba(114, 245, 255, 0.18), rgba(255, 122, 229, 0.18), rgba(255, 216, 122, 0.14), rgba(114, 245, 255, 0.18));
-  --gate-shadow: 0 0 55px rgba(114, 245, 255, 0.3), inset 0 0 40px rgba(255, 122, 229, 0.22);
-}
-
+/* TEMPLATE 2: BẢNG MÀU #9f99d1 / #86bada / #dbaad7 / #f6beb0 / #ffe3b3 */
 [data-theme="crystal"] {
-  --bg-base: #f4f1fa;
-  --bg-elevated: rgba(255, 255, 255, 0.78);
+  --bg-base: #f6f4fb;
+  --bg-elevated: rgba(255, 255, 255, 0.8);
   --bg-panel: rgba(255, 255, 255, 0.65);
+  --bg-panel-solid: linear-gradient(135deg, rgba(159, 153, 209, 0.86), rgba(134, 186, 218, 0.84));
   --text-main: #2d2642;
-  --text-muted: #6e648c;
+  --text-on-glass: #ffffff;
+  --text-muted: #6c618a;
   --accent-1: #9f99d1; /* Dreamy Lilac */
   --accent-2: #86bada; /* Crystal Blue */
   --accent-3: #dbaad7; /* Fairy Pink */
-  --border-glow: rgba(159, 153, 209, 0.55);
-  --border-subtle: rgba(134, 186, 218, 0.38);
-  --grid-color: rgba(159, 153, 209, 0.16);
-  --prism-grad: radial-gradient(circle at 30% 35%, rgba(255, 227, 179, 0.55), rgba(219, 170, 215, 0.35) 45%, rgba(134, 186, 218, 0.3) 75%);
-  --gate-shadow: 0 12px 45px rgba(159, 153, 209, 0.38), inset 0 0 32px rgba(255, 227, 179, 0.5);
+  --border-glow: rgba(159, 153, 209, 0.65);
+  --border-subtle: rgba(134, 186, 218, 0.45);
+  --grid-color: rgba(159, 153, 209, 0.17);
+  --canvas-rgb: 134, 186, 218;
+  --canvas-hot-rgb: 219, 170, 215;
+  --prism-grad: radial-gradient(circle at 30% 35%, rgba(255, 227, 179, 0.62), rgba(246, 190, 176, 0.4) 35%, rgba(219, 170, 215, 0.35) 58%, rgba(134, 186, 218, 0.32) 80%);
+  --gate-shadow: 0 14px 48px rgba(159, 153, 209, 0.42), inset 0 0 34px rgba(255, 227, 179, 0.55);
 }

@@ -68,7 +68,7 @@ export async function loadDebtorProfile(uid) {
     app: "hethongbaoung",
     debtorCode: `#${Math.floor(100 + Math.random() * 899)}`,
     meritBalance: Number((-1200 - Math.random() * 1500).toFixed(2)),
-    theme: localStorage.getItem("bao_ung_theme") || "obsidian",
+    theme: localStorage.getItem("bao_ung_theme") || "acid",
     createdAt: serverTimestamp()
   };
   await set(userRef, initialData);
