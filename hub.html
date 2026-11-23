@@ -345,6 +345,384 @@
       </div>
     </div>
   </div>
+  <!DOCTYPE html>
+<html lang="vi" data-theme="cyber-violet">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HỆ THỐNG BÁO ỨNG // SẢNH CHỜ CON NỢ 00</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/themes.css" />
+  <link rel="stylesheet" href="./css/gate.css" />
+  <link rel="stylesheet" href="./css/hub.css" />
+</head>
+<body>
+  <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
+  <canvas id="vr-canvas" aria-hidden="true"></canvas>
+  <div class="vr-floor-grid" aria-hidden="true"></div>
+  <div class="vr-vignette" aria-hidden="true"></div>
+  <div class="scanlines" id="scanlines-layer" aria-hidden="true"></div>
+
+  <div class="touch-hud-cursor" id="touch-cursor" aria-hidden="true">
+    <span id="cursor-coords">X:000 Y:000</span>
+  </div>
+
+  <!-- TOPBAR -->
+  <header class="sys-topbar">
+    <div class="topbar-left">
+      <a href="./index.html" class="home-brand holo-tactile" title="Về Trang Chủ Báo Ứng (Gate)">
+        <span class="brand-glyph">⚖️</span>
+        <span class="brand-text">
+          <strong>BÁO ỨNG // VR-00</strong>
+          <small>← VỀ TRANG CHỦ BÁO ỨNG</small>
+        </span>
+      </a>
+      <div class="hud-chip">
+        <span class="chip-dot"></span>
+        <span>SẢNH CHỜ CON NỢ 00</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="sys-radio">
+        <button class="radio-btn holo-tactile" id="radio-toggle" type="button"><span class="radio-icon">▶</span></button>
+        <div class="radio-meta">
+          <span class="radio-title" id="radio-track-name">CH.01 // VOID DRONE</span>
+          <canvas id="radio-scope" width="54" height="16"></canvas>
+        </div>
+        <button class="radio-btn holo-tactile" id="radio-next" type="button">⏭</button>
+        <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.05" value="0.35" />
+      </div>
+
+      <div class="theme-switcher" role="group">
+        <button class="theme-dot" data-set-theme="cyber-violet" title="Template 1: Tím-Xanh">
+          <span style="background: linear-gradient(135deg, #3F136D, #3BB8F8, #F787F8);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="acid" title="Template 2: Acid-Xanh">
+          <span style="background: linear-gradient(135deg, #B2F601, #62C0F6, #343645);"></span>
+        </button>
+      </div>
+
+      <button class="user-pill holo-tactile" id="btn-auth" type="button">
+        <span class="user-status-dot" id="user-dot"></span>
+        <img id="topbar-avatar" class="user-avatar-mini hidden" src="" alt="" />
+        <span class="user-label" id="user-label">ĐĂNG NHẬP</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- GIAO DIỆN 2 -->
+  <main class="hub-layout">
+    <aside class="hub-sidebar">
+      <div class="holo-pane">
+        <i class="bracket tl"></i><i class="bracket tr"></i>
+        <i class="bracket bl"></i><i class="bracket br"></i>
+        <div class="pane-bar"><span>SYSTEM.MODULES</span><span class="tag-live">ONLINE</span></div>
+        <nav class="hub-nav">
+          <button class="nav-tab holo-tactile is-active" data-tab="tab-profile" type="button">
+            <span>01 // KÝ HỢP ĐỒNG &amp; HỒ SƠ</span>
+            <small>Ký thử &amp; Ký chính thức (1 lần)</small>
+          </button>
+          <button class="nav-tab holo-tactile" data-tab="tab-ranking" type="button">
+            <span>02 // BẢNG XẾP HẠNG (24H)</span>
+            <small>Random GMT+7 • Trượt Block</small>
+          </button>
+          <button class="nav-tab holo-tactile" data-tab="tab-sectors" type="button">
+            <span>03 // THẬP ĐIỆN (10 KHU)</span>
+            <small>Bản đồ &amp; Trọng án độc bản</small>
+          </button>
+          <button class="nav-tab holo-tactile" data-tab="tab-market" type="button">
+            <span>04 // CHỢ ĐEN &amp; VAY NỢ</span>
+            <small>Hệ Thống 00 vs Lục Nha</small>
+          </button>
+          <button class="nav-tab holo-tactile" data-tab="tab-forum" type="button">
+            <span>05 // BÁO ỨNG NET &amp; CỤC</span>
+            <small>Diễn đàn &amp; Dàn nhân vật</small>
+          </button>
+        </nav>
+      </div>
+
+      <div class="holo-pane">
+        <div class="pane-bar"><span>AI.WAVE // KIỂM TOÁN</span><span id="clock-utc">00:00:00</span></div>
+        <div class="scope-wrap"><canvas id="telemetry-wave" width="260" height="58"></canvas></div>
+        <div class="mini-bars">
+          <div><label>PHÍ DỊCH VỤ HỆ THỐNG</label><span class="track hot"><i style="width: 80%"></i></span></div>
+          <div><label>TRẠNG THÁI HỢP ĐỒNG</label><span class="track"><i id="sync-bar-fill" style="width: 15%"></i></span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <section class="hub-main">
+      <!-- TAB 1: KÝ HỢP ĐỒNG (2 CHỖ KÝ: RANDOM SỬA ĐƯỢC vs CHÍNH THỨC KHÓA CỨNG) -->
+      <div class="hub-panel" id="tab-profile">
+        <div class="holo-pane panel-full">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>HỒ SƠ HỢP ĐỒNG LAO ĐỘNG — CỤC BÁO ỨNG</span>
+            <span class="tag-live" id="contract-status-badge">CHƯA KÝ CHÍNH THỨC</span>
+          </div>
+
+          <div class="lock-banner hidden" id="contract-lock-banner">
+            🔒 TÀI KHOẢN NÀY ĐÃ KÝ HỢP ĐỒNG CHÍNH THỨC — Hồ sơ đã niêm phong vĩnh viễn và đồng bộ lên Bảng Xếp Hạng. Muốn sửa hồ sơ bắt buộc phải tạo tài khoản mới.
+          </div>
+
+          <form id="contract-form" class="contract-grid">
+            <label class="field">
+              <span>Họ và tên Ký chủ</span>
+              <input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required />
+            </label>
+            <label class="field">
+              <span>Tuổi</span>
+              <input type="number" id="f-age" min="18" max="99" value="24" required />
+            </label>
+            <label class="field">
+              <span>Giới tính &amp; Xưng hô</span>
+              <input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required />
+            </label>
+            <label class="field">
+              <span>Xu hướng tính dục</span>
+              <select id="f-orient">
+                <option value="Tự do">Tự do</option>
+                <option value="Thẳng">Thẳng</option>
+                <option value="Đồng tính">Đồng tính</option>
+                <option value="Song tính">Song tính</option>
+              </select>
+            </label>
+
+            <label class="field span-2">
+              <span>Thân phận Con nợ</span>
+              <select id="f-archetype">
+                <option value="villain">1. Kẻ Đại Ác Cải Tà Quy Chính (-2,500 đến -3,900 PB)</option>
+                <option value="jinx">2. Thiên Tài Xui Xẻo / Sao Quả Tạ (-900 đến -1,800 PB)</option>
+                <option value="scapegoat">3. Nạn Nhân Mù Quáng Tỉnh Ngộ (-500 đến -1,400 PB)</option>
+                <option value="slave">4. Con Nghiện Tư Bản / Xã Súc Đột Tử (-1,100 đến -2,200 PB)</option>
+                <option value="avenger">5. Kẻ Điên Báo Thù Bất Cần Đời (-3,800 đến -5,500 PB)</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Điện khởi đầu</span>
+              <select id="f-sector">
+                <option value="Random Độc Bản">Random Độc Bản (Bất kỳ)</option>
+                <option value="Điện 1 — Khu Vọng Ngữ">Điện 1 — Khu Vọng Ngữ (Showbiz)</option>
+                <option value="Điện 2 — Khu Tham Lam">Điện 2 — Khu Tham Lam (Hào Môn)</option>
+                <option value="Điện 3 — Khu Ái Dục">Điện 3 — Khu Ái Dục (Ngược Tra)</option>
+                <option value="Điện 4 — Khu Đố Kỵ">Điện 4 — Khu Đố Kỵ (Cung/Trạch Đấu)</option>
+                <option value="Điện 5 — Khu Ngạo Mạn">Điện 5 — Khu Ngạo Mạn (Tu Tiên)</option>
+                <option value="Điện 6 — Khu Đạo Văn">Điện 6 — Khu Đạo Văn (Học Thuật)</option>
+                <option value="Điện 7 — Khu Phản Bội">Điện 7 — Khu Phản Bội (Mạt Thế)</option>
+                <option value="Điện 8 — Khu Giả Dối">Điện 8 — Khu Giả Dối (Y/Huyền Học)</option>
+                <option value="Điện 9 — Khu Phẫn Nộ">Điện 9 — Khu Phẫn Nộ (Esports)</option>
+                <option value="Điện 10 — Khu Vô Gian (SSS)">Điện 10 — Khu Vô Gian (SSS)</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Kỹ năng sinh tồn thực tế</span>
+              <input type="text" id="f-skill" placeholder="vd: Kiểm toán, luật, diễn xuất..." required />
+            </label>
+
+            <label class="field span-2">
+              <span>Thói xấu / Nghiệp chướng kiếp trước</span>
+              <input type="text" id="f-sin" placeholder="vd: Thức đêm, khẩu nghiệp chửi sếp..." required />
+            </label>
+
+            <label class="field span-2">
+              <span>Câu thoại cửa miệng</span>
+              <input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." />
+            </label>
+
+            <!-- 2 CHỖ KÝ HỢP ĐỒNG -->
+            <div class="span-2 dual-sign-box">
+              <div class="sign-slot">
+                <small>CHỖ 1 // BẢN NHÁP RANDOM (Sửa thoải mái)</small>
+                <button class="btn-secondary holo-tactile" id="btn-sign-draft" type="button">
+                  🎲 KÝ THỬ &amp; RANDOM NỢ (SỬA ĐƯỢC)
+                </button>
+              </div>
+              <div class="sign-slot">
+                <small>CHỖ 2 // CHÍNH THỨC (Chỉ 1 lần / Khóa vĩnh viễn)</small>
+                <button class="btn-primary holo-tactile" id="btn-sign-official" type="submit">
+                  ⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="audit-result hidden" id="audit-result">
+            <div class="audit-receipt" id="audit-receipt-box"></div>
+            <div class="form-actions" style="margin-top: 10px;">
+              <button class="btn-secondary holo-tactile" id="btn-copy-dossier" type="button">SAO CHÉP HỒ SƠ</button>
+              <button class="btn-primary holo-tactile" id="btn-goto-rank" type="button">XEM BẢNG XẾP HẠNG 24H →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: BẢNG XẾP HẠNG USER (DẠNG BLOCK, TRƯỢT BẰNG NÚT, RANDOM 24H GMT+7) -->
+      <div class="hub-panel hidden" id="tab-ranking">
+        <div class="holo-pane panel-full">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>BẢNG XẾP HẠNG CON NỢ // CHU KỲ 24H (GMT+7)</span>
+            <button class="btn-secondary holo-tactile mini-btn" id="btn-refresh-rank" type="button">↻ ĐỒNG BỘ FIREBASE</button>
+          </div>
+
+          <div class="rank-meta-bar">
+            <span>NGÀY CHU KỲ (GMT+7): <strong id="rank-date-gmt7">----/--/--</strong></span>
+            <span>ĐẢO HẠNG SAU: <strong id="rank-countdown">00:00:00</strong></span>
+            <span>TỔNG USER ĐÃ KÝ: <strong id="rank-total-count">0</strong></span>
+          </div>
+
+          <!-- ĐIỀU KHIỂN TRƯỢT LÊN / XUỐNG (KHÔNG DÙNG THANH CUỘN WEB) -->
+          <div class="rank-slide-controls">
+            <button class="holo-switch holo-tactile" id="btn-rank-up" type="button">▲ TRƯỢT LÊN</button>
+            <span class="rank-page-info" id="rank-page-info">BLOCK 0 / 0</span>
+            <button class="holo-switch holo-tactile" id="btn-rank-down" type="button">▼ TRƯỢT XUỐNG</button>
+          </div>
+
+          <div class="rank-viewport" id="rank-viewport">
+            <div class="rank-track" id="rank-track"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: THẬP ĐIỆN -->
+      <div class="hub-panel hidden" id="tab-sectors">
+        <div class="holo-pane panel-full">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>BẢN ĐỒ THẬP ĐIỆN BÁO ỨNG // 10 KHU VỰC</span>
+            <button class="btn-secondary holo-tactile mini-btn" id="btn-random-case" type="button">🎲 RANDOM TRỌNG ÁN</button>
+          </div>
+          <div class="sectors-grid" id="sectors-grid"></div>
+          <div class="sector-detail-box">
+            <strong id="sd-title">Chọn một Điện để xem chi tiết</strong>
+            <p id="sd-desc">Mọi Kẻ Cướp Phước tại 10 Điện đều mua Hào quang lậu.</p>
+            <button class="btn-primary holo-tactile" id="btn-lock-sector" type="button">KHÓA MỤC TIÊU ĐIỆN NÀY</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: CHỢ ĐEN -->
+      <div class="hub-panel hidden" id="tab-market">
+        <div class="holo-pane panel-full">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>KINH TẾ NHÂN QUẢ // HỆ THỐNG 00 vs CHỢ ĐEN LỤC NHA</span>
+            <span class="tag-live alt">CHỈ DÙNG SAU KHI KÝ</span>
+          </div>
+          <p class="market-note">Mọi giao dịch trừ PB yêu cầu tài khoản đã ký Hợp đồng chính thức.</p>
+          <div class="market-list" id="market-list"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: BÁO ỨNG NET & CỤC -->
+      <div class="hub-panel hidden" id="tab-forum">
+        <div class="holo-pane panel-full">
+          <i class="bracket tl"></i><i class="bracket tr"></i>
+          <i class="bracket bl"></i><i class="bracket br"></i>
+          <div class="pane-bar">
+            <span>BÁO ỨNG NET v4.0 // MẠNG NỘI BỘ CON NỢ</span>
+            <button class="btn-secondary holo-tactile mini-btn" id="btn-refresh-forum" type="button">Quét tin (-0.50 PB)</button>
+          </div>
+          <div class="forum-feed" id="forum-feed"></div>
+          <div class="pane-bar" style="margin-top: 18px;"><span>HỒ SƠ NHÂN SỰ CỤC</span><span class="tag-live">CLASSIFIED</span></div>
+          <div class="entities-grid" id="entities-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CỘT PHẢI: RADAR & BIÊN LAI -->
+    <aside class="hub-telemetry">
+      <div class="holo-pane">
+        <div class="pane-bar"><span>TARGET.RADAR // 360°</span><span id="hud-sector-badge">Đ1 Vọng Ngữ</span></div>
+        <div class="radar-row">
+          <svg class="mini-radar" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="44" /><circle cx="50" cy="50" r="28" /><circle cx="50" cy="50" r="12" />
+            <line x1="50" y1="6" x2="50" y2="94" /><line x1="6" y1="50" x2="94" y2="50" />
+            <g class="radar-sweep"><path d="M50,50 L50,6 A44,44 0 0,1 88,28 Z" /></g>
+            <circle cx="68" cy="30" r="3" class="blip" /><circle cx="34" cy="64" r="2.5" class="blip alt" />
+          </svg>
+          <div class="radar-stats">
+            <div><small>SỐ DƯ PHƯỚC BÁU</small><strong id="hud-pb-side">CHƯA KÝ HỢP ĐỒNG</strong></div>
+            <div><small>MÃ CON NỢ</small><strong id="hud-code-side">CHƯA CẤP</strong></div>
+          </div>
+        </div>
+        <div class="tactile-pad-row">
+          <button class="holo-switch holo-tactile" id="btn-scan-radar" type="button">[ QUÉT RADAR ]</button>
+          <button class="holo-switch holo-tactile" id="btn-audit-pb" type="button">[ SOI NỢ PB ]</button>
+        </div>
+      </div>
+
+      <div class="holo-pane">
+        <i class="bracket tl"></i><i class="bracket tr"></i>
+        <i class="bracket bl"></i><i class="bracket br"></i>
+        <div class="pane-bar"><span>RECEIPT.STREAM // BIÊN LAI 00</span><span class="tag-live alt">SYNC</span></div>
+        <div class="terminal-log" id="receipt-feed"><p class="muted">&gt; Chờ ký hợp đồng chính thức...</p></div>
+        <div class="hex-line" id="hex-matrix">0x3F 13 6D 3B B8 F8 00</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- MODAL TÀI KHOẢN & ĐỔI AVATAR -->
+  <div class="modal-backdrop hidden" id="modal-auth">
+    <div class="sys-modal">
+      <div class="modal-head">
+        <h3>🪪 TÀI KHOẢN CON NỢ // AVATAR &amp; FIREBASE</h3>
+        <button class="modal-close" data-close-modal="modal-auth" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="auth-logged-out">
+          <p class="auth-desc">Tạo tài khoản hoặc đăng nhập để ký Hợp đồng chính thức (1 lần) và lên Bảng Xếp Hạng.</p>
+          <form id="simple-auth-form" class="auth-form">
+            <input type="text" id="auth-username" placeholder="Tên tài khoản (vd: conno01)..." required />
+            <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 4 ký tự)..." required />
+            <div class="auth-actions">
+              <button class="btn-primary holo-tactile" type="submit">Đăng nhập</button>
+              <button class="btn-secondary holo-tactile" type="button" id="btn-register-simple">Tạo tài khoản mới</button>
+            </div>
+          </form>
+          <p class="auth-msg" id="auth-msg"></p>
+        </div>
+
+        <div id="auth-logged-in" class="hidden">
+          <div class="profile-box">
+            <img id="profile-avatar" class="profile-avatar-lg" src="" alt="Avatar" />
+            <div>
+              <strong id="profile-name">Chưa ký hợp đồng</strong>
+              <p id="profile-username">@username</p>
+              <p class="pb-tag">Phước Báu: <span id="profile-pb">Chưa ký hợp đồng (-- PB)</span></p>
+            </div>
+          </div>
+
+          <div class="avatar-editor">
+            <label>ĐỔI AVATAR CON NỢ (Link ảnh hoặc tải từ máy)</label>
+            <div class="avatar-row">
+              <input type="url" id="avatar-url-input" placeholder="Dán link ảnh Avatar..." />
+              <button class="btn-secondary holo-tactile" id="btn-save-avatar-url" type="button">Lưu</button>
+            </div>
+            <label class="file-upload-btn holo-tactile">
+              📁 Chọn ảnh từ máy
+              <input type="file" id="avatar-file-input" accept="image/*" hidden />
+            </label>
+          </div>
+
+          <div class="auth-actions">
+            <button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button>
+          </div>
+          <p class="auth-msg" id="auth-sync-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./js/hub.js"></script>
 </body>

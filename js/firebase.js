@@ -1,4 +1,4 @@
-// js/firebase.js — Tài khoản Tên + Mật khẩu đơn giản lưu trực tiếp lên Realtime Database
+// js/firebase.js — Tài khoản đơn giản, Khóa hợp đồng 1 lần, Avatar & Bảng Xếp Hạng Realtime DB
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -46,26 +46,23 @@ export function getSavedSessionUsername() {
 
 export async function registerSimpleAccount(rawUsername, password) {
   const username = sanitizeUsername(rawUsername);
-  if (username.length < 3) {
-    throw new Error("Tên tài khoản tối thiểu 3 ký tự (chữ không dấu, số, _ hoặc .).");
-  }
-  if (password.length < 4) {
-    throw new Error("Mật khẩu tối thiểu 4 ký tự.");
-  }
+  if (username.length < 3) throw new Error("Tên tài khoản tối thiểu 3 ký tự (không dấu).");
+  if (password.length < 4) throw new Error("Mật khẩu tối thiểu 4 ký tự.");
 
   const userRef = ref(db, `${DB_ROOT}/${username}`);
   const snap = await get(userRef);
-  if (snap.exists()) {
-    throw new Error("Tên tài khoản này đã có người dùng. Vui lòng chọn tên khác hoặc bấm Đăng nhập.");
-  }
+  if (snap.exists()) throw new Error("Tài khoản đã tồn tại. Hãy bấm Đăng nhập hoặc chọn tên khác.");
 
   const passHash = await hashPassword(password);
   const profile = {
     username,
     displayName: rawUsername.trim(),
     passHash,
-    debtorCode: `#${Math.floor(100 + Math.random() * 899)}`,
-    meritBalance: Number((-1200 - Math.random() * 1500).toFixed(2)),
+    avatarUrl: "",
+    debtorCode: "CHƯA CẤP",
+    meritBalance: null,       // Chưa ký hợp đồng chính thức -> chưa hiện Phước Báu
+    contractLocked: false,
+    lastProfile: null,
     theme: localStorage.getItem("bao_ung_theme") || "cyber-violet",
     createdAt: serverTimestamp()
   };
@@ -77,21 +74,15 @@ export async function registerSimpleAccount(rawUsername, password) {
 
 export async function loginSimpleAccount(rawUsername, password) {
   const username = sanitizeUsername(rawUsername);
-  if (!username || !password) {
-    throw new Error("Vui lòng nhập đủ tên tài khoản và mật khẩu.");
-  }
+  if (!username || !password) throw new Error("Vui lòng nhập đủ tài khoản và mật khẩu.");
 
   const userRef = ref(db, `${DB_ROOT}/${username}`);
   const snap = await get(userRef);
-  if (!snap.exists()) {
-    throw new Error("Không tìm thấy tài khoản này. Bấm 'Tạo tài khoản mới' nếu chưa có.");
-  }
+  if (!snap.exists()) throw new Error("Không tìm thấy tài khoản này.");
 
   const data = snap.val();
   const passHash = await hashPassword(password);
-  if (data.passHash !== passHash) {
-    throw new Error("Sai mật khẩu.");
-  }
+  if (data.passHash !== passHash) throw new Error("Sai mật khẩu.");
 
   localStorage.setItem(SESSION_KEY, username);
   return data;
@@ -99,18 +90,57 @@ export async function loginSimpleAccount(rawUsername, password) {
 
 export async function fetchDebtorByUsername(username) {
   if (!username) return null;
-  const userRef = ref(db, `${DB_ROOT}/${username}`);
-  const snap = await get(userRef);
+  const snap = await get(ref(db, `${DB_ROOT}/${username}`));
   return snap.exists() ? snap.val() : null;
 }
 
 export async function saveDebtorState(username, partialData) {
   if (!username) return;
-  const userRef = ref(db, `${DB_ROOT}/${username}`);
-  await update(userRef, {
+  await update(ref(db, `${DB_ROOT}/${username}`), {
     ...partialData,
     updatedAt: serverTimestamp()
   });
+}
+
+// Ký Hợp Đồng Chính Thức: Chỉ cho phép 1 lần duy nhất mỗi tài khoản
+export async function signOfficialContract(username, payload) {
+  if (!username) throw new Error("Bạn cần đăng nhập/tạo tài khoản trước khi ký chính thức.");
+  const userRef = ref(db, `${DB_ROOT}/${username}`);
+  const snap = await get(userRef);
+  if (!snap.exists()) throw new Error("Không tìm thấy tài khoản trên hệ thống.");
+
+  const current = snap.val();
+  if (current.contractLocked) {
+    throw new Error("Tài khoản này đã ký Hợp đồng chính thức! Muốn sửa bắt buộc tạo tài khoản mới.");
+  }
+
+  const sealed = {
+    contractLocked: true,
+    debtorCode: payload.debtorCode,
+    meritBalance: payload.meritBalance,
+    lastProfile: payload.lastProfile,
+    signedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+  await update(userRef, sealed);
+  return { ...current, ...sealed };
+}
+
+// Lấy toàn bộ User đã ký hợp đồng chính thức để đưa lên Bảng Xếp Hạng
+export async function fetchLeaderboardUsers() {
+  const snap = await get(ref(db, DB_ROOT));
+  if (!snap.exists()) return [];
+  const raw = snap.val();
+  return Object.values(raw)
+    .filter((u) => u && u.contractLocked === true && typeof u.meritBalance === "number")
+    .map((u) => ({
+      username: u.username,
+      displayName: u.lastProfile?.name || u.displayName || u.username,
+      debtorCode: u.debtorCode || "#000",
+      avatarUrl: u.avatarUrl || "",
+      meritBalance: u.meritBalance,
+      sector: u.lastProfile?.sector || "Thập Điện"
+    }));
 }
 
 export function logoutSimpleAccount() {
