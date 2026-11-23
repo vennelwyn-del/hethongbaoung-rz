@@ -174,4 +174,168 @@ function pushReceipt(text) {
 
 function updatePbUI() {
   const formatted = `${state.pb.toFixed(2)} PB`;
-  document.get
+  document.getElementById("hud-pb-preview").textContent = formatted;
+  document.getElementById("hud-pb-side").textContent = state.pb.toFixed(2);
+  const profilePb = document.getElementById("profile-pb");
+  if (profilePb) profilePb.textContent = formatted;
+}
+
+portalGate.addEventListener("click", () => {
+  if (state.isBreaching) return;
+  state.isBreaching = true;
+  if (state.sfx) radio.playClickChime();
+
+  gateTouchCore.classList.add("is-scanning");
+  gateActionText.textContent = "[ ĐANG MỞ CỔNG... ]";
+  coreProgressBar.style.width = "100%";
+
+  setTimeout(() => {
+    state.pb = Number((state.pb - 0.01).toFixed(2));
+    localStorage.setItem("bao_ung_pb", String(state.pb));
+    updatePbUI();
+    if (state.username) saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
+
+    pushReceipt("【Biên lai 00】: -0.01 PB phí kích hoạt Cổng Báo Ứng.");
+    gateTouchCore.classList.remove("is-scanning");
+    coreProgressBar.style.width = "0%";
+    gateActionText.textContent = "[ NHẤN VÀO ]";
+    state.isBreaching = false;
+
+    screenGate.classList.add("hidden");
+    screenConsole.classList.remove("hidden");
+  }, 520);
+});
+
+document.getElementById("btn-back-gate").addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  screenConsole.classList.add("hidden");
+  screenGate.classList.remove("hidden");
+});
+
+document.querySelectorAll(".sector-key").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    document.querySelectorAll(".sector-key").forEach((b) => b.classList.remove("is-selected"));
+    btn.classList.add("is-selected");
+    state.selectedSector = btn.dataset.sector;
+    document.getElementById("hud-sector-side").textContent = state.selectedSector;
+    document.getElementById("hud-sector-badge").textContent = state.selectedSector;
+    pushReceipt(`> Khóa tọa độ: [${state.selectedSector}]`);
+  });
+});
+
+document.querySelectorAll(".holo-switch").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    if (btn.dataset.cmd === "PING_RADAR") {
+      pushReceipt(`【RADAR】: Quét hào quang lậu tại ${state.selectedSector}.`);
+    } else {
+      pushReceipt(`【KIỂM TOÁN 00】: Số dư nợ ${state.pb.toFixed(2)} PB.`);
+    }
+  });
+});
+
+document.getElementById("btn-enter-hub").addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  alert(`Đã chọn [${state.selectedSector}]! Bước tiếp theo mình sẽ nối thẳng sang trang Khởi tạo Hồ Sơ & Chơi chính.`);
+});
+
+// 6. MODAL TÀI KHOẢN FIREBASE
+const openModal = (id) => document.getElementById(id).classList.remove("hidden");
+const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+
+document.querySelectorAll("[data-close-modal]").forEach((btn) =>
+  btn.addEventListener("click", () => closeModal(btn.dataset.closeModal))
+);
+document.getElementById("btn-auth").addEventListener("click", () => openModal("modal-auth"));
+document.getElementById("btn-open-auth-from-card").addEventListener("click", () => openModal("modal-auth"));
+
+const authOut = document.getElementById("auth-logged-out");
+const authIn = document.getElementById("auth-logged-in");
+const authMsg = document.getElementById("auth-msg");
+
+function applyProfileUI(profile) {
+  if (!profile) {
+    state.username = null;
+    document.getElementById("user-dot").classList.remove("online");
+    document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
+    authOut.classList.remove("hidden");
+    authIn.classList.add("hidden");
+    return;
+  }
+
+  state.username = profile.username;
+  state.debtorCode = profile.debtorCode || "#049";
+  if (typeof profile.meritBalance === "number") {
+    state.pb = profile.meritBalance;
+    localStorage.setItem("bao_ung_pb", String(state.pb));
+  }
+  if (profile.theme && VALID_THEMES.includes(profile.theme)) {
+    applyTheme(profile.theme, false);
+  }
+
+  document.getElementById("user-dot").classList.add("online");
+  document.getElementById("user-label").textContent = profile.displayName || profile.username;
+  document.getElementById("profile-name").textContent = `Con nợ ${state.debtorCode}`;
+  document.getElementById("profile-username").textContent = `@${profile.username}`;
+  authOut.classList.add("hidden");
+  authIn.classList.remove("hidden");
+  updatePbUI();
+}
+
+async function restoreSession() {
+  if (!state.username) { applyProfileUI(null); return; }
+  try {
+    const profile = await fetchDebtorByUsername(state.username);
+    if (profile) applyProfileUI(profile);
+    else { logoutSimpleAccount(); applyProfileUI(null); }
+  } catch {
+    applyProfileUI(null);
+  }
+}
+
+document.getElementById("simple-auth-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    authMsg.textContent = "Đang đăng nhập...";
+    const profile = await loginSimpleAccount(
+      document.getElementById("auth-username").value,
+      document.getElementById("auth-pass").value
+    );
+    applyProfileUI(profile);
+    authMsg.textContent = "";
+    pushReceipt(`【Hệ Thống 00】: Đã đăng nhập @${profile.username}.`);
+  } catch (err) {
+    authMsg.textContent = err.message;
+  }
+});
+
+document.getElementById("btn-register-simple").addEventListener("click", async () => {
+  try {
+    authMsg.textContent = "Đang tạo tài khoản...";
+    const profile = await registerSimpleAccount(
+      document.getElementById("auth-username").value,
+      document.getElementById("auth-pass").value
+    );
+    applyProfileUI(profile);
+    authMsg.textContent = "";
+    pushReceipt(`【Hệ Thống 00】: Tạo hồ sơ @${profile.username} (${profile.debtorCode}).`);
+  } catch (err) {
+    authMsg.textContent = err.message;
+  }
+});
+
+document.getElementById("btn-sync-now").addEventListener("click", async () => {
+  if (!state.username) return;
+  await saveDebtorState(state.username, { theme: state.theme, meritBalance: state.pb });
+  document.getElementById("auth-sync-msg").textContent = "Đã đồng bộ lên Firebase.";
+});
+
+document.getElementById("btn-logout").addEventListener("click", () => {
+  logoutSimpleAccount();
+  applyProfileUI(null);
+});
+
+applyTheme(state.theme, false);
+updatePbUI();
+restoreSession();
