@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="obsidian">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HỆ THỐNG BÁO ỨNG // CỔNG TRUYỀN TỐNG 00</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/themes.css" />
+  <link rel="stylesheet" href="./css/gate.css" />
+</head>
+<body>
+  <!-- Lớp phủ nền công nghệ & lăng kính -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-prism-glow" aria-hidden="true"></div>
+  <div class="scanlines" id="scanlines-layer" aria-hidden="true"></div>
+
+  <!-- THANH ĐIỀU HƯỚNG & SETTING TRÊN CÙNG -->
+  <header class="sys-topbar">
+    <!-- BÊN TRÁI: VỀ TRANG CHỦ BÁO ỨNG + LIÊN KẾT ĐA VŨ TRỤ -->
+    <div class="topbar-left">
+      <a href="./index.html" class="home-brand" id="btn-home" title="Về Trang Chủ Báo Ứng">
+        <span class="brand-glyph">⚖️</span>
+        <span class="brand-text">
+          <strong>BÁO ỨNG // 00</strong>
+          <small>TRẠM TRUNG CHUYỂN</small>
+        </span>
+      </a>
+
+      <div class="portal-links">
+        <a href="https://vennelwyn-del.github.io/Baoungdoinhau/" class="portal-chip is-active">Báo Ứng</a>
+        <a href="https://vennelwyn-del.github.io/-Nhat-Xuyen-/" class="portal-chip" target="_blank" rel="noopener">Nhất Xuyên</a>
+        <a href="https://vennelwyn-del.github.io/The-Showrunner-rz/" class="portal-chip" target="_blank" rel="noopener">The Showrunner</a>
+      </div>
+    </div>
+
+    <!-- BÊN PHẢI: RADIO + CHUYỂN MÀU GIAO DIỆN + SETTING + FIREBASE USER -->
+    <div class="topbar-right">
+      <!-- BỘ PHÁT RADIO HỆ THỐNG -->
+      <div class="sys-radio" id="sys-radio">
+        <button class="radio-btn" id="radio-toggle" type="button" title="Bật/Tắt Radio Hệ Thống">
+          <span class="radio-icon">▶</span>
+        </button>
+        <div class="radio-meta">
+          <span class="radio-title" id="radio-track-name">CH.01 // VOID DRONE</span>
+          <div class="radio-eq" id="radio-eq" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <button class="radio-btn radio-next" id="radio-next" type="button" title="Đổi kênh Radio">⏭</button>
+        <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.05" value="0.35" title="Âm lượng Radio" />
+      </div>
+
+      <!-- CHUYỂN ĐỔI MÀU GIAO DIỆN (4 THEME TỪ 4 BẢNG MÀU) -->
+      <div class="theme-switcher" role="group" aria-label="Chuyển màu giao diện">
+        <button class="theme-dot" data-set-theme="obsidian" title="Hắc Diện & Hổ Phách (Tech)">
+          <span style="background: linear-gradient(135deg, #0b0d12, #ff8c42);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="acid" title="Acid Neon (#B2F601 / #62C0F6)">
+          <span style="background: linear-gradient(135deg, #B2F601, #62C0F6);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="prism" title="Lăng Kính Ảo Ảnh (Holo Prism)">
+          <span style="background: linear-gradient(135deg, #6cf9ff, #ff6ce2);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="crystal" title="Tinh Thể Cầu Vồng (#9f99d1 / #ffe3b3)">
+          <span style="background: linear-gradient(135deg, #9f99d1, #dbaad7, #ffe3b3);"></span>
+        </button>
+      </div>
+
+      <!-- NÚT SETTING HỆ THỐNG -->
+      <button class="icon-pill" id="btn-settings" type="button" title="Cài đặt Hệ thống">
+        <span>⚙</span>
+        <span class="pill-label">SETTING</span>
+      </button>
+
+      <!-- TÀI KHOẢN FIREBASE USER -->
+      <button class="user-pill" id="btn-auth" type="button">
+        <span class="user-status-dot" id="user-dot"></span>
+        <span class="user-label" id="user-label">ĐĂNG NHẬP</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- KHU VỰC GATE TRUNG TÂM -->
+  <main class="gate-stage">
+    <!-- Màn hình dữ liệu cong bên trái (Trang trí công nghệ kiểu AI Terminal) -->
+    <aside class="curved-panel panel-left">
+      <div class="panel-header">
+        <span>SYS.AUDIT // KẾ TOÁN VIÊN 00</span>
+        <span class="blink-tag">LIVE</span>
+      </div>
+      <div class="telemetry-stream" id="telemetry-left">
+        <p>&gt; KẾT NỐI TRỤC THẬP ĐIỆN: 10/10</p>
+        <p>&gt; TỶ GIÁ PHÍ DỊCH VỤ: 80.00%</p>
+        <p>&gt; CẢNH BÁO: PHÁT HIỆN HÀO QUANG LẬU</p>
+        <p>&gt; CHỮ KÝ MÃ NGUỒN: [Sd.]</p>
+      </div>
+      <div class="holo-bar"><span></span></div>
+    </aside>
+
+    <!-- CỔNG CHÍNH — ẤN VÀO ĐỂ TRUY CẬP -->
+    <section class="gate-core-wrap" id="gate-section">
+      <div class="gate-badge">CỤC KIỂM TOÁN NHÂN QUẢ // THẬP ĐIỆN</div>
+
+      <button class="portal-gate" id="portal-gate" type="button" aria-label="Ấn để vào Hệ Thống Báo Ứng">
+        <svg class="gate-svg-ring ring-outer" viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r="142" stroke-dasharray="18 8 4 8" />
+          <circle cx="150" cy="150" r="126" stroke-dasharray="60 14" />
+        </svg>
+        <svg class="gate-svg-ring ring-inner" viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r="102" stroke-dasharray="6 6" />
+          <polygon points="150,24 259,87 259,213 150,276 41,213 41,87" />
+        </svg>
+
+        <div class="gate-prism-core">
+          <span class="core-code">GATE // 00</span>
+          <strong class="core-title">BÁO ỨNG</strong>
+          <span class="core-action" id="gate-action-text">[ ẤN ĐỂ MỞ CỔNG ]</span>
+        </div>
+      </button>
+
+      <p class="gate-subtext" id="gate-status-line">
+        【Chạm vào lõi cổng để giải mã hợp đồng lao động nhân quả. Phí khởi động: -0.01 PB.】
+      </p>
+    </section>
+
+    <!-- Màn hình dữ liệu cong bên phải -->
+    <aside class="curved-panel panel-right">
+      <div class="panel-header">
+        <span>DEBTOR.STATUS</span>
+        <span id="hud-pb-preview">-- PB</span>
+      </div>
+      <div class="telemetry-stream" id="receipt-feed">
+        <p class="muted">Chờ xác thực linh hồn từ Gate...</p>
+      </div>
+      <div class="holo-cube-deco" aria-hidden="true"></div>
+    </aside>
+
+    <!-- BẢNG ĐIỀU HƯỚNG SAU KHI MỞ GATE (Ẩn trước khi ấn vào Gate) -->
+    <section class="unlocked-console hidden" id="unlocked-console">
+      <div class="console-header">
+        <div>
+          <span class="console-tag">CỔNG ĐÃ MỞ // ĐỒNG BỘ HOÀN TẤT</span>
+          <h2>SẢNH CHỜ CON NỢ 00</h2>
+        </div>
+        <button class="btn-ghost" id="btn-close-console" type="button">← Đóng Cổng</button>
+      </div>
+
+      <div class="console-grid">
+        <article class="console-card">
+          <span class="card-num">01</span>
+          <h3>HỒ SƠ CON NỢ</h3>
+          <p>Khởi tạo thân phận, random số dư Phước Báu âm và nhận Hồ sơ Báo Ứng A.</p>
+          <button class="btn-primary" id="btn-enter-hub" type="button">KÍCH HOẠT HỒ SƠ</button>
+        </article>
+
+        <article class="console-card">
+          <span class="card-num">02</span>
+          <h3>BÁO ỨNG NET</h3>
+          <p>Truy cập mạng nội bộ đa vũ trụ, chợ đen Lục Nha &amp; thông báo từ Tạ Vô Cữu.</p>
+          <button class="btn-secondary" id="btn-open-auth-from-card" type="button">ĐỒNG BỘ FIREBASE</button>
+        </article>
+
+        <article class="console-card">
+          <span class="card-num">03</span>
+          <h3>CỔNG LIÊN KẾT</h3>
+          <p>Chuyển tiếp sang các phân khu vũ trụ khác trong hệ sinh thái Vennelwyn.</p>
+          <div class="card-links">
+            <a href="https://vennelwyn-del.github.io/-Nhat-Xuyen-/" target="_blank" rel="noopener">Nhất Xuyên ↗</a>
+            <a href="https://vennelwyn-del.github.io/The-Showrunner-rz/" target="_blank" rel="noopener">Showrunner ↗</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL CÀI ĐẶT (SETTING) -->
+  <div class="modal-backdrop hidden" id="modal-settings">
+    <div class="sys-modal">
+      <div class="modal-head">
+        <h3>⚙ CẤU HÌNH HỆ THỐNG 00</h3>
+        <button class="modal-close" data-close-modal="modal-settings" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="setting-row">
+          <span>Hiệu ứng quét màn hình (Scanlines)</span>
+          <input type="checkbox" id="opt-scanlines" checked />
+        </label>
+        <label class="setting-row">
+          <span>Âm thanh máy in hóa đơn (SFX)</span>
+          <input type="checkbox" id="opt-sfx" checked />
+        </label>
+        <div class="setting-block">
+          <span>URL Radio tùy chỉnh (MP3/Stream - tùy chọn):</span>
+          <div class="input-group">
+            <input type="url" id="custom-radio-url" placeholder="https://... (để trống dùng Radio AI tích hợp)" />
+            <button class="btn-primary" id="btn-apply-radio-url" type="button">Áp dụng</button>
+          </div>
+        </div>
+        <div class="setting-note" id="firebase-config-status">
+          Trạng thái Firebase: Đang kiểm tra cấu hình...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FIREBASE USER (ĐĂNG NHẬP / ĐĂNG KÝ / HỒ SƠ) -->
+  <div class="modal-backdrop hidden" id="modal-auth">
+    <div class="sys-modal">
+      <div class="modal-head">
+        <h3>🪪 ĐỊNH DANH CON NỢ // FIREBASE</h3>
+        <button class="modal-close" data-close-modal="modal-auth" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- View chưa đăng nhập -->
+        <div id="auth-logged-out">
+          <p class="auth-desc">Đăng nhập để lưu mã Con nợ, đồng bộ màu giao diện và số dư Phước Báu lên đám mây Firebase.</p>
+
+          <button class="btn-google" id="btn-google-login" type="button">
+            <span>G</span> Đăng nhập bằng Google
+          </button>
+
+          <div class="auth-divider"><span>HOẶC EMAIL</span></div>
+
+          <form id="email-auth-form" class="auth-form">
+            <input type="email" id="auth-email" placeholder="Email ký chủ..." required />
+            <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 6 ký tự)..." required />
+            <div class="auth-actions">
+              <button class="btn-primary" type="submit" data-mode="login">Đăng nhập</button>
+              <button class="btn-secondary" type="button" id="btn-register-email">Đăng ký mới</button>
+            </div>
+          </form>
+          <p class="auth-msg" id="auth-msg"></p>
+        </div>
+
+        <!-- View đã đăng nhập -->
+        <div id="auth-logged-in" class="hidden">
+          <div class="profile-box">
+            <img id="profile-avatar" src="" alt="Avatar" class="profile-avatar hidden" />
+            <div>
+              <strong id="profile-name">Con nợ #000</strong>
+              <p id="profile-email">user@retribution.sys</p>
+              <p class="pb-tag">Phước Báu lưu trữ: <span id="profile-pb">-1,482.75 PB</span></p>
+            </div>
+          </div>
+          <div class="auth-actions">
+            <button class="btn-primary" id="btn-sync-now" type="button">Đồng bộ dữ liệu</button>
+            <button class="btn-danger" id="btn-logout" type="button">Đăng xuất</button>
+          </div>
+          <p class="auth-msg" id="auth-sync-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

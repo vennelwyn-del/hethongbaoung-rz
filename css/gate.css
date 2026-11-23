@@ -1,0 +1,769 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-main);
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.hidden { display: none !important; }
+
+/* NỀN CÔNG NGHỆ + LĂNG KÍNH */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 42px 42px;
+  transform: perspective(700px) rotateX(24deg) scale(1.15);
+  transform-origin: center top;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-prism-glow {
+  position: fixed;
+  inset: -10%;
+  background: var(--prism-grad);
+  filter: blur(45px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 90;
+}
+
+[data-theme="crystal"] .scanlines {
+  opacity: 0.25;
+}
+
+/* ==========================================================================
+   TOP BAR CỐ ĐỊNH: TRÁI VỀ TRANG CHỦ, PHẢI RADIO + THEME + SETTING + USER
+   ========================================================================== */
+.sys-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: var(--bg-elevated);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.topbar-left, .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.home-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.home-brand:hover {
+  border-color: var(--accent-1);
+  transform: translateY(-1px);
+}
+
+.brand-glyph {
+  font-size: 1.25rem;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-text strong {
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+}
+
+.brand-text small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--accent-1);
+}
+
+.portal-links {
+  display: flex;
+  gap: 6px;
+}
+
+.portal-chip {
+  text-decoration: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  transition: 0.2s;
+}
+
+.portal-chip:hover, .portal-chip.is-active {
+  color: var(--text-main);
+  border-color: var(--accent-1);
+  box-shadow: 0 0 12px var(--border-glow);
+}
+
+/* RADIO PLAYER */
+.sys-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.radio-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--accent-1);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  transition: 0.2s;
+}
+
+.radio-btn:hover {
+  border-color: var(--accent-1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.radio-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radio-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  max-width: 135px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.radio-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.radio-eq i {
+  display: block;
+  width: 2px;
+  height: 4px;
+  background: var(--accent-2);
+  border-radius: 2px;
+}
+
+.sys-radio.is-playing .radio-eq i {
+  animation: eqPulse 0.7s infinite ease-in-out alternate;
+}
+.sys-radio.is-playing .radio-eq i:nth-child(2) { animation-delay: 0.15s; }
+.sys-radio.is-playing .radio-eq i:nth-child(3) { animation-delay: 0.3s; }
+.sys-radio.is-playing .radio-eq i:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes eqPulse {
+  from { height: 3px; }
+  to { height: 12px; background: var(--accent-1); }
+}
+
+.radio-vol {
+  width: 56px;
+  accent-color: var(--accent-1);
+  cursor: pointer;
+}
+
+/* THEME SWITCHER */
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.theme-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: transparent;
+  padding: 1px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.theme-dot span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.theme-dot.active, .theme-dot:hover {
+  transform: scale(1.15);
+  border-color: var(--text-main);
+}
+
+/* SETTING & FIREBASE USER */
+.icon-pill, .user-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.icon-pill:hover, .user-pill:hover {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 14px var(--border-glow);
+}
+
+.user-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.user-status-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+/* ==========================================================================
+   KHU VỰC GATE TRUNG TÂM
+   ========================================================================== */
+.gate-stage {
+  position: relative;
+  z-index: 10;
+  min-height: calc(100vh - 64px);
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 28px 40px;
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+/* MÀN HÌNH CONG HAI BÊN */
+.curved-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+}
+
+.panel-left {
+  transform: perspective(900px) rotateY(10deg);
+}
+
+.panel-right {
+  transform: perspective(900px) rotateY(-10deg);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--accent-1);
+  font-weight: 700;
+}
+
+.blink-tag {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--accent-1);
+  font-size: 0.64rem;
+  animation: blink 1.6s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.4; }
+}
+
+.telemetry-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 140px;
+  max-height: 220px;
+  overflow-y: auto;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.telemetry-stream .muted {
+  color: var(--text-muted);
+}
+
+.holo-bar {
+  margin-top: 14px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.holo-bar span {
+  display: block;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  animation: slideBar 2.8s infinite ease-in-out;
+}
+
+@keyframes slideBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(240%); }
+}
+
+/* LÕI GATE CHÍNH */
+.gate-core-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.gate-badge {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+}
+
+.portal-gate {
+  position: relative;
+  width: 310px;
+  height: 310px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 70%);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.35s;
+}
+
+.portal-gate:hover {
+  transform: scale(1.045);
+}
+
+.portal-gate:active {
+  transform: scale(0.97);
+}
+
+.gate-svg-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  pointer-events: none;
+}
+
+.ring-outer {
+  stroke: var(--accent-1);
+  stroke-width: 1.5;
+  opacity: 0.85;
+  animation: spinCW 28s linear infinite;
+}
+
+.ring-inner {
+  stroke: var(--accent-2);
+  stroke-width: 1.2;
+  opacity: 0.7;
+  animation: spinCCW 18s linear infinite;
+}
+
+.portal-gate:hover .ring-outer { animation-duration: 9s; }
+.portal-gate:hover .ring-inner { animation-duration: 6s; }
+
+@keyframes spinCW { to { transform: rotate(360deg); } }
+@keyframes spinCCW { to { transform: rotate(-360deg); } }
+
+.gate-prism-core {
+  position: relative;
+  width: 186px;
+  height: 186px;
+  border-radius: 50%;
+  border: 1px solid var(--border-glow);
+  background: var(--bg-elevated);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--gate-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-main);
+  transition: 0.3s;
+}
+
+.core-code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--accent-2);
+  letter-spacing: 0.14em;
+}
+
+.core-title {
+  font-size: 1.7rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(120deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.core-action {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--accent-1);
+}
+
+.gate-subtext {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  max-width: 460px;
+  line-height: 1.5;
+}
+
+/* CONSOLE SAU KHI ẤN VÀO GATE */
+.unlocked-console {
+  grid-column: 1 / -1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-glow);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--gate-shadow);
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.console-tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--accent-1);
+}
+
+.console-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.console-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-num {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--accent-2);
+  font-size: 0.78rem;
+}
+
+.console-card p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.card-links {
+  display: flex;
+  gap: 10px;
+}
+
+.card-links a {
+  color: var(--accent-1);
+  text-decoration: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+}
+
+/* BUTTONS & MODALS */
+.btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .btn-google {
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+
+.btn-primary {
+  background: var(--accent-1);
+  color: #0b0d12;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--accent-2);
+  color: var(--text-main);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-google {
+  width: 100%;
+  background: #fff;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.sys-modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-glow);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--gate-shadow);
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 0.86rem;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group, .auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-group {
+  flex-direction: row;
+}
+
+input[type="email"], input[type="password"], input[type="url"] {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+}
+
+.auth-divider {
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 4px 0;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-actions > * {
+  flex: 1;
+}
+
+.auth-msg, .setting-note {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--accent-2);
+}
+
+.profile-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--accent-1);
+}
+
+.pb-tag {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--accent-1);
+  margin-top: 4px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1040px) {
+  .gate-stage {
+    grid-template-columns: 1fr;
+  }
+  .panel-left, .panel-right {
+    transform: none;
+  }
+  .console-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-links, .pill-label {
+    display: none;
+  }
+  .portal-gate {
+    width: 260px;
+    height: 260px;
+  }
+  .gate-prism-core {
+    width: 160px;
+    height: 160px;
+  }
+}
