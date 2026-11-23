@@ -403,7 +403,7 @@ html, body {
 .setting-block { display: flex; flex-direction: column; gap: 8px; }
 .input-group, .auth-form { display: flex; flex-direction: column; gap: 10px; }
 .input-group { flex-direction: row; }
-input[type="email"], input[type="password"], input[type="url"] {
+input[type="text"], input[type="email"], input[type="password"], input[type="url"] {
   flex: 1; padding: 9px 12px; border-radius: 8px;
   border: 1px solid rgba(var(--rgb-primary), 0.35); background: rgba(0, 0, 0, 0.38); color: var(--text-main);
   font-family: "JetBrains Mono", monospace; font-size: 0.76rem;

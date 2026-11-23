@@ -1,16 +1,15 @@
-// js/main.js — Điều khiển VR 3D Rig, Chạm màn hình ảo, Oscilloscope, 2 Template Màu & Firebase
+// js/main.js — VR 3D Gate, Sóng Oscilloscope, 2 Template Màu & Tài khoản đơn giản Firebase
 
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
 import {
   isFirebaseConfigured,
-  subscribeAuth,
-  loginWithGoogle,
-  loginWithEmail,
-  registerWithEmail,
-  logoutUser,
-  loadDebtorProfile,
-  saveDebtorState
+  getSavedSessionUsername,
+  registerSimpleAccount,
+  loginSimpleAccount,
+  fetchDebtorByUsername,
+  saveDebtorState,
+  logoutSimpleAccount
 } from "./firebase.js";
 
 const vrBg = initVRCanvas();
@@ -27,7 +26,7 @@ const state = {
   parallax: localStorage.getItem("bao_ung_parallax") !== "false",
   pb: Number(localStorage.getItem("bao_ung_pb") || -1482.75),
   selectedSector: "Đ1 Vọng Ngữ",
-  user: null,
+  username: getSavedSessionUsername(),
   debtorCode: "#049",
   gateOpened: false,
   isBreaching: false
@@ -50,7 +49,7 @@ const gateActionText = document.getElementById("gate-action-text");
 const unlockedConsole = document.getElementById("unlocked-console");
 const receiptFeed = document.getElementById("receipt-feed");
 
-// 1. CHUYỂN ĐỔI 2 TEMPLATE MÀU
+// 1. CHUYỂN 2 TEMPLATE MÀU
 function applyTheme(themeName, syncCloud = true) {
   const safeTheme = VALID_THEMES.includes(themeName) ? themeName : "cyber-violet";
   state.theme = safeTheme;
@@ -61,8 +60,8 @@ function applyTheme(themeName, syncCloud = true) {
     btn.classList.toggle("active", btn.dataset.setTheme === safeTheme);
   });
 
-  if (syncCloud && state.user) {
-    saveDebtorState(state.user.uid, { theme: safeTheme }).catch(() => {});
+  if (syncCloud && state.username) {
+    saveDebtorState(state.username, { theme: safeTheme }).catch(() => {});
   }
 }
 
@@ -73,7 +72,7 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) => {
   });
 });
 
-// 2. TƯƠNG TÁC CHẠM MÀN HÌNH VR & GÓC NHÌN 3D
+// 2. TƯƠNG TÁC CHẠM 3D & CON TRỎ
 window.addEventListener("pointermove", (e) => {
   if (touchCursor) {
     touchCursor.style.left = `${e.clientX}px`;
@@ -83,14 +82,14 @@ window.addEventListener("pointermove", (e) => {
   if (!state.parallax || window.innerWidth <= 1140) return;
   const nx = (e.clientX / window.innerWidth - 0.5) * 2;
   const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-  vrRig.style.transform = `rotateY(${nx * 5.5}deg) rotateX(${-ny * 4}deg)`;
+  vrRig.style.transform = `rotateY(${nx * 6}deg) rotateX(${-ny * 4.5}deg)`;
 });
 
 window.addEventListener("pointerdown", (e) => {
   vrBg.spawnTouchRipple(e.clientX, e.clientY);
 });
 
-// 3. OSCILLOSCOPE SÓNG AI & RADIO SCOPE
+// 3. OSCILLOSCOPE SÓNG ĐIỆN & RADIO
 const waveCanvas = document.getElementById("telemetry-wave");
 const waveCtx = waveCanvas ? waveCanvas.getContext("2d") : null;
 const rScope = document.getElementById("radio-scope");
@@ -101,15 +100,15 @@ function drawScopes() {
   const styles = getComputedStyle(htmlEl);
   const p = styles.getPropertyValue("--rgb-primary").trim() || "59, 184, 248";
   const s = styles.getPropertyValue("--rgb-secondary").trim() || "247, 135, 248";
-  wavePhase += 0.09;
+  wavePhase += 0.1;
 
   if (waveCtx) {
     waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-    waveCtx.strokeStyle = `rgba(${p}, 0.9)`;
+    waveCtx.strokeStyle = `rgba(${p}, 0.92)`;
     waveCtx.lineWidth = 1.6;
     waveCtx.beginPath();
     for (let x = 0; x < waveCanvas.width; x++) {
-      const y = 29 + Math.sin(x * 0.05 + wavePhase) * 12 + Math.cos(x * 0.13 - wavePhase * 1.4) * 7;
+      const y = 29 + Math.sin(x * 0.06 + wavePhase) * 13 + Math.cos(x * 0.16 - wavePhase * 1.7) * 8;
       x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
     }
     waveCtx.stroke();
@@ -119,9 +118,7 @@ function drawScopes() {
     rCtx.clearRect(0, 0, rScope.width, rScope.height);
     rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
     for (let i = 0; i < 9; i++) {
-      const barH = radio.isPlaying
-        ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12
-        : 3;
+      const barH = radio.isPlaying ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12 : 3;
       rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
     }
   }
@@ -130,8 +127,7 @@ function drawScopes() {
 drawScopes();
 
 setInterval(() => {
-  const now = new Date();
-  document.getElementById("clock-utc").textContent = now.toTimeString().slice(0, 8);
+  document.getElementById("clock-utc").textContent = new Date().toTimeString().slice(0, 8);
   const hexEl = document.getElementById("hex-matrix");
   if (hexEl) {
     const bytes = Array.from({ length: 7 }, () =>
@@ -141,7 +137,7 @@ setInterval(() => {
   }
 }, 1000);
 
-// 4. RADIO CONTROLS
+// 4. RADIO
 radioTrackName.textContent = radio.currentTrackName;
 radioToggle.addEventListener("click", () => {
   const playing = radio.toggle();
@@ -152,7 +148,7 @@ radioNext.addEventListener("click", () => {
 });
 radioVol.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 5. CHỌN ĐIỆN & TƯƠNG TÁC NÚT TRÊN MÀN HÌNH ẢO
+// 5. RECEIPT & GATE
 function pushReceipt(text) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -174,23 +170,21 @@ document.querySelectorAll(".sector-key").forEach((btn) => {
     btn.classList.add("is-selected");
     state.selectedSector = btn.dataset.sector;
     document.getElementById("hud-sector-side").textContent = state.selectedSector;
-    pushReceipt(`> Đã khóa tọa độ cổng: [${state.selectedSector}]`);
+    pushReceipt(`> Khóa tọa độ: [${state.selectedSector}]`);
   });
 });
 
 document.querySelectorAll(".holo-switch").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (state.sfx) radio.playClickChime();
-    const cmd = btn.dataset.cmd;
-    if (cmd === "PING_RADAR") {
-      pushReceipt(`【RADAR】: Phát hiện 4 luồng hào quang lậu tại ${state.selectedSector}.`);
-    } else if (cmd === "AUDIT_DEBT") {
-      pushReceipt(`【KIỂM TOÁN 00】: Số dư nợ hiện tại ${state.pb.toFixed(2)} PB (Lãi kỳ sau +10%).`);
+    if (btn.dataset.cmd === "PING_RADAR") {
+      pushReceipt(`【RADAR】: Quét sóng điện từ tại ${state.selectedSector}.`);
+    } else {
+      pushReceipt(`【KIỂM TOÁN 00】: Số dư nợ ${state.pb.toFixed(2)} PB.`);
     }
   });
 });
 
-// 6. CHẠM LÕI GATE ĐỂ QUÉT LASER & MỞ CỔNG
 portalGate.addEventListener("click", () => {
   if (state.isBreaching) return;
   state.isBreaching = true;
@@ -199,13 +193,12 @@ portalGate.addEventListener("click", () => {
   gateTouchCore.classList.add("is-scanning");
   gateActionText.textContent = "[ ĐANG QUÉT SINH TRẮC... ]";
   coreProgressBar.style.width = "100%";
-  pushReceipt(`【Hệ Thống 00】: Đang mở khóa kênh truyền tống -> ${state.selectedSector}...`);
 
   setTimeout(() => {
     state.pb = Number((state.pb - 0.01).toFixed(2));
     localStorage.setItem("bao_ung_pb", String(state.pb));
     updatePbUI();
-    if (state.user) saveDebtorState(state.user.uid, { meritBalance: state.pb }).catch(() => {});
+    if (state.username) saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
 
     pushReceipt("【Biên lai 00】: -0.01 PB phí chạm màn hình hologram.");
     gateTouchCore.classList.remove("is-scanning");
@@ -218,7 +211,7 @@ portalGate.addEventListener("click", () => {
     document.querySelector(".wing-left").classList.add("hidden");
     document.querySelector(".wing-right").classList.add("hidden");
     unlockedConsole.classList.remove("hidden");
-  }, 560);
+  }, 520);
 });
 
 document.getElementById("btn-close-console").addEventListener("click", () => {
@@ -232,10 +225,10 @@ document.getElementById("btn-close-console").addEventListener("click", () => {
 
 document.getElementById("btn-enter-hub").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  alert(`Đã xác thực Gate tại [${state.selectedSector}]! Khi bạn chốt giao diện Gate này, mình sẽ code tiếp trang Hồ Sơ & Nhập Vai nối thẳng vào đây.`);
+  alert(`Gate đã xác thực [${state.selectedSector}]! Dữ liệu tài khoản đã sẵn sàng nối sang trang chơi chính.`);
 });
 
-// 7. MODALS & SETTING
+// 6. MODALS & SETTING
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 
@@ -275,71 +268,102 @@ document.getElementById("btn-apply-radio-url").addEventListener("click", () => {
   radioTrackName.textContent = radio.currentTrackName;
 });
 document.getElementById("firebase-config-status").textContent = isFirebaseConfigured
-  ? "Firebase Realtime Database: Đã kết nối sẵn sàng."
-  : "Firebase: Chưa cấu hình.";
+  ? "Firebase Realtime Database: Kết nối trực tiếp (Không cần Email)."
+  : "Chưa cấu hình databaseURL.";
 
-// 8. FIREBASE AUTH
+// 7. TÀI KHOẢN TÊN + MẬT KHẨU ĐƠN GIẢN
 const authOut = document.getElementById("auth-logged-out");
 const authIn = document.getElementById("auth-logged-in");
 const authMsg = document.getElementById("auth-msg");
 
-subscribeAuth(async (user) => {
-  state.user = user;
-  if (user) {
-    document.getElementById("user-dot").classList.add("online");
-    document.getElementById("user-label").textContent = user.displayName || user.email.split("@")[0];
-    authOut.classList.add("hidden");
-    authIn.classList.remove("hidden");
-    document.getElementById("profile-email").textContent = user.email || "";
-
-    const avatar = document.getElementById("profile-avatar");
-    if (user.photoURL) {
-      avatar.src = user.photoURL;
-      avatar.classList.remove("hidden");
-    }
-
-    const data = await loadDebtorProfile(user.uid);
-    if (data) {
-      state.debtorCode = data.debtorCode || "#049";
-      state.pb = typeof data.meritBalance === "number" ? data.meritBalance : state.pb;
-      document.getElementById("profile-name").textContent = `Con nợ ${state.debtorCode}`;
-      if (data.theme && VALID_THEMES.includes(data.theme)) applyTheme(data.theme, false);
-      updatePbUI();
-    }
-    pushReceipt(`【Hệ Thống 00】: Đồng bộ Firebase thành công (${state.debtorCode}).`);
-  } else {
+function applyProfileUI(profile) {
+  if (!profile) {
+    state.username = null;
     document.getElementById("user-dot").classList.remove("online");
     document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
     authOut.classList.remove("hidden");
     authIn.classList.add("hidden");
+    return;
+  }
+
+  state.username = profile.username;
+  state.debtorCode = profile.debtorCode || "#049";
+  if (typeof profile.meritBalance === "number") {
+    state.pb = profile.meritBalance;
+    localStorage.setItem("bao_ung_pb", String(state.pb));
+  }
+  if (profile.theme && VALID_THEMES.includes(profile.theme)) {
+    applyTheme(profile.theme, false);
+  }
+
+  document.getElementById("user-dot").classList.add("online");
+  document.getElementById("user-label").textContent = profile.displayName || profile.username;
+  document.getElementById("profile-name").textContent = `Con nợ ${state.debtorCode}`;
+  document.getElementById("profile-username").textContent = `@${profile.username}`;
+  authOut.classList.add("hidden");
+  authIn.classList.remove("hidden");
+  updatePbUI();
+}
+
+async function restoreSession() {
+  if (!state.username) {
+    applyProfileUI(null);
+    return;
+  }
+  try {
+    const profile = await fetchDebtorByUsername(state.username);
+    if (profile) {
+      applyProfileUI(profile);
+      pushReceipt(`【Hệ Thống 00】: Tự động khôi phục dữ liệu @${profile.username}.`);
+    } else {
+      logoutSimpleAccount();
+      applyProfileUI(null);
+    }
+  } catch {
+    applyProfileUI(null);
+  }
+}
+
+document.getElementById("simple-auth-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const uname = document.getElementById("auth-username").value;
+  const pass = document.getElementById("auth-pass").value;
+  try {
+    authMsg.textContent = "Đang đăng nhập...";
+    const profile = await loginSimpleAccount(uname, pass);
+    applyProfileUI(profile);
+    authMsg.textContent = "";
+    pushReceipt(`【Hệ Thống 00】: Đã đăng nhập @${profile.username}.`);
+  } catch (err) {
+    authMsg.textContent = err.message;
   }
 });
 
-document.getElementById("btn-google-login").addEventListener("click", async () => {
-  try { authMsg.textContent = "Đang kết nối Google..."; await loginWithGoogle(); authMsg.textContent = ""; }
-  catch (err) { authMsg.textContent = err.message; }
-});
-document.getElementById("email-auth-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.getElementById("btn-register-simple").addEventListener("click", async () => {
+  const uname = document.getElementById("auth-username").value;
+  const pass = document.getElementById("auth-pass").value;
   try {
-    authMsg.textContent = "Đang xác thực...";
-    await loginWithEmail(document.getElementById("auth-email").value.trim(), document.getElementById("auth-pass").value);
+    authMsg.textContent = "Đang tạo tài khoản...";
+    const profile = await registerSimpleAccount(uname, pass);
+    applyProfileUI(profile);
     authMsg.textContent = "";
-  } catch (err) { authMsg.textContent = err.message; }
+    pushReceipt(`【Hệ Thống 00】: Tạo mới hồ sơ @${profile.username} (${profile.debtorCode}).`);
+  } catch (err) {
+    authMsg.textContent = err.message;
+  }
 });
-document.getElementById("btn-register-email").addEventListener("click", async () => {
-  try {
-    authMsg.textContent = "Đang tạo hồ sơ...";
-    await registerWithEmail(document.getElementById("auth-email").value.trim(), document.getElementById("auth-pass").value);
-    authMsg.textContent = "";
-  } catch (err) { authMsg.textContent = err.message; }
-});
+
 document.getElementById("btn-sync-now").addEventListener("click", async () => {
-  if (!state.user) return;
-  await saveDebtorState(state.user.uid, { theme: state.theme, meritBalance: state.pb });
-  document.getElementById("auth-sync-msg").textContent = "Đã đồng bộ thành công lên Firebase.";
+  if (!state.username) return;
+  await saveDebtorState(state.username, { theme: state.theme, meritBalance: state.pb });
+  document.getElementById("auth-sync-msg").textContent = "Đã lưu toàn bộ dữ liệu lên Firebase.";
 });
-document.getElementById("btn-logout").addEventListener("click", () => logoutUser());
+
+document.getElementById("btn-logout").addEventListener("click", () => {
+  logoutSimpleAccount();
+  applyProfileUI(null);
+});
 
 applyTheme(state.theme, false);
 updatePbUI();
+restoreSession();

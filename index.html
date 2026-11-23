@@ -273,26 +273,22 @@
     </div>
   </div>
 
-  <!-- MODAL FIREBASE USER -->
+  <!-- MODAL TÀI KHOẢN ĐƠN GIẢN (LƯU TRÊN FIREBASE REALTIME DATABASE) -->
   <div class="modal-backdrop hidden" id="modal-auth">
     <div class="sys-modal">
       <div class="modal-head">
-        <h3>🪪 ĐỊNH DANH CON NỢ // FIREBASE</h3>
+        <h3>🪪 TÀI KHOẢN CON NỢ // LƯU DỮ LIỆU</h3>
         <button class="modal-close" data-close-modal="modal-auth" type="button">✕</button>
       </div>
       <div class="modal-body">
         <div id="auth-logged-out">
-          <p class="auth-desc">Đăng nhập để lưu mã Con nợ, màu template và số dư Phước Báu lên Firebase.</p>
-          <button class="btn-google holo-tactile" id="btn-google-login" type="button">
-            <span>G</span> Đăng nhập với Google
-          </button>
-          <div class="auth-divider"><span>HOẶC EMAIL</span></div>
-          <form id="email-auth-form" class="auth-form">
-            <input type="email" id="auth-email" placeholder="Email..." required />
-            <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 6 ký tự)..." required />
+          <p class="auth-desc">Tạo nhanh Tên tài khoản &amp; Mật khẩu để lưu mãi mãi mã Con nợ, màu giao diện và Phước Báu.</p>
+          <form id="simple-auth-form" class="auth-form">
+            <input type="text" id="auth-username" placeholder="Tên tài khoản (vd: conno01)..." required />
+            <input type="password" id="auth-pass" placeholder="Mật khẩu (>= 4 ký tự)..." required />
             <div class="auth-actions">
               <button class="btn-primary holo-tactile" type="submit">Đăng nhập</button>
-              <button class="btn-secondary holo-tactile" type="button" id="btn-register-email">Đăng ký</button>
+              <button class="btn-secondary holo-tactile" type="button" id="btn-register-simple">Tạo tài khoản mới</button>
             </div>
           </form>
           <p class="auth-msg" id="auth-msg"></p>
@@ -300,10 +296,9 @@
 
         <div id="auth-logged-in" class="hidden">
           <div class="profile-box">
-            <img id="profile-avatar" src="" alt="Avatar" class="profile-avatar hidden" />
             <div>
               <strong id="profile-name">Con nợ #000</strong>
-              <p id="profile-email"></p>
+              <p id="profile-username">@username</p>
               <p class="pb-tag">Phước Báu: <span id="profile-pb">-1,482.75 PB</span></p>
             </div>
           </div>
