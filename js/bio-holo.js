@@ -1,0 +1,170 @@
+// js/bio-holo.js — Holo-Bio Scanner 3D (Three.js DNA Double Helix + GLSL Soul Core + Retinal Iris & ECG)
+
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
+import { createHoloMaterial } from "./holo-shader.js";
+
+export function initBioHologram() {
+  const canvas = document.getElementById("bio-canvas");
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 50);
+  camera.position.set(0, 0.2, 8.2);
+
+  function getColors() {
+    const s = getComputedStyle(document.documentElement);
+    return {
+      p: s.getPropertyValue("--c-primary").trim() || "#3BB8F8",
+      sec: s.getPropertyValue("--c-secondary").trim() || "#F787F8"
+    };
+  }
+  let pal = getColors();
+
+  // 1. LÕI SINH TRẮC HỌC HOLOGRAM GLSL Ở GIỮA
+  const coreGeo = new THREE.IcosahedronGeometry(1.15, 1);
+  const coreHoloMat = createHoloMaterial(pal.p, 0.78);
+  const coreMesh = new THREE.Mesh(coreGeo, coreHoloMat);
+  scene.add(coreMesh);
+
+  const coreWire = new THREE.LineSegments(
+    new THREE.EdgesGeometry(coreGeo),
+    new THREE.LineBasicMaterial({ color: pal.sec, transparent: true, opacity: 0.75 })
+  );
+  coreMesh.add(coreWire);
+
+  // 2. VÒNG QUÉT SINH TRẮC QUAY ĐA TRỤC
+  const scanRing1 = new THREE.Mesh(
+    new THREE.TorusGeometry(1.85, 0.025, 8, 64),
+    new THREE.MeshBasicMaterial({ color: pal.p, transparent: true, opacity: 0.75 })
+  );
+  const scanRing2 = new THREE.Mesh(
+    new THREE.TorusGeometry(2.2, 0.02, 8, 64),
+    new THREE.MeshBasicMaterial({ color: pal.sec, transparent: true, opacity: 0.65 })
+  );
+  scanRing1.rotation.set(1.1, 0.4, 0);
+  scanRing2.rotation.set(-0.8, 0.9, 0.3);
+  scene.add(scanRing1, scanRing2);
+
+  // 3. CHUỖI XOẮN KÉP DNA 3D PHÍA SAU
+  const dnaGroup = new THREE.Group();
+  const nodeGeo = new THREE.SphereGeometry(0.065, 8, 8);
+  const matA = new THREE.MeshBasicMaterial({ color: pal.p, transparent: true, opacity: 0.9 });
+  const matB = new THREE.MeshBasicMaterial({ color: pal.sec, transparent: true, opacity: 0.9 });
+  const rungMat = new THREE.LineBasicMaterial({ color: pal.p, transparent: true, opacity: 0.45 });
+
+  for (let i = -14; i <= 14; i++) {
+    const t = i * 0.42;
+    const y = i * 0.19;
+    const r = 0.88;
+    const x1 = Math.cos(t) * r, z1 = Math.sin(t) * r;
+    const x2 = Math.cos(t + Math.PI) * r, z2 = Math.sin(t + Math.PI) * r;
+
+    const s1 = new THREE.Mesh(nodeGeo, matA);
+    s1.position.set(x1, y, z1);
+    const s2 = new THREE.Mesh(nodeGeo, matB);
+    s2.position.set(x2, y, z2);
+
+    const rungGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x1, y, z1),
+      new THREE.Vector3(x2, y, z2)
+    ]);
+    const rung = new THREE.Line(rungGeo, rungMat);
+    dnaGroup.add(s1, s2, rung);
+  }
+  dnaGroup.position.z = -1.6;
+  scene.add(dnaGroup);
+
+  function resize() {
+    const parent = canvas.parentElement;
+    if (!parent) return;
+    const w = Math.max(220, parent.clientWidth);
+    const h = 230;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  const obs = new MutationObserver(() => {
+    pal = getColors();
+    coreHoloMat.uniforms.uColor.value.set(pal.p);
+    coreWire.material.color.set(pal.sec);
+    scanRing1.material.color.set(pal.p);
+    scanRing2.material.color.set(pal.sec);
+    matA.color.set(pal.p);
+    matB.color.set(pal.sec);
+    rungMat.color.set(pal.p);
+  });
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  // 4. VÕNG MẠC & NHỊP TIM ECG 2D HỖ TRỢ
+  const irisCanvas = document.getElementById("iris-canvas");
+  const irisCtx = irisCanvas?.getContext("2d");
+  const ecgCanvas = document.getElementById("ecg-canvas");
+  const ecgCtx = ecgCanvas?.getContext("2d");
+
+  let time = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.03;
+
+    coreHoloMat.uniforms.uTime.value = time;
+    coreMesh.rotation.y += 0.012;
+    coreMesh.rotation.x += 0.006;
+    dnaGroup.rotation.y += 0.018;
+    scanRing1.rotation.z += 0.015;
+    scanRing2.rotation.z -= 0.012;
+    scanRing2.rotation.x += 0.005;
+
+    renderer.render(scene, camera);
+
+    // Quét võng mạc (Iris Biometric Ring)
+    if (irisCtx) {
+      const w = irisCanvas.width, h = irisCanvas.height;
+      irisCtx.clearRect(0, 0, w, h);
+      irisCtx.strokeStyle = pal.p;
+      irisCtx.lineWidth = 1.2;
+      irisCtx.beginPath();
+      irisCtx.arc(w / 2, h / 2, 24, 0, Math.PI * 2);
+      irisCtx.stroke();
+
+      irisCtx.strokeStyle = pal.sec;
+      irisCtx.beginPath();
+      irisCtx.arc(w / 2, h / 2, 16, time, time + Math.PI * 1.3);
+      irisCtx.stroke();
+
+      for (let a = 0; a < 12; a++) {
+        const ang = (a / 12) * Math.PI * 2 + time * 0.4;
+        irisCtx.beginPath();
+        irisCtx.moveTo(w / 2 + Math.cos(ang) * 9, h / 2 + Math.sin(ang) * 9);
+        irisCtx.lineTo(w / 2 + Math.cos(ang) * 22, h / 2 + Math.sin(ang) * 22);
+        irisCtx.stroke();
+      }
+    }
+
+    // Sóng nhịp tim ECG sinh trắc
+    if (ecgCtx) {
+      const w = ecgCanvas.width, h = ecgCanvas.height;
+      ecgCtx.clearRect(0, 0, w, h);
+      ecgCtx.strokeStyle = pal.sec;
+      ecgCtx.lineWidth = 1.5;
+      ecgCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const phase = (x * 0.14 - time * 5) % (Math.PI * 2);
+        let spike = 0;
+        if (phase > 2.4 && phase < 2.8) spike = -14;
+        else if (phase >= 2.8 && phase < 3.1) spike = 10;
+        else if (phase > 1.8 && phase < 2.2) spike = -4;
+        const y = h / 2 + spike + Math.sin(x * 0.2 + time) * 1.2;
+        x === 0 ? ecgCtx.moveTo(x, y) : ecgCtx.lineTo(x, y);
+      }
+      ecgCtx.stroke();
+    }
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  animate();
+}

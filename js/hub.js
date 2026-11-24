@@ -1,4 +1,6 @@
 // js/hub.js — Tab trượt Ảnh 1 + Khung System Ảnh 3 + Tam Giác Ngược 10 Tầng Ảnh 4
+import { initBioHologram } from "./bio-holo.js";
+initBioHologram();
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
@@ -657,3 +659,20 @@ setInterval(() => {
   railR.prepend(lineR);
   if (railR.children.length > 36) railR.lastChild.remove();
 }, 240);
+setInterval(() => {
+  const bpm = Math.floor(68 + Math.random() * 14);
+  const sync = (96.5 + Math.random() * 3.2).toFixed(1);
+  const bpmEl = document.getElementById("bio-bpm-readout");
+  if (bpmEl) bpmEl.textContent = `SOUL_BPM: ${bpm} • SYNC: ${sync}%`;
+
+  const syn = document.getElementById("m-synapse");
+  const cort = document.getElementById("m-cortisol");
+  const flux = document.getElementById("m-flux");
+  const tickEl = document.getElementById("live-number-ticker");
+  if (syn) syn.textContent = `${sync}%`;
+  if (cort) cort.textContent = `${(12 + Math.random() * 5).toFixed(1)} ng`;
+  if (flux) flux.textContent = `-${(0.2 + Math.random() * 0.7).toFixed(2)} Hz`;
+  if (tickEl) {
+    tickEl.textContent = `${(Math.random() * 99).toFixed(2)} | 0x${Math.floor(Math.random() * 255).toString(16).toUpperCase().padStart(2, "0")} | ${sync}%`;
+  }
+}, 900);

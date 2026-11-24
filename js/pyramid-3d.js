@@ -1,11 +1,9 @@
 // js/pyramid-3d.js — Mô hình 3D Three.js Tam Giác Ngược 10 Tầng + Raycaster chọn tầng trực tiếp
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
-
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"; 
 export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin }) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return { setSelectedTier: () => {}, resize: () => {} };
-
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -178,15 +176,17 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
     orbitRing.rotation.z += 0.006;
 
     for (const entry of tierEntries) {
-      const isSel = entry.tierId === selectedTier;
-      const isHov = entry.tierId === hoveredTier;
+  const isSel = entry.tierId === selectedTier;
+  const isHov = entry.tierId === hoveredTier;
 
-      const targetScale = isSel ? 1.12 : isHov ? 1.06 : 1.0;
-      entry.mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.16);
-      entry.fillMat.color.copy(isSel ? colors.secondary : colors.primary);
-      entry.wireMat.color.copy(isSel ? colors.secondary : colors.primary);
-      entry.fillMat.opacity = isSel ? 0.42 : isHov ? 0.28 : 0.12;
-      entry.wireMat.opacity = isSel ? 1.0 : isHov ? 0.95 : 0.58;
+  entry.fillMat.uniforms.uTime.value = time;
+  entry.fillMat.uniforms.uColor.value.copy(isSel ? colors.secondary : colors.primary);
+  entry.fillMat.uniforms.uOpacity.value = isSel ? 0.92 : isHov ? 0.72 : 0.42;
+
+  const targetScale = isSel ? 1.12 : isHov ? 1.06 : 1.0;
+  entry.mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.16);
+  entry.wireMat.color.copy(isSel ? colors.secondary : colors.primary);
+  entry.wireMat.opacity = isSel ? 1.0 : isHov ? 0.95 : 0.62;
 
       if (isSel && onProjectOrigin) {
         // Tính tọa độ cạnh phải của tầng 3D đang chọn để mũi tên SVG bám dính
