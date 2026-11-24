@@ -1601,3 +1601,14 @@
   50% { transform: translateX(7px); }
   75% { transform: translateX(-5px); }
 }
+.vault-countdown-pill {
+  padding: 3px 10px;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border: 1px solid rgba(var(--rgb-primary), 0.45);
+  background: rgba(0, 0, 0, 0.45);
+}
+.vault-countdown-pill strong {
+  color: var(--c-primary);
+}

@@ -864,6 +864,14 @@ setInterval(() => {
   const dtEl = document.getElementById("rank-date-gmt7");
   if (cdEl) cdEl.textContent = countdown;
   if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) loadAndRenderLeaderboard();
+  const vCdEl = document.getElementById("vault-countdown");
+  if (vCdEl) vCdEl.textContent = countdown;
+  if (lastVaultDateKey && lastVaultDateKey !== dateKey) {
+    lastVaultDateKey = dateKey;
+    renderVaultRiddles();
+    if (state.vaultUnlocked) setVaultState(false);
+    pushReceipt("【KÉT BẢO MẬT 24H】: Đã sang chu kỳ mới — Hệ thống tự động cập nhật bộ câu hỏi xác thực.");
+  }
   const bytes = Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0"));
   document.getElementById("hex-matrix").textContent = `0x${bytes.join(" ")}`;
 }, 1000);
@@ -1173,54 +1181,87 @@ document.getElementById("btn-goto-vault")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   switchTab("tab-vault", true);
 });
-
-// 12. TAB 07: KHO HỒ SƠ MẬT (3 BỘ ĐỀ ĐỐ MẸO + LOGIC VẶN VẸO + LẬT THẺ 3D + BÁO ĐỘNG Sd.)
+// 12. TAB 07: KHO HỒ SƠ MẬT (5 BỘ ĐỀ ẨN XOAY VÒNG 24H GMT+7 + GỢI Ý ẨN 7 LẦN + BÁO ĐỘNG Sd.)
 const VAULT_PROTOCOLS = [
   {
-    badge: "PROTOCOL ALPHA // CẤP ĐỘ: HẠI NÃO",
-    title: "🔐 BỘ ĐỀ 1: BẪY NGÔN TỪ, XÁC SUẤT & LOGIC THẨM VẤN",
     passcode: "57223",
     riddles: [
-      "<strong>Chữ số 1 (Bẫy đại số):</strong> Lục Nha bán một món đồ cổ <b>kèm hộp nhung</b> giá tổng cộng <b>110 tệ</b>. Biết món đồ cổ <b>đắt hơn chiếc hộp đúng 100 tệ</b>. Hỏi chiếc hộp giá bao nhiêu tệ?",
-      "<strong>Chữ số 2 (Bẫy găng tay):</strong> Trong ngăn kéo tối om có <b>6 chiếc găng tay đỏ</b> (3 trái, 3 phải) và <b>6 chiếc găng tay đen</b> (3 trái, 3 phải). Trong bóng tối không nhìn thấy gì, cần bốc ra <b>tối thiểu bao nhiêu chiếc</b> để <b>CHẮC CHẮN 100%</b> ghép được ít nhất <b>1 đôi hợp lệ cùng màu</b> (1 trái + 1 phải)?",
-      "<strong>Chữ số 3 (Bẫy lũy thừa):</strong> Hệ Thống 00 thả một loại virus nhân bản <b>gấp đôi số lượng sau mỗi 1 giây</b>. Đúng giây thứ <b>60</b> virus lấp đầy <b>100%</b> bộ nhớ. Hỏi từ lúc virus đạt mức <b>25%</b> thì cần chờ thêm <b>bao nhiêu giây nữa</b> để nó đầy 100%?",
-      "<strong>Chữ số 4 (Bẫy huyết thống):</strong> Tạ Vô Cữu giơ một bức ảnh lên và nói: <em>“Cha mẹ tôi không có con trai nào khác ngoài tôi, cũng không có con gái. Nhưng <b>cha của người trong ảnh</b> lại chính là <b>con trai của cha tôi</b>.”</em> Người trong ảnh là ai? (Nhập: <b>1</b> = Chính Tạ Vô Cữu | <b>2</b> = Con ruột của Tạ Vô Cữu | <b>3</b> = Cha của Tạ Vô Cữu | <b>4</b> = Em họ)",
-      "<strong>Chữ số 5 (Bẫy nói dối):</strong> Có 3 nghi phạm <b>A, B, C</b>; biết <b>chỉ có ĐÚNG 1 thủ phạm</b> và <b>chỉ có ĐÚNG 1 người nói thật</b> (2 kẻ còn lại nói dối). <b>A</b> khai: <em>“Tôi không trộm”</em>; <b>B</b> khai: <em>“A đã trộm”</em>; <b>C</b> khai: <em>“Tôi không trộm”</em>. Thủ phạm là ai? (Nhập: <b>1</b> = A | <b>2</b> = B | <b>3</b> = C | <b>0</b> = Vô nghiệm)"
+      "<strong>Chữ số 1:</strong> Lục Nha bán một món đồ cổ <b>kèm hộp nhung</b> giá tổng cộng <b>110 tệ</b>. Biết món đồ cổ <b>đắt hơn chiếc hộp đúng 100 tệ</b>. Hỏi chiếc hộp giá bao nhiêu tệ?",
+      "<strong>Chữ số 2:</strong> Trong ngăn kéo tối om có <b>6 chiếc găng tay đỏ</b> (3 trái, 3 phải) và <b>6 chiếc găng tay đen</b> (3 trái, 3 phải). Không nhìn thấy gì, cần bốc ra <b>tối thiểu bao nhiêu chiếc</b> để <b>CHẮC CHẮN 100%</b> ghép được ít nhất <b>1 đôi hợp lệ cùng màu</b> (1 trái + 1 phải)?",
+      "<strong>Chữ số 3:</strong> Hệ Thống 00 thả một loại virus nhân bản <b>gấp đôi số lượng sau mỗi 1 giây</b>. Đúng giây thứ <b>60</b> virus lấp đầy <b>100%</b> bộ nhớ. Hỏi từ lúc virus đạt mức <b>25%</b> thì cần chờ thêm <b>bao nhiêu giây nữa</b> để nó đầy 100%?",
+      "<strong>Chữ số 4:</strong> Tạ Vô Cữu giơ một bức ảnh lên và nói: <em>“Cha mẹ tôi không có con trai nào khác ngoài tôi, cũng không có con gái. Nhưng <b>cha của người trong ảnh</b> lại chính là <b>con trai của cha tôi</b>.”</em> Người trong ảnh là ai? (Nhập: <b>1</b> = Chính Tạ Vô Cữu | <b>2</b> = Con ruột của Tạ Vô Cữu | <b>3</b> = Cha của Tạ Vô Cữu | <b>4</b> = Em họ)",
+      "<strong>Chữ số 5:</strong> Có 3 nghi phạm <b>A, B, C</b>; biết <b>chỉ có ĐÚNG 1 thủ phạm</b> và <b>chỉ có ĐÚNG 1 người nói thật</b> (2 kẻ còn lại nói dối). <b>A</b> khai: <em>“Tôi không trộm”</em>; <b>B</b> khai: <em>“A đã trộm”</em>; <b>C</b> khai: <em>“Tôi không trộm”</em>. Thủ phạm là ai? (Nhập: <b>1</b> = A | <b>2</b> = B | <b>3</b> = C | <b>0</b> = Vô nghiệm)"
     ],
-    hint1: "💡 Tiểu Thất gợi ý: (1) Nếu hộp 10 tệ thì đồ cổ phải 110 tệ => tổng thành 120 mất rồi!; (2) Đừng nhầm với bài toán ĐÔI TẤT — găng tay có phân biệt Trái/Phải nên xui nhất là bốc hết 3 trái đỏ + 3 trái đen; (3) Virus gấp đôi mỗi giây nên lùi 1 giây là còn một nửa; (4) Đọc kỹ chữ “CHA CỦA người trong ảnh”; (5) Thử giả sử từng người là thủ phạm rồi đếm xem có đúng 1 người nói thật không!",
-    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Alpha là <b>57223</b> (Hộp 5 tệ • 7 chiếc găng • 2 giây cuối • Con ruột = 2 • Thủ phạm C = 3)."
+    clue12: "💡 <b>Tiểu Thất #707:</b> “Em chỉ nhắc nhỏ xíu thôi nhé: nếu cái hộp 10 tệ thì đồ cổ 110 tệ, cộng lại thành 120 mất rồi! Còn câu găng tay đừng nhầm sang bài toán đôi tất không phân biệt trái phải đâu ạ.”",
+    clue34: "💡 <b>Tiểu Thất #707:</b> “Virus nhân đôi mỗi giây nghĩa là lùi 1 giây còn một nửa, lùi 2 giây còn 25% đó... Với lại câu bức ảnh, đại ca đọc kỹ hai chữ ‘CHA CỦA’ đứng ở đằng trước ấy!”",
+    clue5: "💡 <b>Tiểu Thất #707:</b> “Câu cuối đừng chỉ nhìn mỗi A với B cãi nhau, đại ca thử đặt từng người A, B, C làm thủ phạm rồi đếm xem có ĐÚNG 1 người nói thật không...”",
+    cheatMsg: "🆘 <b>Tiểu Thất #707:</b> “Á á thôi được rồi!! Đại ca lì quá đi mất, em chịu thua luôn... Suỵt!! Em vừa bấm trộm máy Casio giúp đại ca rồi, đừng nói với Thanh Tra Tạ Vô Cữu nhé! Mật mã là <b style='letter-spacing:0.18em; color:#fff;'>57223</b>!”"
   },
   {
-    badge: "PROTOCOL BETA // CẤP ĐỘ: VẶN VẸO",
-    title: "🔐 BỘ ĐỀ 2: NGHỊCH LÝ SỔ SÁCH, THANG CUỐN & BỨC TƯỜNG",
     passcode: "49326",
     riddles: [
-      "<strong>Chữ số 1 (Bẫy khoảng cách):</strong> Đồng hồ quả lắc ở Sảnh Chờ 00 gõ hết <b>4 tiếng chuông</b> lúc 4 giờ mất đúng <b>6 giây</b> (tính từ tiếng đầu đến tiếng cuối). Hỏi lúc <b>3 giờ</b>, nó mất <b>mấy giây</b> để gõ hết 3 tiếng chuông?",
-      "<strong>Chữ số 2 (Bẫy tờ vs trang):</strong> Cuốn sổ nợ dày 300 trang (đánh số từ trang 1 đến 300; mỗi <b>tờ</b> gồm 2 trang: mặt lẻ trước, mặt chẵn sau). Tiểu Thất lỡ tay xé rách sạch <b>từ trang 98 đến hết trang 113</b>. Hỏi cậu ta đã xé mất tổng cộng <b>bao nhiêu TỜ giấy</b>?",
-      "<strong>Chữ số 3 (Bẫy suy luận im lặng):</strong> Có 4 Con nợ bị đội <b>2 mũ Đen, 2 mũ Trắng</b> (cả 4 đều biết tỷ lệ này). Bức tường dày chắn giữa người số <b>1</b> và <b>2</b>. Số <b>4</b> nhìn thấy mũ của 3 &amp; 2; số <b>3</b> chỉ thấy mũ của 2; số <b>2</b> và <b>1</b> không thấy ai. Thực tế đang đội: <b>1(Đen), 2(Trắng), 3(Đen), 4(Trắng)</b>. Sau 1 phút cả đám im lặng, <b>người số mấy</b> là người đầu tiên chắc chắn 100% đoán đúng màu mũ của mình?",
-      "<strong>Chữ số 4 (Bẫy chia dư):</strong> Tạ Vô Cữu có một số đồng xu nhỏ nhất lớn hơn 1: khi chia cho <b>2, 3, 4</b> đều <b>dư 1</b>, nhưng chia cho <b>5</b> thì <b>chia hết</b>. Lấy <b>chữ số hàng chục</b> của số đồng xu đó.",
-      "<strong>Chữ số 5 (Bẫy thang cuốn):</strong> Một tra nam đi bộ lên thang cuốn <b>đang chạy ngược chiều đi xuống</b>. Nếu hắn bước lên <b>2 bậc/giây</b> thì mất <b>60 giây</b> mới tới đỉnh; nếu chạy lên <b>3 bậc/giây</b> thì mất <b>30 giây</b> tới đỉnh. Hỏi khi thang cuốn tắt điện đứng yên, nó có tổng cộng bao nhiêu bậc? (Lấy <b>tổng số bậc chia cho 10</b>)"
+      "<strong>Chữ số 1:</strong> Đồng hồ quả lắc ở Sảnh Chờ 00 gõ hết <b>4 tiếng chuông</b> lúc 4 giờ mất đúng <b>6 giây</b> (tính từ tiếng đầu đến tiếng cuối). Hỏi lúc <b>3 giờ</b>, nó mất <b>mấy giây</b> để gõ hết 3 tiếng chuông?",
+      "<strong>Chữ số 2:</strong> Cuốn sổ nợ dày 300 trang (đánh số từ trang 1 đến 300; mỗi <b>tờ</b> gồm 2 trang: mặt lẻ trước, mặt chẵn sau). Tiểu Thất lỡ tay xé rách sạch <b>từ trang 98 đến hết trang 113</b>. Hỏi cậu ta đã xé mất tổng cộng <b>bao nhiêu TỜ giấy</b>?",
+      "<strong>Chữ số 3:</strong> Có 4 Con nợ bị đội <b>2 mũ Đen, 2 mũ Trắng</b> (cả 4 đều biết tỷ lệ này). Bức tường dày chắn giữa người số <b>1</b> và <b>2</b>. Số <b>4</b> nhìn thấy mũ của 3 &amp; 2; số <b>3</b> chỉ thấy mũ của 2; số <b>2</b> và <b>1</b> không thấy ai. Thực tế đang đội: <b>1(Đen), 2(Trắng), 3(Đen), 4(Trắng)</b>. Sau 1 phút cả đám im lặng, <b>người số mấy</b> là người đầu tiên chắc chắn 100% đoán đúng màu mũ của mình?",
+      "<strong>Chữ số 4:</strong> Tạ Vô Cữu có một số đồng xu nhỏ nhất lớn hơn 1: khi chia cho <b>2, 3, 4</b> đều <b>dư 1</b>, nhưng chia cho <b>5</b> thì <b>chia hết</b>. Lấy <b>chữ số hàng chục</b> của số đồng xu đó.",
+      "<strong>Chữ số 5:</strong> Một tra nam đi bộ lên thang cuốn <b>đang chạy ngược chiều đi xuống</b>. Nếu hắn bước lên <b>2 bậc/giây</b> thì mất <b>60 giây</b> mới tới đỉnh; nếu chạy lên <b>3 bậc/giây</b> thì mất <b>30 giây</b> tới đỉnh. Hỏi khi thang cuốn tắt điện đứng yên, nó có tổng cộng bao nhiêu bậc? (Lấy <b>tổng số bậc chia cho 10</b>)"
     ],
-    hint1: "💡 Tiểu Thất gợi ý: (1) 4 tiếng chuông chỉ có 3 khoảng nghỉ ở giữa; (2) Trang 98 nằm chung tờ với trang 97, còn trang 113 nằm chung tờ với trang 114!; (3) Nếu số 2 và 3 đội cùng màu thì số 4 đã hét lên ngay rồi — vì 4 im lặng nên 3 biết mình khác màu 2; (4) Số đó trừ 1 chia hết cho 12; (5) Gọi N là số bậc, v là tốc độ thang chạy xuống: N = 60(2-v) = 30(3-v).",
-    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Beta là <b>49326</b> (4 giây • 9 tờ • Người số 3 • 25 xu -> hàng chục là 2 • 60 bậc / 10 = 6)."
+    clue12: "💡 <b>Tiểu Thất #707:</b> “Giữa 4 tiếng chuông thực ra chỉ có 3 khoảng nghỉ thôi ạ! Còn sổ sách thì trang 98 nằm chung tờ với trang 97, trang 113 nằm chung tờ với trang 114 đó!”",
+    clue34: "💡 <b>Tiểu Thất #707:</b> “Nếu số 2 và số 3 đội cùng màu thì số 4 đã hét lên từ lâu rồi — vì số 4 im lặng nên người nhìn được số 2 biết ngay màu ngược lại! Còn số xu kia trừ đi 1 sẽ chia hết cho 12.”",
+    clue5: "💡 <b>Tiểu Thất #707:</b> “Câu thang cuốn cứ đặt tổng bậc là N và tốc độ thang trôi xuống là v: lập N = 60×(2 - v) = 30×(3 - v) là ra ngay ạ!”",
+    cheatMsg: "🆘 <b>Tiểu Thất #707:</b> “Thôi đừng bấm nữa mà máy POS sắp bốc khói rồi!! Em liều mạng gạt cần sau lưng giúp đại ca đây — mật mã là <b style='letter-spacing:0.18em; color:#fff;'>49326</b>, nhớ giữ bí mật tuyệt đối nhé!”"
   },
   {
-    badge: "PROTOCOL GAMMA // CẤP ĐỘ: ĐỘC ÁC (TỰ THAM CHIẾU)",
-    title: "🔐 BỘ ĐỀ 3: CẮT SẮT, ĐẤU LOẠI & NGHỊCH LÝ TỰ THAM CHIẾU",
     passcode: "17083",
     riddles: [
-      "<strong>Chữ số 1 (Bẫy nhát cắt):</strong> Thanh huyền thiết dài <b>5 mét</b> cần cắt thành các đoạn bằng nhau dài <b>1 mét</b>. Mỗi lần cắt mất <b>12 phút</b>, sau mỗi lần cắt phải nghỉ làm mát cưa <b>4 phút</b> (cắt xong đoạn cuối thì nghỉ luôn không tính). Hỏi cắt xong cả thanh mất <b>mấy giờ</b>?",
-      "<strong>Chữ số 2 (Bẫy bắt tay):</strong> Tại sảnh tiệc hào môn, mọi người bắt tay nhau đôi một (ai cũng bắt tay tất cả những người còn lại, không lặp lại). Đếm được tổng cộng <b>21 cái bắt tay</b>. Hỏi trong sảnh có <b>tất cả bao nhiêu người</b>?",
-      "<strong>Chữ số 3 (Bẫy kinh điển):</strong> Nếu Tiểu Thất mất 2 giờ để đào xong 1 cái hố lập phương 1m × 1m × 1m, hỏi trong <b>nửa cái hố</b> như vậy chứa <b>bao nhiêu mét khối đất</b>?",
-      "<strong>Chữ số 4 (Bẫy giải đấu):</strong> Giải E-Sports Điện 9 có <b>259 tuyển thủ</b> thi đấu loại trực tiếp 1v1 (thua 1 trận loại ngay, không hòa) để tìm ra 1 nhà vô địch. Cần tổ chức <b>tổng cộng bao nhiêu trận đấu</b>? (Lấy <b>chữ số hàng đơn vị</b> của tổng số trận)",
-      "<strong>Chữ số 5 (Nghịch lý Tự Tham Chiếu — Siêu khó):</strong> Cho 4 chữ số đầu bạn vừa giải là <b>[A]-[B]-[C]-[D]</b>. Chữ số thứ 5 (<b>E</b>) phải thỏa mãn đúng câu khẳng định sau: <em>“Tổng số lượng chữ số <b>nhỏ hơn hoặc bằng 5</b> xuất hiện trong <b>CẢ 5 CHỮ SỐ [A-B-C-D-E]</b> của mật mã này đúng bằng <b>E</b>.”</em> Tìm <b>E</b>?"
+      "<strong>Chữ số 1:</strong> Thanh huyền thiết dài <b>5 mét</b> cần cắt thành các đoạn bằng nhau dài <b>1 mét</b>. Mỗi lần cắt mất <b>12 phút</b>, sau mỗi lần cắt phải nghỉ làm mát cưa <b>4 phút</b> (cắt xong đoạn cuối thì nghỉ luôn không tính). Hỏi cắt xong cả thanh mất <b>mấy giờ</b>?",
+      "<strong>Chữ số 2:</strong> Tại sảnh tiệc hào môn, mọi người bắt tay nhau đôi một (ai cũng bắt tay tất cả những người còn lại, không lặp lại). Đếm được tổng cộng <b>21 cái bắt tay</b>. Hỏi trong sảnh có <b>tất cả bao nhiêu người</b>?",
+      "<strong>Chữ số 3:</strong> Nếu Tiểu Thất mất 2 giờ để đào xong 1 cái hố lập phương 1m × 1m × 1m, hỏi trong <b>nửa cái hố</b> như vậy chứa <b>bao nhiêu mét khối đất</b>?",
+      "<strong>Chữ số 4:</strong> Giải E-Sports Điện 9 có <b>259 tuyển thủ</b> thi đấu loại trực tiếp 1v1 (thua 1 trận loại ngay, không hòa) để tìm ra 1 nhà vô địch. Cần tổ chức <b>tổng cộng bao nhiêu trận đấu</b>? (Lấy <b>chữ số hàng đơn vị</b> của tổng số trận)",
+      "<strong>Chữ số 5:</strong> Cho 4 chữ số đầu bạn vừa giải là <b>[A]-[B]-[C]-[D]</b>. Chữ số thứ 5 (<b>E</b>) phải thỏa mãn đúng câu khẳng định sau: <em>“Tổng số lượng chữ số <b>nhỏ hơn hoặc bằng 5</b> xuất hiện trong <b>CẢ 5 CHỮ SỐ [A-B-C-D-E]</b> của mật mã này đúng bằng <b>E</b>.”</em> Tìm <b>E</b>?"
     ],
-    hint1: "💡 Tiểu Thất gợi ý: (1) Thanh 5m cắt 1m chỉ có 4 nhát cắt và 3 lần nghỉ; (2) Công thức n(n-1)/2 = 21; (3) Đã gọi là CÁI HỐ thì bên trong rỗng làm gì có đất!; (4) Để 1 người vô địch thì phải loại đúng 258 người thua (mỗi trận loại 1 người); (5) Đừng quên số 0 cũng <= 5! Và nếu điền E=2 thì đếm lại cả 5 số sẽ thành 3 số <= 5 mất rồi!",
-    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Gamma là <b>17083</b> (1 giờ • 7 người • 0 đất • 258 trận -> 8 • E=3 vì 1,0,3 có đúng 3 số <= 5)."
+    clue12: "💡 <b>Tiểu Thất #707:</b> “Thanh 5m cắt ra 5 khúc thì chỉ cần 4 nhát cắt và 3 lần nghỉ ở giữa thôi! Còn bắt tay thì công thức là n × (n - 1) / 2 = 21.”",
+    clue34: "💡 <b>Tiểu Thất #707:</b> “Đã gọi là CÁI HỐ thì bên trong nó rỗng làm gì có đất ạ... Còn giải đấu loại trực tiếp, muốn tìm 1 nhà vô địch từ 259 người thì bắt buộc phải loại đúng 258 người thua!”",
+    clue5: "💡 <b>Tiểu Thất #707:</b> “Câu cuối bẫy ghê lắm! Đừng quên số 0 cũng <= 5, với lại nếu đại ca điền E=2 thì đếm lại cả 5 chữ số sẽ lòi ra tới 3 số <= 5 làm sai đề ngay!”",
+    cheatMsg: "🆘 <b>Tiểu Thất #707:</b> “Ái chà đại ca ép em tới đường cùng rồi... Em chịu phạt trừ lương thay đại ca đấy nhé! Mật mã hôm nay là <b style='letter-spacing:0.18em; color:#fff;'>17083</b>!”"
+  },
+  {
+    passcode: "82092",
+    riddles: [
+      "<strong>Chữ số 1:</strong> Hôm nay là <b>Thứ Hai</b>, Tạ Vô Cữu ký lệnh tạm giam một Kẻ Cướp Phước trong đúng <b>1.000 ngày</b>. Hỏi ngày thả ra rơi vào thứ mấy trong tuần? (Nhập: <b>2</b>=Thứ Hai, <b>3</b>=Thứ Ba ... <b>7</b>=Thứ Bảy, <b>8</b>=Chủ Nhật)",
+      "<strong>Chữ số 2:</strong> Một chiếc đồng hồ kim bình thường không ghi số (chỉ có 12 vạch chia đều) được đặt đối diện thẳng trước một <b>tấm gương phẳng</b>. Nhìn vào trong gương thấy đồng hồ đang chỉ <b>9 giờ 45 phút</b>. Hỏi <b>giờ thật</b> lúc đó là mấy giờ? (Chỉ nhập phần <b>GIỜ</b>, ví dụ 3 giờ 15 nhập <b>3</b>, 2 giờ 15 nhập <b>2</b>)",
+      "<strong>Chữ số 3:</strong> Giá một vật tư ở Chợ Đen ban đầu được tăng thêm <b>25%</b>, sau đó Lục Nha thấy ế nên giảm giá <b>20%</b> so với giá vừa tăng. Hỏi giá cuối cùng lệch bao nhiêu <b>%</b> so với giá gốc ban đầu? (Nhập một chữ số nguyên)",
+      "<strong>Chữ số 4:</strong> Lấy số <b>4</b> chia cho <b>1/2</b> (một phần hai) rồi cộng thêm <b>1</b>. Kết quả bằng bao nhiêu?",
+      "<strong>Chữ số 5:</strong> Ngu Hồng Diệp đặt 3 chiếc hộp kín trên bàn; biết <b>CHỈ CÓ ĐÚNG 1 HỘP</b> chứa sổ đen và <b>CHỈ CÓ ĐÚNG 1 NHÃN GHI ĐÚNG SỰ THẬT</b> (2 nhãn còn lại nói dối). Nhãn Hộp <b>1</b>: <em>“Sổ đen ở trong hộp này”</em>; Nhãn Hộp <b>2</b>: <em>“Sổ đen KHÔNG ở trong hộp này”</em>; Nhãn Hộp <b>3</b>: <em>“Sổ đen KHÔNG ở trong hộp 1”</em>. Sổ đen nằm ở <b>hộp số mấy</b>?"
+    ],
+    clue12: "💡 <b>Tiểu Thất #707:</b> “1.000 chia 7 dư mấy thì đếm tiến bấy nhiêu ngày từ Thứ Hai! Còn đồng hồ trong gương chỉ 9h45 nghĩa là kim giờ gần chạm vạch 10, soi gương qua trục 12-6 nó sẽ nằm giữa vạch 2 và 3 chứ không phải quá 3 đâu ạ!”",
+    clue34: "💡 <b>Tiểu Thất #707:</b> “Thử lấy giá gốc là 100 tệ rồi nhân 1.25 xong nhân tiếp 0.8 xem ra bao nhiêu! Còn chia cho 1/2 là nhân đảo ngược với 2 chứ không phải chia đôi đâu nha!”",
+    clue5: "💡 <b>Tiểu Thất #707:</b> “Câu 3 hộp cứ giả sử lần lượt sổ nằm trong hộp 1, 2, hoặc 3 rồi đếm xem trường hợp nào chỉ có ĐÚNG 1 nhãn nói thật!”",
+    cheatMsg: "🆘 <b>Tiểu Thất #707:</b> “Thôi xong em rồi, lỡ tay bấm mở khóa giúp đại ca mất tiêu... Suỵt!! Mật mã hôm nay là <b style='letter-spacing:0.18em; color:#fff;'>82092</b>, xóa lịch sử giùm em nha!”"
+  },
+  {
+    passcode: "63148",
+    riddles: [
+      "<strong>Chữ số 1:</strong> Đi bộ từ <b>tầng 1 lên tầng 4</b> của Cục Báo Ứng phải bước qua tổng cộng <b>30 bậc thang</b> (các tầng cách đều nhau). Hỏi đi từ <b>tầng 1 lên thẳng tầng 7</b> phải bước qua tổng cộng bao nhiêu bậc thang? (Lấy <b>tổng số bậc chia cho 10</b>)",
+      "<strong>Chữ số 2:</strong> Trong một căn phòng kín chỉ có: <b>1 người ông, 2 người cha, 2 người con trai và 1 người cháu nội</b>. Hỏi trong phòng đó có <b>tối thiểu bao nhiêu người</b>?",
+      "<strong>Chữ số 3:</strong> Lục Nha phơi <b>1 chiếc áo khoác</b> ngoài trời nắng thì mất đúng <b>1 giờ</b> mới khô hoàn toàn. Hỏi phơi <b>6 chiếc áo khoác</b> giống hệt nhau trên cùng một dây phơi dưới nắng đó mất <b>mấy giờ</b> để cả 6 chiếc đều khô?",
+      "<strong>Chữ số 4:</strong> Trong hộp tối có <b>4 quả cầu đỏ</b>, <b>4 quả cầu xanh</b> và <b>4 quả cầu vàng</b>. Bịt mắt lại, cần bốc tối thiểu bao nhiêu quả để <b>CHẮC CHẮN 100%</b> có ít nhất <b>2 quả CÙNG MÀU</b>?",
+      "<strong>Chữ số 5:</strong> Lúc đi đòi nợ từ Sảnh 00 tới Điện 1, xe của Tiểu Thất chạy với vận tốc không đổi <b>6 km/h</b>. Lúc quay về đúng trên quãng đường cũ đó, xe chạy với vận tốc <b>12 km/h</b>. Hỏi <b>vận tốc trung bình</b> của cả lượt đi lẫn lượt về là bao nhiêu km/h?"
+    ],
+    clue12: "💡 <b>Tiểu Thất #707:</b> “Từ tầng 1 lên tầng 4 chỉ đi qua 3 đoạn cầu thang thôi, chứ không phải 4 đoạn đâu! Còn câu gia đình, một người đàn ông vừa có thể làm cha vừa có thể làm con trai mà!”",
+    clue34: "💡 <b>Tiểu Thất #707:</b> “Áo phơi cùng lúc thì gió nắng thổi qua cả 6 cái một lượt chứ đâu có đợi cái này khô mới tới cái kia! Còn bốc cầu thì trường hợp xui nhất là bốc 3 quả 3 màu khác nhau...”",
+    clue5: "💡 <b>Tiểu Thất #707:</b> “Vận tốc trung bình KHÔNG phải (6 + 12) / 2 đâu ạ!! Đại ca thử giả sử quãng đường một chiều dài 12km rồi tính Tổng quãng đường / Tổng thời gian xem!”",
+    cheatMsg: "🆘 <b>Tiểu Thất #707:</b> “Huhu em đầu hàng trước sự kiên trì của đại ca... Bấm lén hộ một lần duy nhất thôi đấy! Mật mã hôm nay là <b style='letter-spacing:0.18em; color:#fff;'>63148</b>!”"
   }
 ];
 
-let activeProtocolIdx = 0;
+function getDailyVaultProtocolIndex() {
+  const { dateKey } = getGMT7Info();
+  return hashSeed(`vault_daily:${dateKey}`) % VAULT_PROTOCOLS.length;
+}
+
+let activeProtocolIdx = getDailyVaultProtocolIndex();
+let lastVaultDateKey = getGMT7Info().dateKey;
 let vaultAttempts = 0;
 
 const vaultLockScreen = document.getElementById("vault-lock-screen");
@@ -1228,6 +1269,7 @@ const vaultCardsStage = document.getElementById("vault-cards-stage");
 const vaultCardsGrid = document.getElementById("vault-cards-grid");
 const vaultErrMsg = document.getElementById("vault-error-msg");
 const vaultHintBox = document.getElementById("vault-hint-box");
+const vaultHintBtn = document.getElementById("btn-vault-hint");
 const intrusionOverlay = document.getElementById("intrusion-overlay");
 const intrusionTimerEl = document.getElementById("intrusion-timer");
 const intrusionBarEl = document.getElementById("intrusion-progress-bar");
@@ -1237,29 +1279,23 @@ let intrusionTimeout = null;
 let savedThemeBeforeAlarm = null;
 
 function renderVaultRiddles() {
+  activeProtocolIdx = getDailyVaultProtocolIndex();
   const proto = VAULT_PROTOCOLS[activeProtocolIdx];
   const badgeEl = document.getElementById("vault-protocol-badge");
   const titleEl = document.getElementById("vault-protocol-title");
   const listEl = document.getElementById("vault-riddle-list");
-  if (badgeEl) badgeEl.textContent = proto.badge;
-  if (titleEl) titleEl.textContent = proto.title;
-  if (listEl) {
-    listEl.innerHTML = proto.riddles.map((r) => `<li>${r}</li>`).join("");
-  }
+  if (badgeEl) badgeEl.textContent = "SECURITY CLEARANCE // LEVEL 5";
+  if (titleEl) titleEl.textContent = "🔐 KÉT LƯU TRỮ HỒ SƠ MẬT — XÁC THỰC TRÍ TUỆ";
+  if (listEl) listEl.innerHTML = proto.riddles.map((r) => `<li>${r}</li>`).join("");
+
   state.vaultHintStep = 0;
   vaultAttempts = 0;
+  if (vaultHintBtn) vaultHintBtn.textContent = "💡 HỎI TIỂU THẤT";
   if (vaultErrMsg) vaultErrMsg.textContent = "";
   vaultHintBox?.classList.add("hidden");
   const inp = document.getElementById("vault-pass-input");
   if (inp) inp.value = "";
 }
-
-document.getElementById("btn-switch-protocol")?.addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  activeProtocolIdx = (activeProtocolIdx + 1) % VAULT_PROTOCOLS.length;
-  renderVaultRiddles();
-  pushReceipt(`【KÉT BẢO MẬT】: Đã chuyển sang ${VAULT_PROTOCOLS[activeProtocolIdx].badge}.`);
-});
 
 function stopSdIntrusionAlert() {
   clearInterval(intrusionInterval);
@@ -1372,7 +1408,7 @@ document.getElementById("vault-riddle-form")?.addEventListener("submit", (e) => 
     if (state.sfx) radio.playClickChime();
     if (vaultErrMsg) vaultErrMsg.textContent = "";
     setVaultState(true);
-    pushReceipt(`🔓 【HỒ SƠ MẬT】: Giải mã thành công ${proto.badge} (${proto.passcode}). Đã mở quyền xem 6 thẻ Nhân sự.`);
+    pushReceipt("🔓 【HỒ SƠ MẬT】: Giải mã thành công. Đã mở quyền xem Kho Thẻ Nhân Sự.");
   } else {
     vaultAttempts += 1;
     if (state.sfx) radio.playFlipChime();
@@ -1382,36 +1418,43 @@ document.getElementById("vault-riddle-form")?.addEventListener("submit", (e) => 
       passInput.classList.add("is-wrong");
     }
     const snark = vaultAttempts >= 3
-      ? "Hệ Thống 00 ghi nhận chỉ số đọc hiểu đang báo động đỏ. Thử bấm Gợi ý của Tiểu Thất hoặc đọc kỹ từng chữ bẫy!"
-      : "Bạn đã rơi vào bẫy đọc lướt! Kiểm tra lại từng chữ số một.";
-    if (vaultErrMsg) vaultErrMsg.textContent = `❌ Sai mật mã [${val || "trống"}] (Lần ${vaultAttempts}): ${snark}`;
-    pushReceipt(`【KÉT BẢO MẬT】: Nhập sai mật mã [${val}] (Lần ${vaultAttempts}).`);
+      ? "Hệ Thống 00 ghi nhận chỉ số đọc hiểu đang báo động đỏ. Kiểm tra kỹ bẫy từng chữ!"
+      : "Bạn đã rơi vào bẫy đọc lướt! Tính ngược lại từng chữ số một.";
+    if (vaultErrMsg) vaultErrMsg.textContent = `❌ Sai mật mã [${val || "trống"}]: ${snark}`;
+    pushReceipt(`【KÉT BẢO MẬT】: Nhập sai mật mã [${val}].`);
   }
 });
 
-document.getElementById("btn-vault-hint")?.addEventListener("click", () => {
+vaultHintBtn?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   const proto = VAULT_PROTOCOLS[activeProtocolIdx];
-  state.vaultHintStep = (state.vaultHintStep + 1) % 3;
+  if (state.vaultHintStep < 7) state.vaultHintStep += 1;
+  const step = state.vaultHintStep;
   if (!vaultHintBox) return;
 
-  if (state.vaultHintStep === 1) {
-    vaultHintBox.classList.remove("hidden");
-    vaultHintBox.innerHTML = proto.hint1;
-  } else if (state.vaultHintStep === 2) {
-    vaultHintBox.classList.remove("hidden");
-    vaultHintBox.innerHTML = proto.hint2;
-  } else {
-    vaultHintBox.classList.add("hidden");
+  vaultHintBox.classList.remove("hidden");
+  const messages = {
+    1: "😅 <b>Tiểu Thất #707:</b> “Không được đâu đại ca ơi! Thanh Tra Tạ Vô Cữu đang đứng ngay phòng Kiểm toán bên cạnh, lộ là em bị trừ thêm 500 năm lao động công ích mất!”",
+    2: "🩹 <b>Tiểu Thất #707:</b> “Thật ra sáng nay em tính nháp trên máy Casio rồi... nhưng máy em liệt phím dấu cộng (+), chỉ còn mỗi phím dấu trừ (-). Đại ca đọc kỹ bẫy từng câu một chút đi ạ!”",
+    3: proto.clue12,
+    4: proto.clue34,
+    5: proto.clue5,
+    6: "😰 <b>Tiểu Thất #707:</b> <em>(Ngó nghiêng xem Tạ Vô Cữu có đi ngang qua không)</em> “Đừng bấm nữa mà đại ca... em toát hết mồ hôi lạnh rồi đây này, nhỡ hệ thống phát hiện ra em tuồn thông tin là cả hai đứa bị thanh lý luôn đó!!”",
+    7: proto.cheatMsg
+  };
+
+  vaultHintBox.innerHTML = messages[step];
+  if (step === 7) {
+    pushReceipt("🆘 【TIỂU THẤT #707】: Đã liều mạng bấm lén lộ mật mã (đừng để Tạ Vô Cữu phát hiện).");
   }
 });
 
 document.getElementById("btn-vault-lock")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  activeProtocolIdx = (activeProtocolIdx + 1) % VAULT_PROTOCOLS.length; // Khóa lại tự đổi sang bộ đề mới
-  renderVaultRiddles();
+  const inp = document.getElementById("vault-pass-input");
+  if (inp) inp.value = "";
   setVaultState(false);
-  pushReceipt("🔒 【KÉT BẢO MẬT】: Đã khóa két và xoay vòng sang Bộ Đề Bảo Mật kế tiếp.");
+  pushReceipt("🔒 【KÉT BẢO MẬT】: Đã khóa lại Kho Hồ Sơ Mật.");
 });
 
 renderVaultRiddles();
