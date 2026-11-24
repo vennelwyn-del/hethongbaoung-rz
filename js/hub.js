@@ -1,4 +1,4 @@
-// js/hub.js — Quỹ đạo 3D Nổi-Ẩn (Three.js + CSS Z-Depth) + Thanh trượt web tự nhiên
+// js/hub.js — Tab trượt Ảnh 1 + Khung System Ảnh 3 + Tam Giác Ngược 10 Tầng Ảnh 4
 
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
@@ -26,28 +26,37 @@ const state = {
   theme: savedTheme,
   sfx: SITE_CONFIG.effects.sfx,
   scanlines: SITE_CONFIG.effects.scanlines,
-  parallax: SITE_CONFIG.effects.parallax3D,
   pb: null,
   debtorCode: "CHƯA CẤP",
   contractLocked: false,
   selectedSector: "Điện 1 — Khu Vọng Ngữ",
   username: getSavedSessionUsername(),
   lastDossierText: "",
-  activeOrbitIdx: 0
+  galleryOffset: 0,
+  selectedPyramidTier: 1
 };
 
 const SECTORS = [
-  { id: 1, name: "Điện 1 — Khu Vọng Ngữ", sub: "Showbiz & Bạo lực mạng", desc: "Đỉnh lưu trà xanh cướp tác phẩm, mua thủy quân vu khống. Giới hạn: Tung chứng cứ trực tiếp trên sóng Livestream." },
-  { id: 2, name: "Điện 2 — Khu Tham Lam", sub: "Hào môn & Thật giả thiên kim", desc: "Con nuôi cướp công, cha mẹ ruột ép hiến tạng/gánh nợ. Giới hạn: Cấm nhận tiền bố thí gia tộc." },
-  { id: 3, name: "Điện 3 — Khu Ái Dục", sub: "Ngược tra & Thế thân", desc: "Tra nam coi nguyên chủ là túi máu dự trữ. Giới hạn: Tha thứ dù chỉ 1% → Thanh lý ngay." },
-  { id: 4, name: "Điện 4 — Khu Đố Kỵ", sub: "Cung đấu & Quyền mưu cổ đại", desc: "Thứ nữ/Sủng phi hãm hại gia tộc, đầu độc mãn tính mỗi đêm trăng tròn." },
-  { id: 5, name: "Điện 5 — Khu Ngạo Mạn", sub: "Tu tiên & Phế vật nghịch tập", desc: "Sư tôn móc Linh căn ghép cho tiểu sư muội. Phải vạch mặt trước Thập Đại Tiên Môn." },
-  { id: 6, name: "Điện 6 — Khu Đạo Văn", sub: "Học bá & Nghiên cứu khoa học", desc: "Cướp đề án quốc gia. Phải phản biện thực nghiệm trong 72h." },
-  { id: 7, name: "Điện 7 — Khu Phản Bội", sub: "Mạt thế & Zombie", desc: "Đồng đội đâm sau lưng cướp nhẫn Không Gian. Cơ thể nhiễm virus 85%." },
-  { id: 8, name: "Điện 8 — Khu Giả Dối", sub: "Y thuật & Huyền học", desc: "Thần y rởm phản sư dùng tà thuật mượn mệnh. Cấm cứu người miễn phí." },
-  { id: 9, name: "Điện 9 — Khu Phẫn Nộ", sub: "E-Sports & Đấu trường ngầm", desc: "Đội trưởng bán độ đổ tội lên nguyên chủ. Tay phải chấn thương giới hạn 15 phút/hiệp." },
-  { id: 10, name: "Điện 10 — Khu Vô Gian (SSS)", sub: "Nghịch tập Khí Vận Chi Tử", desc: "Đấu trường cấp cao nhất: Đánh sập cặp đôi con cưng Thiên Đạo và lần ra dấu vết Sd." }
+  { id: 1, zone: "KHỐI HIỆN ĐẠI", name: "Điện 1 — Khu Vọng Ngữ", sub: "Showbiz & Bạo lực mạng", region: "Thảm đỏ, hậu trường, phòng livestream lúc 3h sáng.", desc: "Đỉnh lưu trà xanh cướp tác phẩm, mua thủy quân vu khống ép nguyên chủ tự sát.", rule: "Bắt buộc tung bằng chứng trực tiếp trên sóng truyền hình trước Đêm trao giải." },
+  { id: 2, zone: "KHỐI HIỆN ĐẠI", name: "Điện 2 — Khu Tham Lam", sub: "Hào môn & Thật giả thiên kim", region: "Biệt thự cẩm thạch, bàn tiệc cổ đông & phòng mổ tư nhân.", desc: "Con nuôi cướp công, cha mẹ ruột ép hiến tạng/gánh nợ.", rule: "Cấm nhận một đồng tiền bố thí gia tộc; phải thu hồi tín vật gốc." },
+  { id: 3, zone: "KHỐI HIỆN ĐẠI", name: "Điện 3 — Khu Ái Dục", sub: "Ngược tra & Thế thân", region: "Biệt thự tân hôn lạnh lẽo & phòng lấy máu bệnh viện.", desc: "Tra nam coi nguyên chủ là túi máu dự trữ cho Bạch nguyệt quang.", rule: "Mềm lòng tha thứ dù chỉ 1% → Trừ 10,000 PB & Thanh lý ngay." },
+  { id: 4, zone: "KHỐI CỔ ĐẠI", name: "Điện 4 — Khu Đố Kỵ", sub: "Cung đấu & Quyền mưu", region: "Lãnh cung tuyết trắng, mái hiên son thếp vàng.", desc: "Thứ nữ/Sủng phi đầu độc mãn tính & vu oan hại sạch gia tộc nguyên chủ.", rule: "Độc phát tác mỗi đêm trăng tròn; cấm phạm tội khi quân khi chưa nắm binh quyền." },
+  { id: 5, zone: "KHỐI CỔ ĐẠI", name: "Điện 5 — Khu Ngạo Mạn", sub: "Tu tiên & Phế vật nghịch tập", region: "Đài Trảm Tiên, Đại điện Tông môn & Hàn Băng Ngục.", desc: "Sư tôn móc Linh căn ghép cho tiểu sư muội rồi ném xuống đáy ngục.", rule: "Phải vạch trần Linh căn giả bị phản phệ trước Thập Đại Tiên Môn." },
+  { id: 6, zone: "KHỐI HỌC THUẬT", name: "Điện 6 — Khu Đạo Văn", sub: "Học bá & Khoa học", region: "Phòng thí nghiệm hóa chất, giảng đường đại học.", desc: "Giáo sư/Con ông cháu cha cướp đề án quốc gia.", rule: "Cấm dùng bạo lực; phải chứng minh thực nghiệm trong 72h." },
+  { id: 7, zone: "KHỐI SINH TỒN", name: "Điện 7 — Khu Phản Bội", sub: "Mạt thế & Zombie", region: "Thành phố đổ nát ngập mùi máu & căn cứ thép gai.", desc: "Đồng đội đâm sau lưng cướp nhẫn Không Gian rồi đẩy ra ngoài.", rule: "Cơ thể nhiễm virus 85%, cần tinh hạch kìm hãm mỗi 48h." },
+  { id: 8, zone: "KHỐI ĐẶC THÙ", name: "Điện 8 — Khu Giả Dối", sub: "Y thuật & Huyền học", region: "Phố đồ cổ hương trầm giả & phòng VIP bệnh viện.", desc: "Thần y rởm phản sư dùng tà thuật mượn mệnh trục lợi.", rule: "Cấm cứu người miễn phí; bắt kẻ thù dập đầu nhận sai trước." },
+  { id: 9, zone: "KHỐI ĐẶC THÙ", name: "Điện 9 — Khu Phẫn Nộ", sub: "E-Sports & Đấu trường", region: "Sân vận động Chung kết Thế giới rực đèn LED.", desc: "Đội trưởng bán độ đổ tội lên nguyên chủ và đánh gãy tay.", rule: "Tay phải chấn thương chỉ chịu được cường độ cao 15 phút/hiệp." },
+  { id: 10, zone: "ĐÁY CHÓP TỐI THƯỢNG (SSS)", name: "Điện 10 — Khu Vô Gian", sub: "Nghịch tập Khí Vận Chi Tử", region: "Trung tâm Lõi Cục Báo Ứng — Nơi ẩn giấu chân tướng Sd.", desc: "Đấu trường cấp SSS: Đánh sập cặp đôi con cưng Thiên Đạo tiêu chuẩn kép.", rule: "Bị Thiên Đạo ghét bỏ (vận đen x2). Mở khóa 3 tầng manh mối Sd." }
 ];
+
+const TAB_TITLES = {
+  "tab-profile": "HỢP ĐỒNG LAO ĐỘNG",
+  "tab-pyramid": "SƠ ĐỒ ĐIỆN TẦNG 3D",
+  "tab-ranking": "BẢNG XẾP HẠNG 24H",
+  "tab-sectors": "KHO TRỌNG ÁN THẬP ĐIỆN",
+  "tab-market": "CHỢ ĐEN LỤC NHA",
+  "tab-forum": "BÁO ỨNG NET v4.0"
+};
 
 const MARKET_ITEMS = [
   { name: "Adrenaline & Thuốc cầm cự (6 giờ)", costPB: -50, note: "Hệ Thống 00 (+5 PB phí tiêm) — Giữ tỉnh táo." },
@@ -72,23 +81,16 @@ const BUREAU_ENTITIES = [
   { name: "Quý Cô 'Sd.'", role: "[DỮ LIỆU NIÊM PHONG]", desc: "Tuxedo đen, tóc trắng bạc, hoa 4 cánh. Chân tướng mở tại Điện 10." }
 ];
 
-const ARCHETYPE_RANGES = {
-  villain: [2500, 3900],
-  jinx: [900, 1800],
-  scapegoat: [500, 1400],
-  slave: [1100, 2200],
-  avenger: [3800, 5500]
-};
+const ARCHETYPE_RANGES = { villain: [2500, 3900], jinx: [900, 1800], scapegoat: [500, 1400], slave: [1100, 2200], avenger: [3800, 5500] };
 
 const htmlEl = document.documentElement;
 const bgImageLayer = document.getElementById("bg-image-layer");
 const receiptFeed = document.getElementById("receipt-feed");
 const touchCursor = document.getElementById("touch-cursor");
 const cursorCoords = document.getElementById("cursor-coords");
-const terminalShell = document.getElementById("terminal-3d-shell");
 document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
-// 1. THEME & BG IMAGE
+// 1. THEME + BG IMAGE
 function updateBackgroundImage(themeName) {
   const cfg = SITE_CONFIG.backgroundImage;
   const imgUrl = (cfg.byTheme && cfg.byTheme[themeName]) || cfg.defaultUrl || "";
@@ -114,23 +116,15 @@ function applyTheme(themeName, syncCloud = true) {
 }
 
 document.querySelectorAll("[data-set-theme]").forEach((btn) =>
-  btn.addEventListener("click", () => {
-    if (state.sfx) radio.playClickChime();
-    applyTheme(btn.dataset.setTheme);
-  })
+  btn.addEventListener("click", () => { if (state.sfx) radio.playClickChime(); applyTheme(btn.dataset.setTheme); })
 );
 
-// 2. ẢO GIÁC NGHIÊNG 3D THEO CHUỘT + CON TRỎ + SÓNG NỔ WEBGL
+// 2. CON TRỎ & SÓNG NỔ
 window.addEventListener("pointermove", (e) => {
   if (touchCursor && cursorCoords) {
     touchCursor.style.left = `${e.clientX}px`;
     touchCursor.style.top = `${e.clientY}px`;
     cursorCoords.textContent = `X:${String(Math.round(e.clientX)).padStart(3, "0")} Y:${String(Math.round(e.clientY)).padStart(3, "0")}`;
-  }
-  if (state.parallax && terminalShell && window.innerWidth > 900) {
-    const nx = (e.clientX / window.innerWidth - 0.5) * 2;
-    const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-    terminalShell.style.transform = `rotateY(${nx * 2.4}deg) rotateX(${-ny * 1.8}deg)`;
   }
 });
 window.addEventListener("pointerdown", (e) => vrBg.spawnTouchRipple(e.clientX, e.clientY));
@@ -163,90 +157,138 @@ radioToggle.addEventListener("click", () => {
   const playing = radio.toggle();
   radioToggle.querySelector(".radio-icon").textContent = playing ? "❚❚" : "▶";
 });
-document.getElementById("radio-next").addEventListener("click", () => {
-  radioTrackName.textContent = radio.nextTrack();
-});
+document.getElementById("radio-next").addEventListener("click", () => { radioTrackName.textContent = radio.nextTrack(); });
 document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. VÒNG QUỸ ĐẠO 3D NỔI ẨN (ORBITAL HOLO-CAROUSEL)
-const slabs = Array.from(document.querySelectorAll(".holo-slab"));
-const totalSlabs = slabs.length;
+// 4. THANH TAB GALLERY DI CHUYỂN QUA LẠI (ẢNH 1)
+const galleryTrack = document.getElementById("gallery-track");
+const tabCards = Array.from(document.querySelectorAll(".holo-tab-card"));
 
-function layoutOrbit() {
-  const radiusX = window.innerWidth < 780 ? 185 : 320;
-  const radiusZ = window.innerWidth < 780 ? 150 : 240;
-
-  slabs.forEach((slab, idx) => {
-    let diff = idx - state.activeOrbitIdx;
-    if (diff > totalSlabs / 2) diff -= totalSlabs;
-    if (diff < -totalSlabs / 2) diff += totalSlabs;
-
-    const angle = diff * (Math.PI * 2 / totalSlabs);
-    const tx = Math.sin(angle) * radiusX;
-    const tz = (Math.cos(angle) - 1) * radiusZ; // Tệp trước = 0, tệp sau chìm sâu âm Z
-    const rotY = -diff * 34;
-    const absD = Math.abs(diff);
-
-    const opacity = absD === 0 ? 1 : absD === 1 ? 0.62 : 0.25;
-    const blur = absD === 0 ? 0 : absD === 1 ? 0.8 : 2.4;
-    const scale = absD === 0 ? 1.05 : absD === 1 ? 0.84 : 0.68;
-
-    slab.style.transform = `translate3d(${tx}px, 0px, ${tz}px) rotateY(${rotY}deg) scale(${scale})`;
-    slab.style.opacity = String(opacity);
-    slab.style.filter = blur ? `blur(${blur}px)` : "none";
-    slab.style.zIndex = String(10 - absD * 3);
-    slab.classList.toggle("is-front", diff === 0);
-  });
+function updateGallerySlide() {
+  const cardWidth = tabCards[0]?.getBoundingClientRect().width || 180;
+  const gap = 14;
+  const visibleCount = window.innerWidth <= 680 ? 1 : window.innerWidth <= 960 ? 3 : 5;
+  const maxOffset = Math.max(0, tabCards.length - visibleCount);
+  state.galleryOffset = Math.max(0, Math.min(state.galleryOffset, maxOffset));
+  galleryTrack.style.transform = `translateX(-${state.galleryOffset * (cardWidth + gap)}px)`;
 }
 
-function selectTab(tabId, scrollToTerminal = false) {
-  document.querySelectorAll(".win-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tabId));
+function switchTab(tabId) {
+  tabCards.forEach((c) => c.classList.toggle("is-active", c.dataset.tab === tabId));
   document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
+  document.getElementById("quest-window-title").textContent = TAB_TITLES[tabId] || "SYSTEM INFO";
 
-  const targetSlabIdx = slabs.findIndex((s) => s.dataset.tab === tabId);
-  if (targetSlabIdx !== -1) {
-    state.activeOrbitIdx = targetSlabIdx;
-    layoutOrbit();
-  }
   if (tabId === "tab-ranking") loadAndRenderLeaderboard();
-  if (scrollToTerminal) {
-    document.getElementById("projected-terminal").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (tabId === "tab-pyramid") {
+    requestAnimationFrame(() => drawPyramidArrow());
   }
 }
 
-slabs.forEach((slab, idx) => {
-  slab.addEventListener("click", () => {
+tabCards.forEach((card) => {
+  card.addEventListener("click", () => {
     if (state.sfx) radio.playClickChime();
-    const wasFront = idx === state.activeOrbitIdx;
-    state.activeOrbitIdx = idx;
-    layoutOrbit();
-    selectTab(slab.dataset.tab, wasFront); // Chạm 1 lần để kéo ra trước, chạm tiếp (hoặc tệp trước) cuộn xuống chi tiết
+    switchTab(card.dataset.tab);
   });
 });
 
-document.querySelectorAll(".win-tab").forEach((btn) =>
-  btn.addEventListener("click", () => {
-    if (state.sfx) radio.playClickChime();
-    selectTab(btn.dataset.tab, false);
-  })
-);
-
-document.getElementById("btn-orbit-prev").addEventListener("click", () => {
+document.getElementById("btn-slide-left").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  state.activeOrbitIdx = (state.activeOrbitIdx - 1 + totalSlabs) % totalSlabs;
-  selectTab(slabs[state.activeOrbitIdx].dataset.tab, false);
+  state.galleryOffset -= 1;
+  updateGallerySlide();
+});
+document.getElementById("btn-slide-right").addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  state.galleryOffset += 1;
+  updateGallerySlide();
+});
+window.addEventListener("resize", () => {
+  updateGallerySlide();
+  if (!document.getElementById("tab-pyramid").classList.contains("hidden")) drawPyramidArrow();
 });
 
-document.getElementById("btn-orbit-next").addEventListener("click", () => {
+// 5. SƠ ĐỒ TAM GIÁC NGƯỢC 10 TẦNG BAY LƠ LỬNG + MŨI TÊN CHỈ ĐIỂM + LẬT MỞ CHI TIẾT (ẢNH 4)
+const pyramidContainer = document.getElementById("inverted-pyramid");
+
+function renderInvertedPyramid() {
+  pyramidContainer.innerHTML = "";
+  SECTORS.forEach((sec, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    // Tam giác ngược: tầng 1 rộng 100%, thu hẹp dần xuống tầng 10 ở chóp nhọn 24%
+    const widthPct = 100 - idx * 7.8;
+    btn.style.width = `${widthPct}%`;
+    btn.dataset.tierId = String(sec.id);
+    btn.className = `pyramid-tier ${sec.id === 10 ? "is-apex" : ""} ${sec.id === state.selectedPyramidTier ? "is-selected" : ""}`;
+    btn.innerHTML = sec.id === 10
+      ? `<span>Đ10 VÔ GIAN</span>`
+      : `<span>TẦNG ${String(sec.id).padStart(2, "0")} // ${sec.name.replace(/^Điện \d+ — /, "")}</span>`;
+
+    btn.addEventListener("click", () => selectPyramidTier(sec.id, true));
+    pyramidContainer.appendChild(btn);
+  });
+}
+
+function drawPyramidArrow() {
+  const layout = document.getElementById("pyramid-layout");
+  const activeTier = pyramidContainer.querySelector(`.pyramid-tier[data-tier-id="${state.selectedPyramidTier}"]`);
+  const card = document.getElementById("tier-flip-card");
+  const path = document.getElementById("pyramid-pointer-path");
+  const originDot = document.getElementById("pyramid-pointer-origin");
+  if (!layout || !activeTier || !card || !path) return;
+
+  const lRect = layout.getBoundingClientRect();
+  const tRect = activeTier.getBoundingClientRect();
+  const cRect = card.getBoundingClientRect();
+
+  const startX = tRect.right - lRect.left + 4;
+  const startY = tRect.top - lRect.top + tRect.height / 2;
+  const endX = cRect.left - lRect.left - 8;
+  const endY = cRect.top - lRect.top + 48;
+  const midX = startX + (endX - startX) * 0.48;
+
+  originDot.setAttribute("cx", String(startX));
+  originDot.setAttribute("cy", String(startY));
+  path.setAttribute("d", `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`);
+}
+
+function selectPyramidTier(tierId, playEffect = false) {
+  if (playEffect && state.sfx) radio.playClickChime();
+  state.selectedPyramidTier = tierId;
+  const sec = SECTORS.find((s) => s.id === tierId) || SECTORS[0];
+
+  pyramidContainer.querySelectorAll(".pyramid-tier").forEach((el) =>
+    el.classList.toggle("is-selected", Number(el.dataset.tierId) === tierId)
+  );
+
+  const flipInner = document.getElementById("tier-flip-inner");
+  if (playEffect) {
+    flipInner.classList.remove("is-flipping");
+    void flipInner.offsetWidth; // reset animation
+    flipInner.classList.add("is-flipping");
+  }
+
+  document.getElementById("tier-depth-tag").textContent = `ĐỘ SÂU: TẦNG ${String(sec.id).padStart(2, "0")} / 10`;
+  document.getElementById("tier-zone-tag").textContent = sec.zone;
+  document.getElementById("tier-name").textContent = `${sec.name} — ${sec.sub}`;
+  document.getElementById("tier-region").textContent = sec.region;
+  document.getElementById("tier-crime").textContent = sec.desc;
+  document.getElementById("tier-rule").textContent = sec.rule;
+
+  requestAnimationFrame(() => drawPyramidArrow());
+}
+
+document.getElementById("btn-lock-from-pyramid").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  state.activeOrbitIdx = (state.activeOrbitIdx + 1) % totalSlabs;
-  selectTab(slabs[state.activeOrbitIdx].dataset.tab, false);
+  const sec = SECTORS.find((s) => s.id === state.selectedPyramidTier) || SECTORS[0];
+  state.selectedSector = sec.name;
+  updateStatsUI();
+  pushReceipt(`> Khóa tầng ${sec.id}/10 từ Sơ đồ: [${sec.name}].`);
 });
 
-window.addEventListener("resize", layoutOrbit);
-layoutOrbit();
+renderInvertedPyramid();
+selectPyramidTier(1, false);
 
-// 5. RECEIPT & STATS
+// 6. RECEIPT, STATS & HỢP ĐỒNG
 function pushReceipt(text) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -254,9 +296,7 @@ function pushReceipt(text) {
 }
 
 function updateStatsUI() {
-  const pbText = state.contractLocked && typeof state.pb === "number"
-    ? `${state.pb.toFixed(2)} PB`
-    : "CHƯA KÝ HỢP ĐỒNG";
+  const pbText = state.contractLocked && typeof state.pb === "number" ? `${state.pb.toFixed(2)} PB` : "CHƯA KÝ HỢP ĐỒNG";
   document.getElementById("hud-pb-side").textContent = pbText;
   document.getElementById("hud-code-side").textContent = state.debtorCode || "CHƯA CẤP";
   document.getElementById("hud-sector-badge").textContent = state.selectedSector;
@@ -264,7 +304,6 @@ function updateStatsUI() {
   if (profilePb) profilePb.textContent = pbText;
 }
 
-// 6. HỢP ĐỒNG: 2 CHỖ KÝ
 function buildAuditBundle() {
   const name = document.getElementById("f-name").value.trim() || "Ký chủ vô danh";
   const age = document.getElementById("f-age").value || 24;
@@ -282,20 +321,15 @@ function buildAuditBundle() {
   const fee2 = Number((rawTotal * 0.31).toFixed(2));
   const fee3 = Number((rawTotal - fee1 - fee2).toFixed(2));
   const finalPB = Number((-(rawTotal + 100)).toFixed(2));
-  const pickedSector = sectorChoice === "Random Độc Bản"
-    ? SECTORS[Math.floor(Math.random() * SECTORS.length)].name
-    : sectorChoice;
+  const pickedSector = sectorChoice === "Random Độc Bản" ? SECTORS[Math.floor(Math.random() * SECTORS.length)].name : sectorChoice;
   const code = `#${Math.floor(100 + Math.random() * 899)}`;
-
   return { code, finalPB, pickedSector, profileData: { name, age, gender, orient, arch, sector: pickedSector, skill, sin, quote }, fees: { fee1, fee2, fee3 } };
 }
 
 function renderAuditReceipt(bundle, isOfficial) {
   const p = bundle.profileData;
   const text = [
-    isOfficial
-      ? `⚖️ 【HỢP ĐỒNG CHÍNH THỨC ĐÃ NIÊM PHONG — ${bundle.code}】`
-      : `📝 【BẢN NHÁP KÝ THỬ (CÓ THỂ SỬA LẠI) — TẠM TÍNH】`,
+    isOfficial ? `⚖️ 【HỢP ĐỒNG CHÍNH THỨC ĐÃ NIÊM PHONG — ${bundle.code}】` : `📝 【BẢN NHÁP KÝ THỬ (CÓ THỂ SỬA LẠI) — TẠM TÍNH】`,
     `▸ Ký chủ: ${p.name} (${p.age}t | ${p.gender} | ${p.orient})`,
     `▸ Khấu trừ -${bundle.fees.fee1.toFixed(2)} PB: Nghiệp chướng "${p.sin}"`,
     `▸ Khấu trừ -${bundle.fees.fee2.toFixed(2)} PB: Phí khấu hao & trục vớt linh hồn`,
@@ -342,11 +376,7 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
   e.preventDefault();
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
-  if (!state.username) {
-    pushReceipt("【CẢNH BÁO】: Hãy đăng nhập / tạo tài khoản trước khi Ký Chính Thức.");
-    openModal("modal-auth");
-    return;
-  }
+  if (!state.username) { openModal("modal-auth"); return; }
   if (!confirm("XÁC NHẬN KÝ HỢP ĐỒNG CHÍNH THỨC?\nSau khi ký, hồ sơ sẽ KHÓA VĨNH VIỄN. Muốn sửa bắt buộc tạo tài khoản mới!")) return;
 
   try {
@@ -359,9 +389,7 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
     renderAuditReceipt(bundle, true);
     applyProfileUI(updated);
     pushReceipt(`【CHÍNH THỨC】: Đã ký ${bundle.code} (${bundle.finalPB.toFixed(2)} PB).`);
-  } catch (err) {
-    alert(err.message);
-  }
+  } catch (err) { alert(err.message); }
 });
 
 document.getElementById("btn-copy-dossier").addEventListener("click", () => {
@@ -369,9 +397,9 @@ document.getElementById("btn-copy-dossier").addEventListener("click", () => {
   navigator.clipboard?.writeText(state.lastDossierText);
   pushReceipt("> Đã copy hồ sơ vào Clipboard.");
 });
-document.getElementById("btn-goto-rank").addEventListener("click", () => selectTab("tab-ranking", true));
+document.getElementById("btn-goto-rank").addEventListener("click", () => switchTab("tab-ranking"));
 
-// 7. BẢNG XẾP HẠNG 24H GMT+7 (CUỘN BẰNG THANH TRƯỢT WEB TỰ NHIÊN)
+// 7. BẢNG XẾP HẠNG 24H GMT+7
 function getGMT7Info() {
   const gmt7Ms = Date.now() + 7 * 3600 * 1000;
   const d = new Date(gmt7Ms);
@@ -386,10 +414,7 @@ function getGMT7Info() {
 
 function hashSeed(str) {
   let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
   return h >>> 0;
 }
 
@@ -405,10 +430,7 @@ async function loadAndRenderLeaderboard() {
     const users = await fetchLeaderboardUsers();
     users.sort((a, b) => hashSeed(`${dateKey}:${a.username}`) - hashSeed(`${dateKey}:${b.username}`));
     document.getElementById("rank-total-count").textContent = String(users.length);
-    if (!users.length) {
-      track.innerHTML = `<p class="muted" style="padding:14px;">Chưa có tài khoản nào ký Hợp đồng chính thức để lên bảng.</p>`;
-      return;
-    }
+    if (!users.length) { track.innerHTML = `<p class="muted" style="padding:14px;">Chưa có tài khoản nào ký Hợp đồng chính thức.</p>`; return; }
     track.innerHTML = "";
     users.forEach((u, idx) => {
       const tag = DAILY_TAGS[hashSeed(`${dateKey}:tag:${u.username}`) % DAILY_TAGS.length];
@@ -417,10 +439,7 @@ async function loadAndRenderLeaderboard() {
       block.innerHTML = `
         <div class="rank-num">#${String(idx + 1).padStart(2, "0")}</div>
         <img class="rank-avt" src="${u.avatarUrl || DEFAULT_AVATAR}" alt="Avatar" />
-        <div class="rank-info">
-          <strong>${u.displayName} (${u.debtorCode})</strong>
-          <small>@${u.username} • ${u.sector}</small>
-        </div>
+        <div class="rank-info"><strong>${u.displayName} (${u.debtorCode})</strong><small>@${u.username} • ${u.sector}</small></div>
         <div class="rank-pb">${u.meritBalance.toFixed(2)} PB<small>${tag}</small></div>
       `;
       track.appendChild(block);
@@ -446,7 +465,7 @@ setInterval(() => {
   document.getElementById("hex-matrix").textContent = `0x${bytes.join(" ")}`;
 }, 1000);
 
-// 8. THẬP ĐIỆN, CHỢ ĐEN & DIỄN ĐÀN
+// 8. KHO TRỌNG ÁN, CHỢ ĐEN & DIỄN ĐÀN
 const sectorsGrid = document.getElementById("sectors-grid");
 let previewSector = SECTORS[0];
 function renderSectors() {
@@ -489,10 +508,7 @@ for (const item of MARKET_ITEMS) {
   row.innerHTML = `<div><h4>${item.name}</h4><p>${item.note}</p></div><button type="button" class="btn-secondary holo-tactile market-buy">${item.costPB} PB</button>`;
   row.querySelector("button").addEventListener("click", async () => {
     if (state.sfx) radio.playClickChime();
-    if (!state.contractLocked) {
-      pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch.");
-      return;
-    }
+    if (!state.contractLocked) { pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch."); return; }
     state.pb = Number((state.pb + item.costPB).toFixed(2));
     updateStatsUI();
     pushReceipt(`【GIAO DỊCH】: ${item.name} (${item.costPB} PB).`);
@@ -510,10 +526,7 @@ for (const post of FORUM_POSTS) {
 }
 document.getElementById("btn-refresh-forum").addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
-  if (!state.contractLocked) {
-    pushReceipt("【BÁO ỨNG NET】: Chế độ khách xem miễn phí.");
-    return;
-  }
+  if (!state.contractLocked) { pushReceipt("【BÁO ỨNG NET】: Chế độ khách xem miễn phí."); return; }
   state.pb = Number((state.pb - 0.5).toFixed(2));
   updateStatsUI();
   pushReceipt("【BÁO ỨNG NET】: -0.50 PB phí 3G linh hồn.");
@@ -528,7 +541,7 @@ for (const ent of BUREAU_ENTITIES) {
   entitiesGrid.appendChild(card);
 }
 
-// 9. MODAL TÀI KHOẢN & ĐỔI AVATAR
+// 9. MODAL TÀI KHOẢN & AVATAR
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) =>
@@ -543,17 +556,12 @@ const authMsg = document.getElementById("auth-msg");
 function applyProfileUI(profile) {
   const topAvatar = document.getElementById("topbar-avatar");
   if (!profile) {
-    state.username = null;
-    state.contractLocked = false;
-    state.pb = null;
-    state.debtorCode = "CHƯA CẤP";
+    state.username = null; state.contractLocked = false; state.pb = null; state.debtorCode = "CHƯA CẤP";
     document.getElementById("user-dot").classList.remove("online");
     topAvatar.classList.add("hidden");
     document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
-    authOut.classList.remove("hidden");
-    authIn.classList.add("hidden");
-    lockContractFormUI({ contractLocked: false });
-    updateStatsUI();
+    authOut.classList.remove("hidden"); authIn.classList.add("hidden");
+    lockContractFormUI({ contractLocked: false }); updateStatsUI();
     return;
   }
 
@@ -565,22 +573,17 @@ function applyProfileUI(profile) {
   if (profile.theme && VALID_THEMES.includes(profile.theme)) applyTheme(profile.theme, false);
 
   const avt = profile.avatarUrl || DEFAULT_AVATAR;
-  topAvatar.src = avt;
-  topAvatar.classList.remove("hidden");
+  topAvatar.src = avt; topAvatar.classList.remove("hidden");
   document.getElementById("profile-avatar").src = avt;
   document.getElementById("avatar-url-input").value = profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : "";
 
   document.getElementById("user-dot").classList.add("online");
   document.getElementById("user-label").textContent = profile.displayName || profile.username;
-  document.getElementById("profile-name").textContent = state.contractLocked
-    ? `Con nợ ${state.debtorCode} (Đã khóa hồ sơ)`
-    : "Chưa ký hợp đồng chính thức";
+  document.getElementById("profile-name").textContent = state.contractLocked ? `Con nợ ${state.debtorCode} (Đã khóa)` : "Chưa ký hợp đồng chính thức";
   document.getElementById("profile-username").textContent = `@${profile.username}`;
-  authOut.classList.add("hidden");
-  authIn.classList.remove("hidden");
+  authOut.classList.add("hidden"); authIn.classList.remove("hidden");
 
-  lockContractFormUI(profile);
-  updateStatsUI();
+  lockContractFormUI(profile); updateStatsUI();
 }
 
 function compressImageToDataUrl(file) {
@@ -606,12 +609,10 @@ function compressImageToDataUrl(file) {
 
 document.getElementById("btn-save-avatar-url").addEventListener("click", async () => {
   if (!state.username) return;
-  const url = document.getElementById("avatar-url-input").value.trim();
-  await saveDebtorState(state.username, { avatarUrl: url });
+  await saveDebtorState(state.username, { avatarUrl: document.getElementById("avatar-url-input").value.trim() });
   applyProfileUI(await fetchDebtorByUsername(state.username));
   document.getElementById("auth-sync-msg").textContent = "Đã lưu Avatar lên Firebase.";
 });
-
 document.getElementById("avatar-file-input").addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file || !state.username) return;
@@ -620,9 +621,7 @@ document.getElementById("avatar-file-input").addEventListener("change", async (e
     await saveDebtorState(state.username, { avatarUrl: dataUrl });
     applyProfileUI(await fetchDebtorByUsername(state.username));
     document.getElementById("auth-sync-msg").textContent = "Đã tải Avatar lên Firebase.";
-  } catch (err) {
-    document.getElementById("auth-sync-msg").textContent = err.message;
-  }
+  } catch (err) { document.getElementById("auth-sync-msg").textContent = err.message; }
 });
 
 async function restoreSession() {
@@ -638,26 +637,20 @@ document.getElementById("simple-auth-form").addEventListener("submit", async (e)
   e.preventDefault();
   try {
     authMsg.textContent = "Đang đăng nhập...";
-    const p = await loginSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value);
-    applyProfileUI(p);
+    applyProfileUI(await loginSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
   } catch (err) { authMsg.textContent = err.message; }
 });
-
 document.getElementById("btn-register-simple").addEventListener("click", async () => {
   try {
     authMsg.textContent = "Đang tạo tài khoản...";
-    const p = await registerSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value);
-    applyProfileUI(p);
+    applyProfileUI(await registerSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
   } catch (err) { authMsg.textContent = err.message; }
 });
-
-document.getElementById("btn-logout").addEventListener("click", () => {
-  logoutSimpleAccount();
-  applyProfileUI(null);
-});
+document.getElementById("btn-logout").addEventListener("click", () => { logoutSimpleAccount(); applyProfileUI(null); });
 
 applyTheme(state.theme, false);
 updateStatsUI();
+updateGallerySlide();
 restoreSession();
