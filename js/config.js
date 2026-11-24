@@ -3,7 +3,7 @@
 export const SITE_CONFIG = {
   // 1. LINK ẢNH BACKGROUND
   backgroundImage: {
-    defaultUrl: "", // Dán lại link ảnh nền của bạn nếu cần (vd: "./assets/.../canvas_bg.png")
+    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png", // Dán lại link ảnh nền của bạn nếu cần (vd: "./assets/.../canvas_bg.png")
     byTheme: {
       "orbital-cyan": "",
       "cyber-violet": "",
