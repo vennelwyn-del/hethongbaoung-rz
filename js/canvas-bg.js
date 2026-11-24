@@ -1,6 +1,6 @@
 // js/canvas-bg.js — Three.js Cosmic Orbital Space Station, Wireframe Holo-City (Ảnh 3) & Parallax 3D
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
+import * as THREE from "./assets/OPW/Hethongbaoung/canvas_bg.png";
 
 export function initVRCanvas() {
   const canvas = document.getElementById("vr-canvas");
