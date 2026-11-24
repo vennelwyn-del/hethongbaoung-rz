@@ -1,4 +1,4 @@
-// js/hub.js — VR 3D Coverflow Carousel + HoYo 3-Wing Cockpit + Mô phỏng !hethong / !nhiemvu / !diendan / !kiemtoan
+// js/hub.js — Carousel 3D Vòng Tròn Vô Tận (Thẻ Dọc Công Nghệ Cao) + Buồng Lái 3 Cánh + Mô phỏng !hethong / !nhiemvu / !diendan
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
@@ -227,7 +227,7 @@ radioToggle.addEventListener("click", () => {
 document.getElementById("radio-next").addEventListener("click", () => { radioTrackName.textContent = radio.nextTrack(); });
 document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. SÂN KHẤU TAB LƯỚT TRƯỢT 3D COVERFLOW (VẬT LÝ QUÁN TÍNH + LÒ XO)
+// 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (INFINITE CIRCULAR COVERFLOW)
 const galleryViewport = document.getElementById("gallery-viewport");
 const tabCards = Array.from(document.querySelectorAll(".holo-tab-card"));
 const TOTAL_TABS = tabCards.length;
@@ -241,22 +241,33 @@ let dragStartPos = 0;
 let dragVelocity = 0;
 let dragMoved = 0;
 
+function getWrappedDelta(index, centerPos) {
+  let d = (((index - centerPos) % TOTAL_TABS) + TOTAL_TABS) % TOTAL_TABS;
+  if (d > TOTAL_TABS / 2) d -= TOTAL_TABS;
+  return d;
+}
+
+function modIndex(val) {
+  return ((Math.round(val) % TOTAL_TABS) + TOTAL_TABS) % TOTAL_TABS;
+}
+
 function layoutCoverflowCards() {
   const isMobile = window.innerWidth <= 680;
-  const spacing = isMobile ? 168 : 226;
+  const spacing = isMobile ? 196 : 254;
 
   tabCards.forEach((card, i) => {
-    const d = i - carouselPos;
+    const d = getWrappedDelta(i, carouselPos);
     const absD = Math.abs(d);
     const x = d * spacing;
-    const z = -(absD * absD * 22 + absD * 38);
-    const rotY = Math.max(-44, Math.min(44, -d * 18));
-    const scale = Math.max(0.7, 1.06 - absD * 0.13);
-    const opacity = Math.max(0.24, 1 - absD * 0.24);
+    const z = 34 - (absD * absD * 34 + absD * 68);
+    const rotY = Math.max(-42, Math.min(42, -d * 21));
+    const scale = Math.max(0.68, 1.04 - absD * 0.12);
+    const opacity = absD > 2.25 ? Math.max(0, 1 - (absD - 2.25) * 2.5) : Math.max(0.32, 1 - absD * 0.22);
 
     card.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), -50%, ${z.toFixed(1)}px) rotateY(${rotY.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
     card.style.opacity = opacity.toFixed(3);
-    card.style.zIndex = String(Math.round(60 - absD * 10));
+    card.style.zIndex = String(Math.round(80 - absD * 15));
+    card.style.pointerEvents = opacity < 0.1 ? "none" : "auto";
   });
 }
 
@@ -272,7 +283,10 @@ animateCarousel();
 function switchTab(tabId, snapCarousel = true) {
   state.activeTabId = tabId;
   const idx = tabCards.findIndex((c) => c.dataset.tab === tabId);
-  if (snapCarousel && idx >= 0) carouselTarget = idx;
+  if (snapCarousel && idx >= 0) {
+    const delta = getWrappedDelta(idx, carouselTarget);
+    carouselTarget += delta;
+  }
 
   tabCards.forEach((c) => c.classList.toggle("is-active", c.dataset.tab === tabId));
   document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
@@ -287,12 +301,11 @@ function switchTab(tabId, snapCarousel = true) {
   }
 }
 
-tabCards.forEach((card, idx) => {
+tabCards.forEach((card) => {
   card.addEventListener("click", () => {
     if (dragMoved > 8) return;
     if (state.sfx) radio.playClickChime();
     switchTab(card.dataset.tab, true);
-    carouselTarget = idx;
   });
 });
 
@@ -314,13 +327,8 @@ if (galleryViewport) {
     dragLastX = e.clientX;
     dragMoved = Math.abs(dxTotal);
 
-    const stepPx = window.innerWidth <= 680 ? 168 : 226;
-    const raw = dragStartPos - dxTotal / stepPx;
-    // Rubber-band mềm ở 2 đầu
-    if (raw < 0) carouselPos = raw * 0.35;
-    else if (raw > TOTAL_TABS - 1) carouselPos = (TOTAL_TABS - 1) + (raw - (TOTAL_TABS - 1)) * 0.35;
-    else carouselPos = raw;
-
+    const stepPx = window.innerWidth <= 680 ? 196 : 254;
+    carouselPos = dragStartPos - dxTotal / stepPx;
     dragVelocity = -dxStep / stepPx;
   });
 
@@ -330,10 +338,10 @@ if (galleryViewport) {
     galleryViewport.classList.remove("is-dragging");
 
     if (dragMoved > 8) {
-      const snapped = Math.max(0, Math.min(TOTAL_TABS - 1, Math.round(carouselPos + dragVelocity * 2.2)));
-      carouselTarget = snapped;
+      carouselTarget = Math.round(carouselPos + dragVelocity * 2.2);
+      const snappedIdx = modIndex(carouselTarget);
       if (state.sfx) radio.playClickChime();
-      switchTab(tabCards[snapped].dataset.tab, false);
+      switchTab(tabCards[snappedIdx].dataset.tab, false);
     }
     setTimeout(() => { dragMoved = 0; }, 40);
   });
@@ -343,27 +351,25 @@ if (galleryViewport) {
     const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
     if (Math.abs(delta) < 2) return;
     e.preventDefault();
-    carouselTarget = Math.max(0, Math.min(TOTAL_TABS - 1, carouselTarget + delta * 0.004));
+    carouselTarget += delta * 0.0038;
     clearTimeout(wheelTimer);
     wheelTimer = setTimeout(() => {
-      const snapped = Math.round(carouselTarget);
-      carouselTarget = snapped;
-      switchTab(tabCards[snapped].dataset.tab, false);
-    }, 110);
+      carouselTarget = Math.round(carouselTarget);
+      const snappedIdx = modIndex(carouselTarget);
+      switchTab(tabCards[snappedIdx].dataset.tab, false);
+    }, 105);
   }, { passive: false });
 }
 
 document.getElementById("btn-slide-left").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  const nextIdx = Math.max(0, Math.round(carouselTarget) - 1);
-  carouselTarget = nextIdx;
-  switchTab(tabCards[nextIdx].dataset.tab, false);
+  carouselTarget = Math.round(carouselTarget) - 1;
+  switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
 });
 document.getElementById("btn-slide-right").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  const nextIdx = Math.min(TOTAL_TABS - 1, Math.round(carouselTarget) + 1);
-  carouselTarget = nextIdx;
-  switchTab(tabCards[nextIdx].dataset.tab, false);
+  carouselTarget = Math.round(carouselTarget) + 1;
+  switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
 });
 
 window.addEventListener("resize", () => {

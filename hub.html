@@ -81,69 +81,142 @@
     </section>
 
     <!-- =================================================================
-         KHU VỰC 1: SÂN KHẤU TAB LƯỚT TRƯỢT 3D COVERFLOW (ẢNH 1 & ẢNH 4)
+         KHU VỰC 1: SÂN KHẤU THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO (ẢNH 2 & ẢNH 3)
          ================================================================= -->
     <section class="holo-gallery-stage">
       <div class="gallery-rings ring-top" aria-hidden="true"><span></span><span></span></div>
-      <h2 class="gallery-heading">SẢNH CHỜ CON NỢ 00 // MODULE TƯƠNG TÁC KHÔNG GIAN 3D</h2>
-      <p class="gallery-subhint">[ Kéo thả chuột / Vuốt tay 2 bên hoặc lăn chuột để trượt qua lại giữa 6 Mô-đun ]</p>
+      <h2 class="gallery-heading">SẢNH CHỜ CON NỢ 00 // MODULE CHỮ NHẬT DỌC 3D</h2>
+      <p class="gallery-subhint">[ Kéo thả chuột / Vuốt tay qua lại 2 bên hoặc lăn chuột để xoay vòng các Thẻ Holo ]</p>
 
       <div class="gallery-carousel-row">
-        <button class="carousel-arrow holo-tactile" id="btn-slide-left" type="button" title="Trượt trái">‹</button>
+        <button class="carousel-arrow holo-tactile" id="btn-slide-left" type="button" title="Xoay trái">‹</button>
 
         <div class="gallery-viewport" id="gallery-viewport">
+          <div class="gallery-floor-glow" aria-hidden="true"></div>
           <div class="gallery-track" id="gallery-track">
+            <!-- THẺ 01 -->
             <button class="holo-tab-card is-active" data-tab="tab-profile" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 01</span><em>ONLINE</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="4"/><circle cx="23" cy="30" r="6"/><line x1="34" y1="26" x2="48" y2="26"/><line x1="34" y1="34" x2="46" y2="34"/><line x1="16" y1="42" x2="48" y2="42"/></svg>
               </div>
-              <div class="tab-caption"><strong>01 // HỢP ĐỒNG &amp; PROMPT</strong><small>Ký nháp • Xuất Prompt AI</small></div>
+              <div class="card-mid-telemetry"><span>AUTH: CONTRACT</span><span>1/1 SEAL</span></div>
+              <div class="tab-caption"><strong>01 // HỢP ĐỒNG &amp; PROMPT</strong><small>Ký nháp • Xuất Prompt AI Mục XIV</small></div>
             </button>
 
+            <!-- THẺ 02 -->
             <button class="holo-tab-card" data-tab="tab-pyramid" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 02</span><em>3D MESH</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><polygon points="10,14 54,14 32,54"/><line x1="16" y1="24" x2="48" y2="24"/><line x1="22" y1="34" x2="42" y2="34"/><line x1="27" y1="44" x2="37" y2="44"/></svg>
               </div>
-              <div class="tab-caption"><strong>02 // THÁP BÁO ỨNG 3D</strong><small>Kim tự tháp ngược 10 tầng</small></div>
+              <div class="card-mid-telemetry"><span>TOWER: 10 TIERS</span><span>GLSL</span></div>
+              <div class="tab-caption"><strong>02 // THÁP BÁO ỨNG 3D</strong><small>Kim tự tháp ngược 10 tầng chạm xoay</small></div>
             </button>
 
+            <!-- THẺ 03 -->
             <button class="holo-tab-card" data-tab="tab-ranking" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 03</span><em>GMT+7</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><polyline points="10,46 22,30 34,36 50,16"/><circle cx="50" cy="16" r="4"/><line x1="10" y1="52" x2="54" y2="52"/><rect x="16" y="40" width="6" height="12"/><rect x="29" y="34" width="6" height="18"/><rect x="42" y="24" width="6" height="28"/></svg>
               </div>
-              <div class="tab-caption"><strong>03 // BẢNG XẾP HẠNG</strong><small>Đảo hạng 24h GMT+7</small></div>
+              <div class="card-mid-telemetry"><span>FIREBASE RTDB</span><span>24H CYCLE</span></div>
+              <div class="tab-caption"><strong>03 // BẢNG XẾP HẠNG</strong><small>Đảo hạng tự động mỗi 24h GMT+7</small></div>
             </button>
 
+            <!-- THẺ 04 -->
             <button class="holo-tab-card" data-tab="tab-sectors" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 04</span><em>!NHIEMVU</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="11"/><line x1="32" y1="7" x2="32" y2="57"/><line x1="7" y1="32" x2="57" y2="32"/><circle cx="42" cy="22" r="3"/></svg>
               </div>
-              <div class="tab-caption"><strong>04 // KHO ÁN &amp; !NHIEMVU</strong><small>10 Điện • Sinh Trọng Án Mới</small></div>
+              <div class="card-mid-telemetry"><span>SECTORS: 10</span><span>UNIQUE</span></div>
+              <div class="tab-caption"><strong>04 // KHO ÁN &amp; !NHIEMVU</strong><small>10 Điện • Sinh Trọng Án Độc Bản</small></div>
             </button>
 
+            <!-- THẺ 05 -->
             <button class="holo-tab-card" data-tab="tab-market" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 05</span><em>!HETHONG</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><polygon points="32,10 52,22 52,42 32,54 12,42 12,22"/><polygon points="32,18 44,25 44,39 32,46 20,39 20,25"/><line x1="32" y1="10" x2="32" y2="54"/></svg>
               </div>
-              <div class="tab-caption"><strong>05 // CHỢ ĐEN &amp; !HETHONG</strong><small>Lục Nha • Hình thái vật lý</small></div>
+              <div class="card-mid-telemetry"><span>LỤC NHA MKT</span><span>POS/CROW</span></div>
+              <div class="tab-caption"><strong>05 // CHỢ ĐEN &amp; !HETHONG</strong><small>Vật tư thực tế • Hình thái vật lý</small></div>
             </button>
 
+            <!-- THẺ 06 -->
             <button class="holo-tab-card" data-tab="tab-forum" type="button">
-              <div class="card-corner-glow" aria-hidden="true"></div>
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 06</span><em>!DIENDAN</em></div>
               <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><circle cx="32" cy="18" r="5"/><circle cx="16" cy="44" r="5"/><circle cx="48" cy="44" r="5"/><line x1="32" y1="23" x2="18" y2="40"/><line x1="32" y1="23" x2="46" y2="40"/><line x1="21" y1="44" x2="43" y2="44"/></svg>
               </div>
-              <div class="tab-caption"><strong>06 // BÁO ỨNG NET</strong><small>!diendan • Nhân sự Cục</small></div>
+              <div class="card-mid-telemetry"><span>NET v4.0</span><span>SIG: Sd.</span></div>
+              <div class="tab-caption"><strong>06 // BÁO ỨNG NET</strong><small>Diễn đàn nội bộ • Nhân sự Cục</small></div>
             </button>
           </div>
         </div>
 
-        <button class="carousel-arrow holo-tactile" id="btn-slide-right" type="button" title="Trượt phải">›</button>
+        <button class="carousel-arrow holo-tactile" id="btn-slide-right" type="button" title="Xoay phải">›</button>
       </div>
 
       <div class="gallery-rings ring-bottom" aria-hidden="true"><span></span><span></span></div>

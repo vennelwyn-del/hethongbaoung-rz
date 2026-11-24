@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRẠM QUỸ ĐẠO VR 3D: COVERFLOW TAB TRƯỢT 2 BÊN (ẢNH 1 & 4) + BUỒNG LÁI 3 CÁNH
+   TRẠM QUỸ ĐẠO VR 3D: THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO + BUỒNG LÁI 3 CÁNH
    ========================================================================== */
 
 .hub-body {
@@ -54,14 +54,14 @@
 .ribbon-item strong { font-size: 0.78rem; color: var(--c-secondary); }
 
 /* ==========================================================================
-   1. SÂN KHẤU TAB LƯỚT TRƯỢT 3D COVERFLOW (ẢNH 1 + ẢNH 4)
+   1. SÂN KHẤU THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO (VÒNG TRÒN VÔ TẬN 3D)
    ========================================================================== */
 .holo-gallery-stage {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 22px 0 26px;
+  padding: 20px 0 28px;
 }
 
 .gallery-heading {
@@ -72,7 +72,7 @@
   letter-spacing: 0.2em;
   color: var(--text-main);
   text-shadow: 0 0 16px var(--glow-primary);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-align: center;
 }
 .gallery-subhint {
@@ -81,7 +81,7 @@
   font-family: "JetBrains Mono", monospace;
   font-size: 0.64rem;
   color: var(--c-primary);
-  opacity: 0.8;
+  opacity: 0.82;
   margin-bottom: 10px;
 }
 
@@ -89,23 +89,23 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: min(760px, 92vw);
-  height: 112px;
+  width: min(820px, 94vw);
+  height: 118px;
   pointer-events: none;
 }
 .ring-top { top: -18px; }
-.ring-bottom { bottom: -16px; }
+.ring-bottom { bottom: -18px; }
 .gallery-rings span {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   border: 2px solid rgba(var(--rgb-primary), 0.55);
   box-shadow: 0 0 28px var(--glow-primary), inset 0 0 18px rgba(var(--rgb-primary), 0.24);
-  transform: rotateX(75deg);
+  transform: rotateX(76deg);
 }
 .gallery-rings span:nth-child(2) {
-  inset: 16px 74px;
-  border-color: rgba(var(--rgb-secondary), 0.48);
+  inset: 16px 82px;
+  border-color: rgba(var(--rgb-secondary), 0.5);
 }
 
 .gallery-carousel-row {
@@ -118,36 +118,50 @@
 }
 
 .carousel-arrow {
-  width: 44px;
-  height: 82px;
+  width: 46px;
+  height: 116px;
   flex-shrink: 0;
-  border: 1px solid rgba(var(--rgb-primary), 0.55);
-  background: rgba(var(--rgb-primary), 0.12);
-  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(var(--rgb-primary), 0.6);
+  background: linear-gradient(180deg, rgba(var(--rgb-primary), 0.16), rgba(4, 10, 26, 0.86));
+  backdrop-filter: blur(12px);
   color: var(--c-primary);
-  font-size: 1.9rem;
+  font-size: 2rem;
   cursor: pointer;
   display: grid;
   place-items: center;
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  box-shadow: 0 0 18px rgba(var(--rgb-primary), 0.2);
 }
 .carousel-arrow:hover {
   border-color: var(--c-secondary);
   color: var(--c-secondary);
-  box-shadow: 0 0 20px var(--glow-secondary);
+  box-shadow: 0 0 24px var(--glow-secondary);
 }
 
 .gallery-viewport {
   flex: 1;
-  height: 214px;
+  height: 392px;
   overflow: hidden;
-  perspective: 1450px;
+  perspective: 1700px;
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
   position: relative;
 }
 .gallery-viewport.is-dragging { cursor: grabbing; }
+
+.gallery-floor-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: 520px;
+  height: 54px;
+  background: radial-gradient(ellipse at center, rgba(var(--rgb-primary), 0.42), rgba(var(--rgb-secondary), 0.14) 45%, transparent 74%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 1;
+}
 
 .gallery-track {
   position: relative;
@@ -156,104 +170,227 @@
   transform-style: preserve-3d;
 }
 
-/* THẺ TAB HOLO PHONG CÁCH ẢNH 4 (NÚT SÁNG 4 GÓC + LƯỚI MỜ + KÍNH KHÔNG GIAN) */
+/* THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO (ẢNH 2 + ẢNH 3) */
 .holo-tab-card {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 224px;
-  height: 174px;
-  border: 1.5px solid rgba(var(--rgb-primary), 0.58);
+  width: 228px;
+  height: 338px;
+  border: none;
   background:
-    linear-gradient(rgba(var(--rgb-primary), 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--rgb-primary), 0.06) 1px, transparent 1px),
-    linear-gradient(165deg, rgba(var(--rgb-primary), 0.2), rgba(3, 8, 22, 0.9) 76%);
-  background-size: 18px 18px, 18px 18px, 100% 100%;
-  backdrop-filter: blur(12px);
+    linear-gradient(rgba(var(--rgb-primary), 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--rgb-primary), 0.08) 1px, transparent 1px),
+    linear-gradient(175deg, rgba(var(--rgb-primary), 0.24) 0%, rgba(4, 14, 38, 0.9) 55%, rgba(var(--rgb-secondary), 0.18) 100%);
+  background-size: 16px 16px, 16px 16px, 100% 100%;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   color: var(--text-main);
-  padding: 12px;
+  padding: 18px 16px 16px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 8px;
   text-align: left;
   clip-path: polygon(
-    12px 0%, calc(100% - 12px) 0%, 100% 12px,
-    100% calc(100% - 12px), calc(100% - 12px) 100%,
-    12px 100%, 0% calc(100% - 12px), 0% 12px
+    18px 2px, calc(100% - 18px) 2px, calc(100% - 2px) 18px,
+    calc(100% - 2px) calc(100% - 18px), calc(100% - 18px) calc(100% - 2px),
+    18px calc(100% - 2px), 2px calc(100% - 18px), 2px 18px
   );
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), 0 0 22px rgba(var(--rgb-primary), 0.22);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.72),
+    inset 0 0 28px rgba(var(--rgb-primary), 0.16);
   will-change: transform, opacity;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
 }
 
-.holo-tab-card::before {
+/* VỆT SÁNG CHÉO TRƯỢT QUA MẶT KÍNH */
+.holo-tab-card::after {
   content: "";
   position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(var(--rgb-primary), 0.24);
+  inset: 0;
+  background: linear-gradient(125deg, transparent 28%, rgba(255, 255, 255, 0.14) 48%, rgba(var(--rgb-primary), 0.2) 52%, transparent 66%);
+  transform: translateX(-110%);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
+}
+.holo-tab-card:hover::after,
+.holo-tab-card.is-active::after {
+  transform: translateX(110%);
+}
+
+/* KHUNG GIÁP SVG VIỀN PHÁT SÁNG + 4 NÚT GÓC (ẢNH 3) */
+.card-tech-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+.card-tech-frame .frame-outer {
+  fill: none;
+  stroke: var(--c-primary);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 8px var(--glow-primary));
+  transition: stroke 0.25s, filter 0.25s;
+}
+.card-tech-frame .frame-inner {
+  fill: none;
+  stroke: rgba(210, 244, 255, 0.26);
+  stroke-width: 1;
+}
+.card-tech-frame .rail-glow {
+  stroke: var(--c-primary);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 10px var(--glow-primary));
+}
+.card-tech-frame .node-glow {
+  fill: #e8fcff;
+  stroke: var(--c-primary);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 9px var(--glow-primary));
 }
 
 .holo-tab-card.is-active {
-  border-color: var(--c-secondary);
   box-shadow:
-    0 0 34px var(--glow-secondary),
-    0 0 16px var(--glow-primary),
-    inset 0 0 22px rgba(var(--rgb-secondary), 0.25);
+    0 24px 52px rgba(0, 0, 0, 0.8),
+    0 0 38px var(--glow-primary),
+    inset 0 0 34px rgba(var(--rgb-secondary), 0.24);
+}
+.holo-tab-card.is-active .card-tech-frame .frame-outer,
+.holo-tab-card.is-active .card-tech-frame .rail-glow {
+  stroke: var(--c-secondary);
+  filter: drop-shadow(0 0 12px var(--glow-secondary));
+}
+.holo-tab-card.is-active .card-tech-frame .node-glow {
+  stroke: var(--c-secondary);
+  filter: drop-shadow(0 0 12px var(--glow-secondary));
 }
 
-.card-corner-glow {
-  position: absolute;
-  inset: 3px;
-  pointer-events: none;
+/* PHẦN NỘI DUNG BÊN TRONG THẺ DỌC (ẢNH 2: FUSION GRID + MẠCH ĐIỆN) */
+.card-top-meta {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--c-primary);
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(var(--rgb-primary), 0.26);
 }
-.card-corner-glow::before,
-.card-corner-glow::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--c-primary);
-  box-shadow: 0 0 10px var(--glow-primary);
-}
-.card-corner-glow::before { top: 2px; left: 2px; }
-.card-corner-glow::after { bottom: 2px; right: 2px; }
-.holo-tab-card.is-active .card-corner-glow::before,
-.holo-tab-card.is-active .card-corner-glow::after {
-  background: var(--c-secondary);
-  box-shadow: 0 0 14px var(--glow-secondary);
+.card-top-meta em {
+  font-style: normal;
+  color: var(--c-secondary);
+  padding: 1px 6px;
+  border: 1px solid rgba(var(--rgb-secondary), 0.45);
+  background: rgba(var(--rgb-secondary), 0.12);
 }
 
 .tab-visual {
-  height: 92px;
-  border: 1px solid rgba(var(--rgb-primary), 0.34);
-  background: radial-gradient(circle at 50% 45%, rgba(var(--rgb-primary), 0.28), rgba(2, 5, 16, 0.92));
+  position: relative;
+  z-index: 2;
+  height: 162px;
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--rgb-primary), 0.34), rgba(2, 8, 24, 0.92) 72%);
   display: grid;
   place-items: center;
-}
-.tab-visual svg {
-  width: 44px;
-  height: 44px;
-  fill: none;
-  stroke: var(--c-primary);
-  stroke-width: 1.65;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 10px var(--glow-primary));
-  transition: stroke 0.25s, transform 0.25s;
-}
-.holo-tab-card.is-active .tab-visual svg {
-  stroke: var(--c-secondary);
-  filter: drop-shadow(0 0 14px var(--glow-secondary));
-  transform: scale(1.08);
+  overflow: hidden;
 }
 
-.tab-caption { display: flex; flex-direction: column; gap: 3px; }
-.tab-caption strong { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: var(--c-primary); }
+.circuit-arms {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(var(--rgb-primary), 0.32), transparent 28%, transparent 72%, rgba(var(--rgb-primary), 0.32)) center / 100% 2px no-repeat,
+    linear-gradient(0deg, rgba(var(--rgb-secondary), 0.28), transparent 26%, transparent 74%, rgba(var(--rgb-secondary), 0.28)) center / 2px 100% no-repeat;
+}
+
+.reactor-rings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.reactor-rings i {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(var(--rgb-primary), 0.55);
+}
+.reactor-rings i:first-child {
+  width: 112px;
+  height: 112px;
+  animation: spinCW 18s linear infinite;
+}
+.reactor-rings i:last-child {
+  width: 86px;
+  height: 86px;
+  border-color: rgba(var(--rgb-secondary), 0.65);
+  border-style: solid;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation: spinCCW 9s linear infinite;
+}
+
+.tab-visual svg {
+  position: relative;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  fill: none;
+  stroke: var(--c-primary);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 12px var(--glow-primary));
+  transition: stroke 0.25s, transform 0.25s, filter 0.25s;
+}
+.holo-tab-card.is-active .tab-visual svg {
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 14px var(--glow-secondary)) drop-shadow(0 0 6px var(--c-primary));
+  transform: scale(1.1);
+}
+
+.card-mid-telemetry {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.56rem;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.36);
+  border-left: 2px solid var(--c-primary);
+}
+.holo-tab-card.is-active .card-mid-telemetry {
+  border-left-color: var(--c-secondary);
+  color: var(--c-ember);
+}
+
+.tab-caption {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tab-caption strong {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--c-primary);
+  letter-spacing: 0.04em;
+}
 .holo-tab-card.is-active .tab-caption strong { color: var(--c-secondary); }
-.tab-caption small { font-size: 0.68rem; color: var(--text-muted); }
+.tab-caption small { font-size: 0.68rem; color: var(--text-muted); line-height: 1.32; }
 
 /* ==========================================================================
    2. BUỒNG LÁI VR 3 CÁNH HOYO (ẢNH 1: MÀN HÌNH CONG 3 TẤM NỔI)
@@ -755,8 +892,10 @@
 }
 @media (max-width: 680px) {
   .holo-status-ribbon, .contract-grid, .dual-sign-box, .sectors-grid, .entities-grid, .contracts-pkg-grid { grid-template-columns: 1fr; }
-  .holo-tab-card { width: 184px; height: 158px; }
-  .gallery-viewport { height: 196px; }
+  .holo-tab-card { width: 188px; height: 286px; padding: 14px 12px; }
+  .tab-visual { height: 128px; }
+  .gallery-viewport { height: 332px; }
+  .carousel-arrow { width: 34px; height: 84px; font-size: 1.5rem; }
   .market-item { flex-direction: column; align-items: stretch; }
   .rank-block { grid-template-columns: 42px 42px 1fr; }
   .rank-pb { grid-column: 1 / -1; text-align: left; }
