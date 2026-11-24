@@ -1,14 +1,16 @@
 // js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (USER KHÔNG THẤY)
 
 export const SITE_CONFIG = {
-  // 1. LINK ẢNH BACKGROUND (Dán link ảnh của bạn vào đây, để "" nếu dùng nền 3D thuần)
+  // 1. DÁN LINK HOẶC ĐƯỜNG DẪN ẢNH NỀN VÀO ĐÂY
   backgroundImage: {
-    defaultUrl: "", // Link ảnh nền chung (vd: "https://.../bg.jpg")
+    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png",
     byTheme: {
-      "cyber-violet": "", // Hoặc dán riêng ảnh cho Template Tím-Xanh
-      "acid": ""          // Hoặc dán riêng ảnh cho Template Xanh-Chanh
+      "orbital-cyan": "",
+      "cyber-violet": "",
+      "acid": "",
+      "crimson-karma": ""
     },
-    opacity: 0.35 // Độ rõ của ảnh nền (0.1 -> 1.0) để vẫn thấy sóng điện & khối 3D phía trên
+    opacity: 0.6 // Tăng lên 0.55 - 0.75 để ảnh nền hiện rõ nét dưới lớp lưới 3D
   },
 
   // 2. LINK NHẠC CHO RADIO (Dán link .mp3 / audio trực tiếp vào url, để "" sẽ phát nhạc AI tích hợp)
@@ -20,8 +22,8 @@ export const SITE_CONFIG = {
 
   // 3. CÀI ĐẶT HIỆU ỨNG MẶC ĐỊNH CỦA WEB
   effects: {
-    scanlines: true,   // Đường quét màn hình hologram
-    parallax3D: true,  // Nghiêng 3D theo chuột
-    sfx: true          // Âm thanh chạm màn hình
+    scanlines: true,  // Đường quét màn hình hologram
+    parallax3D: true, // Nghiêng 3D theo chuột
+    sfx: true         // Âm thanh chạm màn hình
   }
 };
