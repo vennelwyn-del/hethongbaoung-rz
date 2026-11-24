@@ -2043,3 +2043,142 @@
 @media (max-width: 900px) {
   .morph-and-bars-row { grid-template-columns: 1fr; }
 }
+/* ==========================================================================
+   NÂNG CẤP GIAO DIỆN FUTURE TECH 3 CỘT CHO BIO-LAB 3D
+   ========================================================================== */
+.bio-lab-wide {
+  width: min(1240px, 96vw);
+  border-color: rgba(var(--rgb-primary), 0.32);
+  background: linear-gradient(160deg, rgba(var(--rgb-primary), 0.06), rgba(2, 6, 16, 0.94) 55%);
+}
+
+.bio-lab-3col {
+  display: grid;
+  grid-template-columns: 270px 1fr 340px;
+  gap: 14px;
+  align-items: start;
+}
+
+.bio-lab-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bio-subpanel {
+  border-color: rgba(var(--rgb-primary), 0.24);
+  background: rgba(3, 8, 22, 0.65);
+  backdrop-filter: blur(14px);
+}
+
+.morph-pod-tall {
+  height: 410px !important;
+  border-radius: 12px;
+  border-color: rgba(var(--rgb-primary), 0.28);
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(var(--rgb-primary), 0.14), rgba(2, 5, 14, 0.92) 72%),
+    linear-gradient(rgba(var(--rgb-primary), 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--rgb-primary), 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+}
+
+.morph-callout-svg path {
+  stroke-width: 0.95;
+  opacity: 0.68;
+}
+.morph-callout-svg path.is-active {
+  stroke-width: 1.5;
+  opacity: 1;
+}
+
+.zone-pin-btn {
+  padding: 4px 9px;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background: rgba(2, 8, 22, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.morph-stats-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+#lab-ecg-canvas {
+  width: 100%;
+  height: 44px;
+  display: block;
+  border: 1px solid rgba(var(--rgb-primary), 0.18);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ĐỒNG HỒ TRÒN PHONG CÁCH ẢNH 2 (AI-DRIVEN DIAGNOSTICS) */
+.lab-radial-gauges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.radial-gauge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(var(--rgb-primary), 0.18);
+}
+.radial-gauge-item svg {
+  width: 48px;
+  height: 48px;
+  transform: rotate(-90deg);
+}
+.radial-gauge-item circle.bg {
+  fill: none;
+  stroke: rgba(var(--rgb-primary), 0.15);
+  stroke-width: 3.2;
+}
+.radial-gauge-item circle.fg {
+  fill: none;
+  stroke: var(--c-primary);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--glow-primary));
+}
+.radial-gauge-item strong {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--c-secondary);
+  margin-top: -33px;
+  margin-bottom: 14px;
+}
+.radial-gauge-item span {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.seg-cells {
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+}
+.seg-cells i {
+  height: 6px;
+}
+
+.lab-bio-text {
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.lab-quote-box {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 1080px) {
+  .bio-lab-3col { grid-template-columns: 1fr; }
+  .morph-pod-tall { height: 360px !important; }
+  .morph-stats-4 { grid-template-columns: repeat(2, 1fr); }
+}

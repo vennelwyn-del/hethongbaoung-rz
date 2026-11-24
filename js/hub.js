@@ -1465,14 +1465,16 @@ function startAiLabTelemetryLoop(npc, stats) {
   stopAiLabTelemetryLoop();
   const chart = document.getElementById("lab-ai-chart");
   const ctx = chart?.getContext("2d");
+  const ecg = document.getElementById("lab-ecg-canvas");
+  const ecgCtx = ecg?.getContext("2d");
   const streamBox = document.getElementById("lab-ai-stream");
 
   const aiPackets = [
     `> AI_CORE: Syncing ${npc.code} neural topology...`,
     `> BIOMETRICS: Height ${stats.heightCm || 175}cm | Temp ${stats.bodyTemp || "36.6°C"}`,
-    `> OLFACTORY_ID: ${npc.scent?.slice(0, 38) || "Unknown"}...`,
-    `> CAUSALITY_CHECK: Clearance [${npc.clearance}] verified.`,
-    `> BEHAVIOR_MODEL: Predicting face-slap response curve...`,
+    `> OLFACTORY_ID: ${npc.scent?.slice(0, 34) || "Unknown"}...`,
+    `> CAUSALITY_CHECK: Clearance [${npc.clearance}] active.`,
+    `> BEHAVIOR_MODEL: Analyzing psychological resonance...`,
     `> TELEMETRY_NODE: 0x${Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, "0")} OK`
   ];
   let packetCursor = 0;
@@ -1484,19 +1486,20 @@ function startAiLabTelemetryLoop(npc, stats) {
     div.textContent = aiPackets[packetCursor % aiPackets.length] + ` [${(95 + Math.random() * 4.9).toFixed(1)}%]`;
     packetCursor++;
     streamBox.prepend(div);
-    if (streamBox.children.length > 8) streamBox.lastChild.remove();
-  }, 550);
+    if (streamBox.children.length > 7) streamBox.lastChild.remove();
+  }, 520);
 
   function renderChart() {
+    const st = getComputedStyle(htmlEl);
+    const pRgb = st.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
+    const sRgb = st.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
+    aiPhase += 0.085;
+
     if (ctx && chart) {
-      const st = getComputedStyle(htmlEl);
-      const pRgb = st.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
-      const sRgb = st.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
       const w = chart.width, h = chart.height;
-      aiPhase += 0.08;
       ctx.clearRect(0, 0, w, h);
 
-      ctx.strokeStyle = `rgba(${pRgb}, 0.14)`;
+      ctx.strokeStyle = `rgba(${pRgb}, 0.12)`;
       ctx.lineWidth = 1;
       for (let y = 22; y < h; y += 22) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
@@ -1504,22 +1507,51 @@ function startAiLabTelemetryLoop(npc, stats) {
 
       const colW = w / aiBars.length;
       for (let i = 0; i < aiBars.length; i++) {
-        aiBars[i] += (Math.random() - 0.5) * 14;
+        aiBars[i] += (Math.random() - 0.5) * 12;
         aiBars[i] = Math.max(12, Math.min(82, aiBars[i]));
         const bh = (aiBars[i] / 100) * (h - 14);
-        ctx.fillStyle = i % 4 === 0 ? `rgba(${sRgb}, 0.72)` : `rgba(${pRgb}, 0.48)`;
+        ctx.fillStyle = i % 4 === 0 ? `rgba(${sRgb}, 0.68)` : `rgba(${pRgb}, 0.42)`;
         ctx.fillRect(i * colW + 3, h - bh, colW - 6, bh);
       }
 
       ctx.strokeStyle = `rgba(${sRgb}, 0.95)`;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
       for (let x = 0; x <= w; x += 6) {
-        const y = h * 0.42 + Math.sin(x * 0.045 + aiPhase) * 16 + Math.cos(x * 0.11 - aiPhase * 1.4) * 7;
+        const y = h * 0.42 + Math.sin(x * 0.045 + aiPhase) * 15 + Math.cos(x * 0.11 - aiPhase * 1.4) * 6;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(${pRgb}, 0.8)`;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 6) {
+        const y = h * 0.58 + Math.cos(x * 0.05 - aiPhase * 1.2) * 11;
         x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
+
+    if (ecgCtx && ecg) {
+      const w = ecg.width, h = ecg.height;
+      ecgCtx.clearRect(0, 0, w, h);
+      ecgCtx.strokeStyle = `rgba(${pRgb}, 0.92)`;
+      ecgCtx.lineWidth = 1.4;
+      ecgCtx.beginPath();
+      for (let x = 0; x < w; x += 2) {
+        const ph = (x * 0.11 - aiPhase * 2.2) % (Math.PI * 2);
+        const normPh = ph < 0 ? ph + Math.PI * 2 : ph;
+        let spike = 0;
+        if (normPh > 2.5 && normPh < 2.8) spike = -14;
+        else if (normPh >= 2.8 && normPh < 3.05) spike = 9;
+        else if (normPh > 1.9 && normPh < 2.2) spike = -4;
+        const y = h * 0.55 + spike + Math.sin(x * 0.18 + aiPhase) * 1.2;
+        x === 0 ? ecgCtx.moveTo(x, y) : ecgCtx.lineTo(x, y);
+      }
+      ecgCtx.stroke();
+    }
+
     aiChartTimer = requestAnimationFrame(renderChart);
   }
   renderChart();
@@ -1546,7 +1578,7 @@ function openNpcBioLabModal(npc) {
     if ((stats.avatarUrl || "").trim()) {
       portraitBox.innerHTML = `<img src="${stats.avatarUrl.trim()}" alt="${npc.name}" /><div class="portrait-scan-beam"></div>`;
     } else {
-      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Dán link vào config.js hoặc bấm ⚙️ Setting ảnh)</small></div><div class="portrait-scan-beam"></div>`;
+      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Dán link vào config.js hoặc ⚙️ Setting)</small></div><div class="portrait-scan-beam"></div>`;
     }
   }
 
@@ -1570,12 +1602,39 @@ function openNpcBioLabModal(npc) {
     <div><small>CÂN NẶNG / BMI</small><strong>${w > 0 ? `${w} KG (${bmiText})` : "PHI VẬT CHẤT"}</strong></div>
   `;
 
+  // 3 Đồng hồ tròn xoay AI (giống Ảnh 2)
+  const radialBox = document.getElementById("lab-radial-gauges");
+  if (radialBox) {
+    const bars = stats.bars || [{ label: "SYNC", val: 92 }];
+    const gaugeData = [
+      { label: "THREAT", val: bars[0]?.val ?? 95 },
+      { label: "STABILITY", val: bars[1]?.val ?? 98 },
+      { label: "CONTROL", val: bars[2]?.val ?? 94 }
+    ];
+    const r = 19;
+    const circ = 2 * Math.PI * r;
+    radialBox.innerHTML = gaugeData.map((g) => {
+      const dash = (g.val / 100) * circ;
+      return `
+        <div class="radial-gauge-item">
+          <svg viewBox="0 0 48 48">
+            <circle class="bg" cx="24" cy="24" r="${r}" />
+            <circle class="fg" cx="24" cy="24" r="${r}" stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" />
+          </svg>
+          <strong>${g.val}%</strong>
+          <span>${g.label}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Thanh LED 16 vạch siêu mảnh
   const segList = document.getElementById("lab-seg-bars");
   if (segList) {
     const bars = stats.bars || [{ label: "SYNC LEVEL", val: 92 }];
     segList.innerHTML = bars.map((b) => {
-      const litCount = Math.round((b.val / 100) * 12);
-      const cells = Array.from({ length: 12 }, (_, idx) => `<i class="${idx < litCount ? "on" : ""}"></i>`).join("");
+      const litCount = Math.round((b.val / 100) * 16);
+      const cells = Array.from({ length: 16 }, (_, idx) => `<i class="${idx < litCount ? "on" : ""}"></i>`).join("");
       return `<div class="seg-bar-item"><div class="seg-bar-label"><span>${b.label}</span><span>${b.val}%</span></div><div class="seg-cells">${cells}</div></div>`;
     }).join("");
   }
