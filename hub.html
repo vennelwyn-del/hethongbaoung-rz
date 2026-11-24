@@ -268,26 +268,27 @@
           <span class="hex-mini" id="hex-matrix">0x00 E5 FF</span>
         </div>
 
-        <!-- TAB 1: HỒ SƠ KÝ CHỦ & 2 CHỖ KÝ + XUẤT PROMPT CHUẨN MỤC XIV -->
+        <!-- TAB 1: HỒ SƠ KÝ CHỦ LIVE PREVIEW + 2 CHỖ KÝ + COPY SANG GG AI -->
         <div class="hub-panel" id="tab-profile">
           <div class="pane-bar">
             <span>[ TRẠNG THÁI HỒ SƠ: <em id="contract-status-badge">CHƯA KÝ CHÍNH THỨC</em> ]</span>
+            <button class="btn-secondary holo-tactile mini-btn" id="btn-fill-sample" type="button">⚡ ĐIỀN THỬ MẪU</button>
           </div>
           <div class="lock-banner hidden" id="contract-lock-banner">
-            🔒 TÀI KHOẢN NÀY ĐÃ KÝ HỢP ĐỒNG CHÍNH THỨC — Hồ sơ đã niêm phong vĩnh viễn và đồng bộ lên Bảng Xếp Hạng. Muốn sửa hồ sơ bắt buộc tạo tài khoản mới.
+            🔒 TÀI KHOẢN NÀY ĐÃ KÝ HỢP ĐỒNG CHÍNH THỨC — Hồ sơ đã niêm phong vĩnh viễn và đồng bộ lên Bảng Xếp Hạng. Bạn vẫn có thể bấm Copy bảng mẫu bên dưới bất cứ lúc nào.
           </div>
 
           <form id="contract-form" class="contract-grid">
             <label class="field"><span>Họ và tên Ký chủ</span><input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required /></label>
             <label class="field"><span>Mã số / Biệt danh</span><input type="text" id="f-codename" placeholder="vd: Kẻ Đòi Nợ Máu" /></label>
             <label class="field"><span>Tuổi (18+)</span><input type="number" id="f-age" min="18" max="99" value="24" required /></label>
-            <label class="field"><span>Giới tính &amp; Xưng hô</span><input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required /></label>
+            <label class="field"><span>Giới tính &amp; Đại từ xưng hô</span><input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required /></label>
             <label class="field">
               <span>Xu hướng tính dục</span>
               <select id="f-orient"><option value="Tự do">Tự do</option><option value="Thẳng">Thẳng</option><option value="Đồng tính">Đồng tính</option><option value="Song tính">Song tính</option></select>
             </label>
             <label class="field">
-              <span>Điện khởi đầu</span>
+              <span>Điện Báo Ứng khởi đầu (Thế giới 1)</span>
               <select id="f-sector">
                 <option value="Random Độc Bản">Random Độc Bản (Bất kỳ)</option>
                 <option value="Điện 1 — Khu Vọng Ngữ">Điện 1 — Khu Vọng Ngữ</option>
@@ -305,37 +306,52 @@
             <label class="field span-2">
               <span>Thân phận Con nợ (Khung Random Nợ Phước Báu)</span>
               <select id="f-archetype">
-                <option value="villain">1. Kẻ Đại Ác Cải Tà Quy Chính (-2,500 đến -3,900 PB)</option>
-                <option value="jinx">2. Thiên Tài Xui Xẻo / Sao Quả Tạ (-900 đến -1,800 PB)</option>
-                <option value="scapegoat">3. Nạn Nhân Mù Quáng Tỉnh Ngộ (-500 đến -1,400 PB)</option>
-                <option value="slave">4. Con Nghiện Tư Bản / Xã Súc Đột Tử (-1,100 đến -2,200 PB)</option>
-                <option value="avenger">5. Kẻ Điên Báo Thù Bất Cần Đời (-3,800 đến -5,500 PB)</option>
+                <option value="villain">1. Kẻ Đại Ác Cải Tà Quy Chính (Random nợ: -2,500 đến -3,900 PB)</option>
+                <option value="jinx">2. Thiên Tài Xui Xẻo Tận Mạng / Sao Quả Tạ (Random nợ: -900 đến -1,800 PB)</option>
+                <option value="scapegoat">3. Nạn Nhân Mù Quáng Tỉnh Ngộ (Random nợ: -500 đến -1,400 PB)</option>
+                <option value="slave">4. Con Nghiện Tư Bản / Xã Súc Đột Tử (Random nợ: -1,100 đến -2,200 PB)</option>
+                <option value="avenger">5. Kẻ Điên Báo Thù Bất Cần Đời (Random nợ: -3,800 đến -5,500 PB)</option>
               </select>
             </label>
-            <label class="field"><span>Ngoại hình &amp; Mùi hương gốc</span><input type="text" id="f-appearance" placeholder="vd: Mắt lạnh, mùi cà phê cháy &amp; tuyết..." /></label>
-            <label class="field"><span>Tính cách &amp; Phong cách Vả Mặt</span><input type="text" id="f-personality" placeholder="vd: Tỉnh bơ cà khịa, lấy luật nghiền ép..." /></label>
-            <label class="field"><span>Kỹ năng sinh tồn thực tế</span><input type="text" id="f-skill" placeholder="vd: Kiểm toán, luật pháp, phẫu thuật..." required /></label>
+            <label class="field"><span>Đặc điểm nhận diện &amp; Ánh mắt gốc</span><input type="text" id="f-appearance" placeholder="vd: Mắt hổ phách sắc lạnh, đuôi mắt có nốt ruồi..." /></label>
+            <label class="field"><span>Mùi hương linh hồn đặc trưng (2–3 mùi)</span><input type="text" id="f-scent" placeholder="vd: Cà phê cháy, thuốc sát trùng, tuyết lạnh" /></label>
+            <label class="field"><span>Tính cách &amp; Phong cách Vả Mặt</span><input type="text" id="f-personality" placeholder="vd: Tỉnh bơ cà khịa, lấy luật pháp nghiền ép" /></label>
             <label class="field"><span>Thói xấu / Nghiệp chướng kiếp trước</span><input type="text" id="f-sin" placeholder="vd: Thức đêm, khẩu nghiệp chửi sếp..." required /></label>
-            <label class="field span-2"><span>Thái độ với Nhân vật Cục (Sd / Tạ Vô Cữu / Lục Nha / Ngu Hồng Diệp / Tiểu Thất)</span><input type="text" id="f-relations" placeholder="vd: Mặc cả với Lục Nha, cảnh giác với ánh nhìn của Quý Cô Sd." /></label>
-            <label class="field span-2"><span>Câu thoại cửa miệng khi đi đòi nợ</span><input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." /></label>
+            <label class="field span-2"><span>Kỹ năng sinh tồn thực tế mang theo (Không bàn tay vàng)</span><input type="text" id="f-skill" placeholder="vd: Kiểm toán tài chính, luật pháp, phẫu thuật ngoại khoa..." required /></label>
+            <label class="field span-2"><span>Mối quan hệ khởi điểm với Nhân vật Cục (Sd / Tạ Vô Cữu / Lục Nha / Ngu Hồng Diệp / Tiểu Thất)</span><input type="text" id="f-relations" placeholder="vd: Sòng phẳng với Lục Nha, cảnh giác với ánh nhìn của Quý Cô Sd." /></label>
+            <label class="field span-2"><span>Yêu cầu Kịch bản Thế giới 1 (Tùy chọn)</span><input type="text" id="f-world-req" value="Random Độc Bản" placeholder="Ghi Random Độc Bản hoặc mô tả bối cảnh muốn chơi..." /></label>
+            <label class="field span-2"><span>Câu thoại cửa miệng khi đi đòi nợ báo ứng</span><input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." /></label>
 
             <div class="span-2 dual-sign-box">
               <div class="sign-slot">
-                <small>CHỖ 1 // BẢN NHÁP RANDOM (Sửa thoải mái)</small>
+                <small>CHỖ 1 // BẢN NHÁP RANDOM (Bấm để tự random số nợ vào bảng mẫu)</small>
                 <button class="btn-secondary holo-tactile" id="btn-sign-draft" type="button">🎲 KÝ THỬ &amp; RANDOM NỢ</button>
               </div>
               <div class="sign-slot">
-                <small>CHỖ 2 // CHÍNH THỨC (1 lần / Khóa vĩnh viễn)</small>
+                <small>CHỖ 2 // CHÍNH THỨC (Khóa 1 lần • Lên BXH Firebase)</small>
                 <button class="btn-primary holo-tactile" id="btn-sign-official" type="submit">⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC</button>
               </div>
             </div>
           </form>
 
+          <!-- BIÊN LAI PHẠT CHI TIẾT KHI BẤM RANDOM / KÝ -->
           <div class="audit-result hidden" id="audit-result">
             <div class="audit-receipt" id="audit-receipt-box"></div>
-            <div class="form-actions" style="margin-top: 12px;">
-              <button class="btn-secondary holo-tactile" id="btn-copy-dossier" type="button">📋 SAO CHÉP HỒ SƠ CHƠI AI (MỤC XIV)</button>
-              <button class="btn-primary holo-tactile" id="btn-goto-rank" type="button">XEM BẢNG XẾP HẠNG →</button>
+          </div>
+
+          <!-- BẢNG MẪU LIVE: GÕ ĐẾN ĐÂU HIỆN TỚI ĐÓ -> COPY THẲNG SANG GG AI -->
+          <div class="live-dossier-box" id="live-dossier-box">
+            <div class="live-dossier-head">
+              <div>
+                <strong>📄 BẢNG MẪU HỒ SƠ LIVE (DÁN THẲNG VÀO GG AI)</strong>
+                <small id="live-dossier-badge">Tự động cập nhật theo từng chữ bạn gõ</small>
+              </div>
+              <button class="btn-primary holo-tactile mini-btn" id="btn-copy-live" type="button">📋 COPY NGAY</button>
+            </div>
+            <pre class="live-dossier-pre" id="live-dossier-preview"></pre>
+            <div class="form-actions" style="margin-top: 10px;">
+              <button class="btn-primary holo-tactile" id="btn-copy-dossier" type="button">📋 COPY TOÀN BỘ HỒ SƠ SANG GG AI</button>
+              <button class="btn-secondary holo-tactile" id="btn-goto-rank" type="button">XEM BẢNG XẾP HẠNG →</button>
             </div>
           </div>
         </div>

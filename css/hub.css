@@ -900,3 +900,50 @@
   .rank-block { grid-template-columns: 42px 42px 1fr; }
   .rank-pb { grid-column: 1 / -1; text-align: left; }
 }
+/* KHUNG BẢNG MẪU LIVE REAL-TIME CHO TAB HỒ SƠ */
+.live-dossier-box {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1.5px solid var(--c-primary);
+  background: linear-gradient(170deg, rgba(var(--rgb-primary), 0.1), rgba(2, 6, 18, 0.92));
+  box-shadow: 0 0 24px rgba(var(--rgb-primary), 0.16);
+}
+
+.live-dossier-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(var(--rgb-primary), 0.28);
+}
+
+.live-dossier-head strong {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--c-primary);
+}
+
+.live-dossier-head small {
+  display: block;
+  font-size: 0.64rem;
+  color: var(--c-secondary);
+  margin-top: 2px;
+}
+
+.live-dossier-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.48);
+  border: 1px solid rgba(var(--rgb-primary), 0.26);
+  padding: 12px 14px;
+  max-height: 360px;
+  overflow-y: auto;
+  user-select: all;
+}

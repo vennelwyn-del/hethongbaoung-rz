@@ -1,4 +1,4 @@
-// js/hub.js — Carousel 3D Vòng Tròn Vô Tận (Thẻ Dọc Công Nghệ Cao) + Buồng Lái 3 Cánh + Mô phỏng !hethong / !nhiemvu / !diendan
+// js/hub.js — Carousel 3D Vòng Tròn Vô Tận + Buồng Lái 3 Cánh + Live Preview Hồ Sơ (Copy sang GG AI)
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
@@ -37,6 +37,7 @@ const state = {
   manifestForm: "pos",
   username: getSavedSessionUsername(),
   lastDossierText: "",
+  draftAudit: null,
   selectedPyramidTier: 1,
   activeTabId: "tab-profile"
 };
@@ -439,6 +440,11 @@ document.getElementById("btn-lock-from-pyramid").addEventListener("click", () =>
   if (state.sfx) radio.playClickChime();
   const sec = SECTORS.find((s) => s.id === state.selectedPyramidTier) || SECTORS[0];
   state.selectedSector = sec.name;
+  if (!state.contractLocked) {
+    const secSel = document.getElementById("f-sector");
+    if (secSel) secSel.value = sec.name;
+    updateLiveDossierPreview();
+  }
   updateStatsUI();
   pushReceipt(`> Khóa tầng ${sec.id}/10 từ Mô hình 3D: [${sec.name}].`);
 });
@@ -468,36 +474,157 @@ function updateStatsUI() {
   if (profilePb) profilePb.textContent = pbText;
 }
 
-// 7. HỢP ĐỒNG + XUẤT PROMPT MỤC XIV
-function buildAuditBundle() {
-  const name = document.getElementById("f-name").value.trim() || "Ký chủ vô danh";
-  const codename = document.getElementById("f-codename").value.trim() || `Con nợ #${Math.floor(100 + Math.random() * 899)}`;
-  const age = document.getElementById("f-age").value || 24;
-  const gender = document.getElementById("f-gender").value.trim() || "Tự do";
-  const orient = document.getElementById("f-orient").value;
+// 7. HỢP ĐỒNG + LIVE PREVIEW TỨC THÌ KHI GÕ -> COPY THẲNG SANG GG AI
+function readFormSnapshot() {
   const archSelect = document.getElementById("f-archetype");
-  const arch = archSelect.value;
-  const archLabel = archSelect.options[archSelect.selectedIndex]?.text || arch;
-  const sectorChoice = document.getElementById("f-sector").value;
-  const appearance = document.getElementById("f-appearance").value.trim() || "Ánh mắt sắc lạnh, mùi thuốc sát trùng trộn cà phê cháy";
-  const personality = document.getElementById("f-personality").value.trim() || "Tỉnh bơ cà khịa, lấy luật pháp và bằng chứng nghiền ép";
-  const skill = document.getElementById("f-skill").value.trim() || "Kiểm toán, thao túng tâm lý, sinh tồn thực tế";
-  const sin = document.getElementById("f-sin").value.trim() || "Thức khuya & khẩu nghiệp chửi sếp";
-  const relations = document.getElementById("f-relations").value.trim() || "Sòng phẳng với Lục Nha, cảnh giác với Quý Cô Sd.";
-  const quote = document.getElementById("f-quote").value.trim() || "Nợ có thể trả chậm, nhưng cái tát này thì trả đứt.";
+  const arch = archSelect?.value || "villain";
+  const archLabel = archSelect?.options[archSelect.selectedIndex]?.text || arch;
+  const sectorVal = document.getElementById("f-sector")?.value || "Random Độc Bản";
 
-  const [minD, maxD] = ARCHETYPE_RANGES[arch] || [1000, 2200];
+  return {
+    name: document.getElementById("f-name")?.value.trim() || "",
+    codename: document.getElementById("f-codename")?.value.trim() || "",
+    age: document.getElementById("f-age")?.value || "24",
+    gender: document.getElementById("f-gender")?.value.trim() || "",
+    orient: document.getElementById("f-orient")?.value || "Tự do",
+    arch,
+    archLabel,
+    sectorChoice: sectorVal,
+    appearance: document.getElementById("f-appearance")?.value.trim() || "",
+    scent: document.getElementById("f-scent")?.value.trim() || "",
+    personality: document.getElementById("f-personality")?.value.trim() || "",
+    sin: document.getElementById("f-sin")?.value.trim() || "",
+    skill: document.getElementById("f-skill")?.value.trim() || "",
+    relations: document.getElementById("f-relations")?.value.trim() || "",
+    worldReq: document.getElementById("f-world-req")?.value.trim() || "",
+    quote: document.getElementById("f-quote")?.value.trim() || ""
+  };
+}
+
+function updateLiveDossierPreview() {
+  const previewEl = document.getElementById("live-dossier-preview");
+  const badgeEl = document.getElementById("live-dossier-badge");
+  if (!previewEl) return;
+
+  const p = readFormSnapshot();
+
+  let codeText = p.codename || "[Để trống hoặc bấm Random]";
+  let debtNote = "";
+  let actualSector = p.sectorChoice;
+
+  if (state.contractLocked && typeof state.pb === "number") {
+    codeText = `${state.debtorCode}${p.codename ? ` (${p.codename})` : ""}`;
+    debtNote = ` | Số dư đã niêm phong: ${state.pb.toFixed(2)} PB`;
+    if (badgeEl) badgeEl.textContent = `ĐÃ NIÊM PHONG CHÍNH THỨC (${state.debtorCode}) — Sẵn sàng Copy`;
+  } else if (state.draftAudit) {
+    codeText = `${state.draftAudit.code}${p.codename ? ` (${p.codename})` : ""}`;
+    debtNote = ` | Số dư dự kiến đã random: ${state.draftAudit.finalPB.toFixed(2)} PB`;
+    if (p.sectorChoice === "Random Độc Bản") actualSector = state.draftAudit.pickedSector;
+    if (badgeEl) badgeEl.textContent = `Đã gắn số nợ Random (${state.draftAudit.finalPB.toFixed(2)} PB) — Tự cập nhật khi gõ`;
+  } else {
+    if (badgeEl) badgeEl.textContent = "Đang đồng bộ theo từng phím gõ (Có thể Copy ngay sang GG AI)";
+  }
+
+  const templateText = [
+    `║ HỒ SƠ HỢP ĐỒNG LAO ĐỘNG — CỤC BÁO ỨNG ║`,
+    ``,
+    `**Họ và tên Ký chủ:** ${p.name || "[Chưa điền họ tên]"}`,
+    `**Mã số Con nợ / Biệt danh:** ${codeText}`,
+    `**Tuổi:** ${p.age || "24"}`,
+    `**Giới tính & Đại từ xưng hô:** ${p.gender || "[Chưa điền giới tính / xưng hô]"}`,
+    `**Xu hướng tính dục:** ${p.orient}`,
+    `**Thân phận Con nợ & Khung Random Nợ Phước Báu:** ${p.archLabel}${debtNote}`,
+    `**Khu Vực (Điện Báo Ứng) muốn bắt đầu tại Thế giới 1:** ${actualSector}`,
+    `**Gói Hợp Đồng Đề Cử:** ${state.selectedPkg}`,
+    ``,
+    `---`,
+    ``,
+    `**Ngoại hình & Khí chất linh hồn gốc (Vẫn phảng phất qua ánh mắt dù nhập vào xác nguyên chủ nào):**`,
+    `  * Đặc điểm nhận diện & Ánh mắt: ${p.appearance || "[Chưa điền ngoại hình / ánh mắt]"}`,
+    `  * Mùi hương linh hồn đặc trưng: ${p.scent || "[Chưa điền mùi hương đặc trưng]"}`,
+    ``,
+    `**Tính cách, Thói xấu & Phong cách Vả Mặt (Cơ sở để Hệ thống random biên lai phạt Phước Báu đầu game):**`,
+    `  * Tính cách chủ đạo: ${p.personality || "[Chưa điền tính cách & phong cách vả mặt]"}`,
+    `  * Thói xấu / Nghiệp chướng kiếp trước: ${p.sin || "[Chưa điền thói xấu / nghiệp chướng]"}`,
+    ``,
+    `**Mối quan hệ khởi điểm với Nhân vật Cục Báo Ứng:**`,
+    `  * ${p.relations || "Chạm trán ngẫu nhiên theo quy trình Cục Báo Ứng (Sd, Tạ Vô Cữu, Lục Nha, Ngu Hồng Diệp, Tiểu Thất #707)"}`,
+    ``,
+    `**Kỹ năng sinh tồn thực tế mang theo từ kiếp trước (Không có bàn tay vàng ma thuật):**`,
+    `  * ${p.skill || "[Chưa điền kỹ năng thực tế]"}`,
+    ``,
+    `**Yêu cầu Kịch bản Thế giới 1 (Tùy chọn):**`,
+    `  * ${p.worldReq || "Random Độc Bản"}`,
+    ``,
+    `**Câu thoại cửa miệng khi đi đòi nợ báo ứng:**`,
+    `> **"${p.quote || "Nợ có thể trả chậm, nhưng cái tát này thì trả đứt."}"**`
+  ].join("\n");
+
+  state.lastDossierText = templateText;
+  previewEl.textContent = templateText;
+}
+
+const contractFormEl = document.getElementById("contract-form");
+contractFormEl?.addEventListener("input", () => updateLiveDossierPreview());
+contractFormEl?.addEventListener("change", () => updateLiveDossierPreview());
+
+document.getElementById("btn-fill-sample")?.addEventListener("click", () => {
+  if (state.contractLocked) return;
+  if (state.sfx) radio.playClickChime();
+  document.getElementById("f-name").value = "Thẩm Mặc";
+  document.getElementById("f-codename").value = "Kẻ Đòi Nợ Máu";
+  document.getElementById("f-age").value = "25";
+  document.getElementById("f-gender").value = "Nữ / Cô - Tôi";
+  document.getElementById("f-orient").value = "Tự do";
+  document.getElementById("f-archetype").value = "slave";
+  document.getElementById("f-sector").value = "Random Độc Bản";
+  document.getElementById("f-appearance").value = "Ánh mắt đen lạnh lùng không gợn sóng, khóe môi nhếch nhẹ đầy giễu cợt";
+  document.getElementById("f-scent").value = "Mùi cà phê đen cháy, mùi giấy hồ sơ cũ, mùi tuyết lạnh";
+  document.getElementById("f-personality").value = "Tỉnh bơ cà khịa, lấy hợp đồng pháp lý và bằng chứng thép nghiền ép đối thủ";
+  document.getElementById("f-sin").value = "Tăng ca 996 tự hủy hoại gan thận, hay chửi thầm sếp và mặc cả từng xu với Hệ thống";
+  document.getElementById("f-skill").value = "Kiểm toán tài chính, soi lỗ hổng hợp đồng, thu thập vi bằng và đọc vi biểu cảm";
+  document.getElementById("f-relations").value = "Cò kè từng đồng với Lục Nha; dùng thái độ công việc tiếp Tạ Vô Cữu; cảnh giác Quý Cô Sd.";
+  document.getElementById("f-world-req").value = "Random Độc Bản";
+  document.getElementById("f-quote").value = "Mời nói chuyện bằng hóa đơn và trát tòa, đừng khóc làm loãng trà của tôi.";
+  updateLiveDossierPreview();
+  pushReceipt("> Đã điền nhanh Hồ Sơ Mẫu vào bảng Live Preview.");
+});
+
+function buildAuditBundle() {
+  const p = readFormSnapshot();
+  const [minD, maxD] = ARCHETYPE_RANGES[p.arch] || [1000, 2200];
   const rawTotal = minD + Math.random() * (maxD - minD);
   const fee1 = Number((rawTotal * 0.42).toFixed(2));
   const fee2 = Number((rawTotal * 0.31).toFixed(2));
   const fee3 = Number((rawTotal - fee1 - fee2).toFixed(2));
   const finalPB = Number((-(rawTotal + 100)).toFixed(2));
-  const pickedSector = sectorChoice === "Random Độc Bản" ? SECTORS[Math.floor(Math.random() * SECTORS.length)].name : sectorChoice;
+  const pickedSector = p.sectorChoice === "Random Độc Bản"
+    ? SECTORS[Math.floor(Math.random() * SECTORS.length)].name
+    : p.sectorChoice;
   const code = `#${Math.floor(100 + Math.random() * 899)}`;
 
   return {
-    code, finalPB, pickedSector,
-    profileData: { name, codename, age, gender, orient, arch, archLabel, sector: pickedSector, appearance, personality, skill, sin, relations, quote },
+    code,
+    finalPB,
+    pickedSector,
+    profileData: {
+      name: p.name || "Ký chủ vô danh",
+      codename: p.codename || `Con nợ ${code}`,
+      age: p.age || 24,
+      gender: p.gender || "Tự do",
+      orient: p.orient,
+      arch: p.arch,
+      archLabel: p.archLabel,
+      sector: pickedSector,
+      appearance: p.appearance || "Ánh mắt sắc lạnh",
+      scent: p.scent || "Cà phê cháy & thuốc sát trùng",
+      personality: p.personality || "Tỉnh bơ châm biếm",
+      skill: p.skill || "Kiểm toán & ứng biến sinh tồn",
+      sin: p.sin || "Thức khuya & khẩu nghiệp",
+      relations: p.relations || "Sòng phẳng với Lục Nha, cảnh giác Quý Cô Sd.",
+      worldReq: p.worldReq || "Random Độc Bản",
+      quote: p.quote || "Nợ có thể trả chậm, nhưng cái tát này thì trả đứt."
+    },
     fees: { fee1, fee2, fee3 }
   };
 }
@@ -506,7 +633,7 @@ function renderAuditReceipt(bundle, isOfficial) {
   const p = bundle.profileData;
   const receiptHeader = isOfficial
     ? `⚖️ 【HỢP ĐỒNG CHÍNH THỨC ĐÃ NIÊM PHONG — ${bundle.code}】`
-    : `📝 【BẢN NHÁP KÝ THỬ (CÓ THỂ SỬA LẠI) — TẠM TÍNH】`;
+    : `📝 【BẢN NHÁP KÝ THỬ (ĐÃ GẮN VÀO BẢNG MẪU LIVE BÊN DƯỚI)】`;
 
   const displayReceipt = [
     receiptHeader,
@@ -516,34 +643,12 @@ function renderAuditReceipt(bundle, isOfficial) {
     `▸ Khấu trừ -${bundle.fees.fee3.toFixed(2)} PB: Thẩm định kỹ năng "${p.skill}"`,
     `▸ Khấu trừ -100.00 PB: Phí truyền tống vào ${bundle.pickedSector}`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `⚖️ TỔNG PHƯỚC BÁU KHỞI ĐIỂM: ${bundle.finalPB.toFixed(2)} PB`,
-    `▸ Hợp đồng gói đề cử: ${state.selectedPkg}`,
-    `▸ Câu thoại: "${p.quote}"`
+    `⚖️ TỔNG PHƯỚC BÁU KHỞI ĐIỂM: ${bundle.finalPB.toFixed(2)} PB`
   ].join("\n");
 
-  const fullPromptProfile = [
-    `║ HỒ SƠ HỢP ĐỒNG LAO ĐỘNG — CỤC BÁO ỨNG ║`,
-    ``,
-    `**Họ và tên Ký chủ:** ${p.name}`,
-    `**Mã số Con nợ / Biệt danh:** ${bundle.code} (${p.codename})`,
-    `**Tuổi:** ${p.age}`,
-    `**Giới tính & Đại từ xưng hô:** ${p.gender}`,
-    `**Xu hướng tính dục:** ${p.orient}`,
-    `**Thân phận Con nợ:** ${p.archLabel} (Số dư khởi điểm đã kiểm toán: ${bundle.finalPB.toFixed(2)} PB)`,
-    `**Khu Vực (Điện Báo Ứng) bắt đầu tại Thế giới 1:** ${bundle.pickedSector}`,
-    `**Gói Hợp Đồng Đề Cử:** ${state.selectedPkg}`,
-    ``,
-    `**Ngoại hình & Khí chất linh hồn gốc:** ${p.appearance}`,
-    `**Tính cách, Thói xấu & Phong cách Vả Mặt:** ${p.personality} | Nghiệp chướng: ${p.sin}`,
-    `**Mối quan hệ khởi điểm với Nhân vật Cục Báo Ứng:** ${p.relations}`,
-    `**Kỹ năng sinh tồn thực tế mang theo:** ${p.skill}`,
-    `**Yêu cầu Kịch bản Thế giới 1:** Random Độc Bản (Không rập khuôn kịch bản mẫu)`,
-    `**Câu thoại cửa miệng:** "${p.quote}"`
-  ].join("\n");
-
-  state.lastDossierText = fullPromptProfile;
   document.getElementById("audit-receipt-box").textContent = displayReceipt;
   document.getElementById("audit-result").classList.remove("hidden");
+  updateLiveDossierPreview();
 }
 
 function lockContractFormUI(profileObj) {
@@ -558,22 +663,28 @@ function lockContractFormUI(profileObj) {
     document.getElementById("f-archetype").value = lp.arch || "villain";
     document.getElementById("f-sector").value = lp.sector || "Random Độc Bản";
     document.getElementById("f-appearance").value = lp.appearance || "";
+    document.getElementById("f-scent").value = lp.scent || "";
     document.getElementById("f-personality").value = lp.personality || "";
     document.getElementById("f-skill").value = lp.skill || "";
     document.getElementById("f-sin").value = lp.sin || "";
     document.getElementById("f-relations").value = lp.relations || "";
+    document.getElementById("f-world-req").value = lp.worldReq || "Random Độc Bản";
     document.getElementById("f-quote").value = lp.quote || "";
   }
   const locked = Boolean(profileObj.contractLocked);
   form.querySelectorAll("input, select, button").forEach((el) => { el.disabled = locked; });
+  const fillBtn = document.getElementById("btn-fill-sample");
+  if (fillBtn) fillBtn.disabled = locked;
   document.getElementById("contract-lock-banner").classList.toggle("hidden", !locked);
   document.getElementById("contract-status-badge").textContent = locked ? "ĐÃ NIÊM PHONG (1/1)" : "CHƯA KÝ CHÍNH THỨC";
+  updateLiveDossierPreview();
 }
 
 document.getElementById("btn-sign-draft").addEventListener("click", () => {
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
   const bundle = buildAuditBundle();
+  state.draftAudit = bundle;
   renderAuditReceipt(bundle, false);
   pushReceipt(`【BẢN NHÁP】: Random thử ${bundle.finalPB.toFixed(2)} PB.`);
 });
@@ -592,18 +703,26 @@ document.getElementById("contract-form").addEventListener("submit", async (e) =>
       meritBalance: bundle.finalPB,
       lastProfile: bundle.profileData
     });
-    renderAuditReceipt(bundle, true);
+    state.draftAudit = null;
     applyProfileUI(updated);
+    renderAuditReceipt(bundle, true);
     pushReceipt(`【CHÍNH THỨC】: Đã ký ${bundle.code} (${bundle.finalPB.toFixed(2)} PB).`);
   } catch (err) { alert(err.message); }
 });
 
-document.getElementById("btn-copy-dossier").addEventListener("click", () => {
+function copyDossierWithFeedback(triggerBtn) {
+  updateLiveDossierPreview();
   if (!state.lastDossierText) return;
   navigator.clipboard?.writeText(state.lastDossierText);
   if (state.sfx) radio.playClickChime();
-  pushReceipt("> Đã copy trọn bộ Hồ Sơ Mục XIV vào Clipboard để dán chơi với AI.");
-});
+  const prevText = triggerBtn.textContent;
+  triggerBtn.textContent = "✓ ĐÃ COPY! DÁN SANG GG AI NGAY";
+  setTimeout(() => { triggerBtn.textContent = prevText; }, 2000);
+  pushReceipt("> Đã copy trọn bộ Hồ Sơ Live vào Clipboard — sẵn sàng dán vào Google AI Studio.");
+}
+
+document.getElementById("btn-copy-dossier")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
+document.getElementById("btn-copy-live")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
 document.getElementById("btn-goto-rank").addEventListener("click", () => switchTab("tab-ranking"));
 
 // 8. BẢNG XẾP HẠNG 24H GMT+7
@@ -704,6 +823,11 @@ document.getElementById("btn-random-case").addEventListener("click", () => {
 document.getElementById("btn-lock-sector").addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   state.selectedSector = previewSector.name;
+  if (!state.contractLocked) {
+    const secSel = document.getElementById("f-sector");
+    if (secSel) secSel.value = previewSector.name;
+    updateLiveDossierPreview();
+  }
   updateStatsUI();
   pushReceipt(`> Đã khóa mục tiêu: [${state.selectedSector}].`);
 });
@@ -721,6 +845,7 @@ function renderPackages() {
       if (state.sfx) radio.playClickChime();
       state.selectedPkg = pkg.title;
       renderPackages();
+      updateLiveDossierPreview();
       pushReceipt(`> Đã chọn gói chỉ tiêu: [${pkg.title}].`);
     });
     pkgGrid.appendChild(btn);
@@ -1002,5 +1127,6 @@ setInterval(() => {
 
 applyTheme(state.theme, false);
 updateStatsUI();
+updateLiveDossierPreview();
 switchTab("tab-profile", true);
 restoreSession();
