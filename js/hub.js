@@ -1425,7 +1425,7 @@ function updateMorphCalloutLines(projectedPts) {
     const activeCls = zoneKey === currentLabZone ? "is-active" : "";
 
     html += `<path class="${activeCls}" d="M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} L ${midX.toFixed(1)} ${endY.toFixed(1)} L ${endX.toFixed(1)} ${endY.toFixed(1)}" />`;
-    html += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${zoneKey === currentLabZone ? 4 : 2.6}" />`;
+    html += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${zoneKey === currentLabZone ? 3.4 : 2}" />`;
   });
   svg.innerHTML = html;
 }
@@ -1835,6 +1835,7 @@ document.getElementById("btn-npc-reset")?.addEventListener("click", () => {
 function setVaultState(unlocked) {
   state.vaultUnlocked = unlocked;
   if (unlocked) clearVaultHintBox();
+  npcMorph3D.preload();
   vaultLockScreen?.classList.toggle("hidden", unlocked);
   vaultCardsStage?.classList.toggle("hidden", !unlocked);
   const vaultTabNode = document.querySelector('.holo-tab-card[data-tab="tab-vault"] .card-top-meta em');

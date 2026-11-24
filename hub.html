@@ -10,6 +10,15 @@
   <link rel="stylesheet" href="./css/themes.css" />
   <link rel="stylesheet" href="./css/gate.css" />
   <link rel="stylesheet" href="./css/hub.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
 </head>
 <body class="hub-body">
   <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
@@ -741,6 +750,8 @@
 
             <div class="morph-pod-viewport morph-pod-tall" id="lab-morph-pod">
               <canvas id="lab-morph-canvas"></canvas>
+              <div class="morph-loading-hud hidden" id="lab-morph-loading">ĐANG TẢI MODEL 3D... 0%</div>
+              <div class="morph-live-hud" id="lab-morph-live-hud">RIG: XBOT_BIO // DRAG 360°</div>
               <svg class="morph-callout-svg" id="lab-callout-svg" aria-hidden="true"></svg>
 
               <button type="button" class="zone-pin-btn pin-head is-active" data-zone="head">ĐẦU / MẮT</button>
