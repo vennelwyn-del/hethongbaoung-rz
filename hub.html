@@ -558,6 +558,7 @@
                     <option value="nguhongdiep">Ngu Hồng Diệp (Giám Ngục)</option>
                     <option value="tieuthat">Tiểu Thất #707 (Thực Tập Sinh)</option>
                     <option value="sys00">Hệ Thống 00 (Kế Toán Viên)</option>
+                    <option value="sd">Quý Cô 'Sd.' (Trùm Cuối — Ground Truth)</option>
                   </select>
                 </label>
                 <label class="field">
@@ -590,6 +591,7 @@
                 <button class="btn-primary holo-tactile mini-btn" type="submit">💾 LƯU XEM THỬ</button>
                 <button class="btn-secondary holo-tactile mini-btn" id="btn-npc-copy-cfg" type="button">📋 COPY CODE CHO config.js</button>
                 <button class="btn-ghost mini-btn" id="btn-npc-reset" type="button">↺ MẶC ĐỊNH</button>
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-npc-preview-lab" type="button">👁️ XEM BIO-LAB 3D</button>
               </div>
             </form>
 
@@ -698,7 +700,7 @@
       </div>
     </div>
   </div>
-  <!-- MODAL PHÓNG TO HỒ SƠ SINH TRẮC HỌC NPC (PHONG CÁCH LONGEVITY LAB) -->
+  <!-- MODAL PHÓNG TO HỒ SƠ SINH TRẮC HỌC 3D + CHỈ ĐIỂM VÙNG + BIỂU ĐỒ AI CHẠY -->
   <div class="modal-backdrop hidden" id="npc-dossier-modal">
     <div class="hoyo-frame bio-lab-shell">
       <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
@@ -707,16 +709,16 @@
         <div class="bio-lab-title-group">
           <span class="bio-lab-kicker" id="lab-subject-id">&gt;&gt; BUREAU BIO-VAULT // SUBJECT 01</span>
           <h2 id="lab-npc-name">TẠ VÔ CỮU</h2>
-          <small id="lab-npc-role">TỔNG KIỂM TOÁN TRƯỞNG // THẬP ĐIỆN BÁO ỨNG</small>
+          <small id="lab-npc-role">TỔNG KIỂM TOÁN TRƯỞNG</small>
         </div>
         <div class="bio-lab-status-right">
-          <span class="lab-online-dot">SYSTEMS ONLINE <i></i></span>
+          <span class="lab-online-dot">AI DIAGNOSTICS LIVE <i></i></span>
           <button class="btn-secondary holo-tactile mini-btn" id="btn-close-npc-modal" type="button">✕ ĐÓNG</button>
         </div>
       </div>
 
       <div class="bio-lab-grid">
-        <!-- GÓC TRÁI: ẢNH NPC + VITAL MATRIX -->
+        <!-- GÓC TRÁI: ẢNH NPC + VITAL MATRIX + LUỒNG AI CHẠY -->
         <div class="bio-lab-col-left">
           <div class="bio-portrait-frame" id="lab-portrait-box"></div>
 
@@ -724,29 +726,52 @@
             <div class="subpanel-head"><span>VITAL MATRIX</span><small>REAL-TIME</small></div>
             <div class="vital-matrix-list" id="lab-vital-list"></div>
           </div>
+
+          <div class="bio-subpanel">
+            <div class="subpanel-head"><span>AI NEURAL STREAM</span><small>SCANNING</small></div>
+            <div class="lab-ai-stream" id="lab-ai-stream"></div>
+          </div>
         </div>
 
-        <!-- BÊN PHẢI: DÁNG NGƯỜI THEO GIỚI TÍNH/CHIỀU CAO/CÂN NẶNG + BẢNG CHỈ SỐ + TIỂU SỬ -->
+        <!-- BÊN PHẢI: MÔ HÌNH NGƯỜI 3D XOAY + CHỈ ĐIỂM VÙNG + BIỂU ĐỒ AI + HỒ SƠ -->
         <div class="bio-lab-col-right">
           <div class="morph-and-bars-row">
             <div class="bio-subpanel morph-pod-panel">
-              <div class="subpanel-head"><span>ANATOMY RIG</span><small id="lab-morph-tag">NAM • 188 CM</small></div>
-              <div class="morph-pod-viewport" id="lab-morph-pod"></div>
+              <div class="subpanel-head"><span>3D ANATOMY RIG (DRAG TO ROTATE)</span><small id="lab-morph-tag">NAM • 188 CM</small></div>
+
+              <!-- KHOANG MÔ HÌNH 3D + 4 NÚT CHỈ ĐIỂM VÙNG + TIA SVG BÁM TỌA ĐỘ 3D -->
+              <div class="morph-pod-viewport" id="lab-morph-pod">
+                <canvas id="lab-morph-canvas"></canvas>
+                <svg class="morph-callout-svg" id="lab-callout-svg" aria-hidden="true"></svg>
+
+                <button type="button" class="zone-pin-btn pin-head is-active" data-zone="head">ĐẦU / MẮT</button>
+                <button type="button" class="zone-pin-btn pin-chest" data-zone="chest">CỔ / NGỰC</button>
+                <button type="button" class="zone-pin-btn pin-hand" data-zone="hand">TAY / ĐẠO CỤ</button>
+                <button type="button" class="zone-pin-btn pin-stance" data-zone="stance">DÁNG / BÍ MẬT</button>
+              </div>
+
+              <!-- Ô HIỂN THỊ THÔNG TIN VÙNG ĐANG CHỈ ĐIỂM -->
+              <div class="lab-zone-detail" id="lab-zone-detail"></div>
+
               <div class="morph-stats-bar" id="lab-morph-stats"></div>
             </div>
 
             <div class="bio-subpanel seg-bars-panel">
-              <div class="subpanel-head"><span>BIOMETRIC &amp; KARMIC INDEX</span><small>OPTIMAL</small></div>
+              <div class="subpanel-head"><span>AI-DRIVEN DIAGNOSTICS</span><small>LIVE WAVE</small></div>
+              <canvas id="lab-ai-chart" width="380" height="88"></canvas>
+
+              <div class="subpanel-head" style="margin-top: 6px;"><span>KARMIC TELEMETRY INDEX</span><small>OPTIMAL</small></div>
               <div class="seg-bars-list" id="lab-seg-bars"></div>
+
               <div class="lab-artifact-box">
-                <small>BIỂU TƯỢNG ĐỊNH DANH</small>
+                <small>BIỂU TƯỢNG NHÂN QUẢ</small>
                 <p id="lab-artifact"></p>
               </div>
             </div>
           </div>
 
           <div class="bio-subpanel lab-dossier-detail">
-            <div class="subpanel-head"><span>CLASSIFIED BIOGRAPHY &amp; BEHAVIOR PROTOCOL</span><small>DECRYPTED</small></div>
+            <div class="subpanel-head"><span>HỒ SƠ HÀNH VI &amp; ĐẶC TÍNH CỐ ĐỊNH</span><small>DECRYPTED</small></div>
             <p class="lab-bio-text" id="lab-bio"></p>
             <blockquote class="lab-quote-box" id="lab-quote"></blockquote>
           </div>

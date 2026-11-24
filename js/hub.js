@@ -2,10 +2,10 @@
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
-import { initNpcMorph3D } from "./npc-morph-3d.js";
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
+import { initNpcMorph3D } from "./npc-morph-3d.js";
 import {
   getSavedSessionUsername,
   registerSimpleAccount,
@@ -138,8 +138,7 @@ const FORUM_EXTRA_POOL = [
   { authorLabel: "@Con_Nợ_Ẩn_Danh", authorSub: "Ẩn danh", avatarUrl: ANON_AVATAR, body: "Vừa thắng kiện tống cổ gã tổng tài vào tù xong, bước ra cổng tòa án oai phong lẫm liệt thì gãy gót giày lăn xuống cầu thang. Hệ Thống 00 lập tức trừ -2 PB phí làm trầy đá hoa cương bậc thềm." },
   { authorLabel: "@Tin_Đồn_Tầng_Thượng", authorSub: "Tin mật nội bộ", avatarUrl: ANON_AVATAR, body: "Đêm qua lại thấy Quý Cô tóc trắng cài hoa bốn cánh đứng ở lô VIP cao nhất sảnh đấu giá. Không ai tra ra nổi dòng tiền 80% phí dịch vụ chảy về tài khoản mang chữ ký Sd. cả..." }
 ];
-
-// DỮ LIỆU 6 THẺ LẬT 3D KHO HỒ SƠ MẬT (THẺ 06 Sd. KHÓA BÁO ĐỘNG ĐỎ)
+// DỮ LIỆU ĐẦY ĐỦ 6 NPC CỐ ĐỊNH + 4 VÙNG CHỈ ĐIỂM CƠ THỂ (BAO GỒM CẢ Sd.)
 const VAULT_NPCS = [
   {
     id: "sys00",
@@ -147,11 +146,17 @@ const VAULT_NPCS = [
     clearance: "LEVEL 1",
     emblem: "🧮",
     name: "HỆ THỐNG 00",
-    role: "Kế Toán Viên Kiểm Toán",
-    artifact: "Bàn Tính Gãy & Cuộn Hóa Đơn Nhiệt",
-    scent: "Mùi giấy in nhiệt nóng rực & đồng xu kim loại",
-    bio: "Chương trình kiểm toán tự động mang tư duy tư bản tuyệt đối. Không an ủi, chỉ báo giá nẹp xương trả góp 18%/tuần và trừ thẳng 80% phí dịch vụ khi kết toán.",
-    quote: "“Khuyến nghị Ký chủ giữ bình tĩnh để tiết kiệm chi phí y tế.”"
+    role: "Kế Toán Viên Kiểm Toán — Máy Chủ Trực Tiếp",
+    artifact: "Bàn Tính Gãy & Cuộn Hóa Đơn Nhiệt Dài Vô Tận",
+    scent: "Giấy in nhiệt nóng rực, ozone máy chủ & đồng xu kim loại",
+    bio: "Không phải linh vật dễ thương, càng không phải thần linh từ bi. Hệ Thống 00 là chương trình kiểm toán nhân quả tự động mang tư duy Tư Bản Bóc Lột Tuyệt Đối: quy đổi mọi bi kịch đẫm máu thành biên lai thu phí từng số lẻ và khấu trừ 80% khi kết toán.",
+    quote: "“【Thông báo: Nhịp tim vượt 140 BPM. Đã tự bơm 0.5ml hormone làm dịu thần kinh. Chi phí: -15 PB. Khuyến nghị Ký chủ giữ bình tĩnh để tiết kiệm tiền y tế.】”",
+    zones: {
+      head: { title: "ĐẦU // KÊNH PHÁT THANH TÂM TRÍ", text: "Giọng nói điện tử trung tính đều đặn như tổng đài ngân hàng báo nợ quá hạn vang thẳng trong hộp sọ." },
+      chest: { title: "LÕI CHỦ // TƯ DUY TƯ BẢN BÓC LỘT", text: "Chèn phân tích sinh học & tài chính phũ phàng làm tụt sạch mood khi phản diện giảng đạo lý." },
+      hand: { title: "CÔNG CỤ // HÌNH THÁI VẬT LÝ", text: "Bàn tính gãy & cuộn hóa đơn nhiệt dài vô tận; báo giá nẹp xương trả góp lãi suất 18%/tuần." },
+      stance: { title: "CƠ CHẾ // VÔ TÌNH HÀI", text: "Không bao giờ an ủi Ký chủ; mọi phản ứng cảm xúc đều bị quy đổi sang điểm Phước Báu." }
+    }
   },
   {
     id: "tavocuu",
@@ -159,11 +164,17 @@ const VAULT_NPCS = [
     clearance: "LEVEL 3",
     emblem: "⚖️",
     name: "TẠ VÔ CỮU",
-    role: "Tổng Kiểm Toán Trưởng",
-    artifact: "Đồng hồ quả quýt bạc vỡ mặt kính chạy ngược",
-    scent: "Tuyết lạnh đầu mùa, mực hồ sơ cũ & bạc hà khô",
-    bio: "Cao 1m88, thường giáng lâm dưới vỏ bọc Thẩm phán Tòa án Tối cao hoặc Pháp y độc lập. Cực ghét ủy mị cẩu huyết; chỉ công chứng đòn vả mặt khi có đủ bằng chứng thép.",
-    quote: "“Tôi đến để công chứng bản án kẻ thù giúp cô, hoặc ký giấy chứng tử cho cô.”"
+    role: "Tổng Kiểm Toán Trưởng 10 Khu Vực",
+    artifact: "Đồng hồ quả quýt bạc vỡ mặt kính chạy ngược & bút máy vỏ thép đen",
+    scent: "Tuyết lạnh đầu mùa, mực in hồ sơ lâu năm & thuốc lá bạc hà khô khốc",
+    bio: "Thường giáng lâm dưới vỏ bọc Thẩm phán Tòa án Tối cao, Bác sĩ Pháp y độc lập hoặc Khâm sai Đại thần để nghiệm thu màn Báo Ứng. Lạnh lùng, kiệm lời, ghét sự ngu dốt ủy mị. Bí mật: từng là Ký chủ duy nhất vượt qua Điện 10 hàng trăm năm trước, đang âm thầm điều tra đường dây 'Sd.'.",
+    quote: "“Tôi đến đây để công chứng bản án phá sản của kẻ thù giúp cô, hoặc ký giấy chứng tử cho cô — tùy thuộc vào thứ cô đặt lên bàn bằng chứng.”",
+    zones: {
+      head: { title: "ĐẦU // ÁNH MẮT THẨM PHÁN", text: "Gương mặt sắc lạnh khắc nghiệt, sống mũi cao thẳng, quầng thâm nhạt dưới đôi mắt đen sâu thẳm như vực thẳm không đáy." },
+      chest: { title: "NGỰC // VEST ĐEN KÍN CỔ", text: "Vest đen tối giản hoặc quan phục thẫm màu cài cúc kín tận yết hầu; nhìn trò khóc lóc trà xanh như xem lũ hề diễn xiếc." },
+      hand: { title: "TAY // ĐỒNG HỒ & BÚT THÉP", text: "Cầm đồng hồ quả quýt bạc vỡ mặt kính (kim giây chạy ngược) và bút máy thép đen chuyên ký lệnh Thanh Lý Linh Hồn." },
+      stance: { title: "TỔNG THỂ // QUÁ KHỨ ĐIỆN 10", text: "Cao 1m88, vai rộng rắn rỏi. Từ chối xóa ký ức sau Điện 10 để ở lại điều tra đường dây buôn lậu Hào quang mang chữ ký 'Sd.'." }
+    }
   },
   {
     id: "lucnha",
@@ -172,10 +183,16 @@ const VAULT_NPCS = [
     emblem: "🪙",
     name: "LỤC NHA",
     role: "Trùm Chợ Đen Xuyên Không",
-    artifact: "Sợi dây đỏ treo đồng xu cổ dính máu & sẹo tia sét",
-    scent: "Rượu trắng nặng độ, thuốc súng & đồng thau cũ",
-    bio: "Ký chủ đào tẩu sống trong các điểm mù tín hiệu, chuyên mở tiệm cầm đồ hẻm tối. Bán vật tư vật lý lách luật (máy nghe lén, mở khóa cơ, thuốc giảm đau) lấy tiền mặt.",
-    quote: "“Mua của con Hệ thống hút máu kia làm gì? Đưa năm trăm tệ đây anh lo cho.”"
+    artifact: "Sợi dây đỏ quấn cổ tay treo đồng xu đồng đục lỗ vuông dính máu",
+    scent: "Rượu trắng nặng độ, thuốc súng trộn trầm hương rẻ tiền & đồng thau cũ",
+    bio: "Ký chủ đào tẩu ẩn nấp trong các điểm mù tín hiệu của 10 Khu Vực. Luôn mở tiệm cầm đồ hẻm tối, bar ngầm hoặc sòng bạc để cung cấp vật tư vật lý lách luật (máy nghe lén, bộ mở khóa cơ, thuốc giảm đau) bằng tiền mặt thế giới đó hoặc ân huệ cá nhân.",
+    quote: "“Mua thuốc trong cửa hàng con Hệ thống hút máu kia làm gì? Đưa năm trăm tệ đây, hoặc tối nay ở lại lau súng giúp anh.”",
+    zones: {
+      head: { title: "ĐẦU // VẺ HOANG DÃ RANH MÃNH", text: "Tóc đen hơi rối rủ trán, mắt một mí sắc lẹm luôn nheo lại, khóe miệng ngậm que tăm hoặc điếu thuốc cuốn dở." },
+      chest: { title: "CỔ // VẾT SẸO TIA SÉT", text: "Vết sẹo bỏng hình tia sét chạy dọc từ mang tai xuống xương quai xanh — dấu tích bị Hệ thống giật điện trừng phạt." },
+      hand: { title: "CỔ TAY // ĐỒNG XU DÍNH MÁU", text: "Cẳng tay gân guốc đầy sẹo dao chém dưới áo sơ mi xắn cao, cổ tay quấn dây đỏ treo đồng xu đồng mòn vẹt chữ." },
+      stance: { title: "TỔNG THỂ // CHỢ ĐEN ĐIỂM MÙ", text: "Cao 1m85 săn chắc. Khinh bỉ 80% phí bóc lột của Hệ Thống 00, cực kỳ sòng phẳng trong giao dịch." }
+    }
   },
   {
     id: "nguhongdiep",
@@ -183,11 +200,17 @@ const VAULT_NPCS = [
     clearance: "LEVEL 3",
     emblem: "🚬",
     name: "NGU HỒNG DIỆP",
-    role: "Giám Ngục Vọng Ngữ & Ái Dục",
-    artifact: "Tẩu thuốc bạc chạm hoa bỉ ngạn & quạt ngà",
-    scent: "Gỗ hồng mộc, rượu vang lâu năm & thuốc lá anh đào",
-    bio: "Quản lý Điện 1 & Điện 3, thường xuất hiện với vỏ bọc Luật sư ly hôn bất bại hoặc Bà trùm truyền thông. Thưởng đậm cho màn Hỏa táng tràng tàn nhẫn, ghét cay kẻ lụy tình.",
-    quote: "“Cưng định nghe hắn khóc thêm năm phút nữa hay tống hắn vào tù luôn chiều nay?”"
+    role: "Giám Ngục Điện Vọng Ngữ (1) & Ái Dục (3)",
+    artifact: "Tẩu thuốc bạc chạm hoa bỉ ngạn 20cm & quạt xếp gọng ngà",
+    scent: "Nước hoa gỗ hồng mộc nồng nàn, rượu vang lâu năm & khói thuốc anh đào",
+    bio: "Quản lý cấp cao chuyên ngồi hàng ghế đầu thưởng thức cảnh tra nam và trà xanh tự đào hố chôn mình, thường mang vỏ bọc Bà trùm truyền thông hoặc Luật sư ly hôn bất bại. Thưởng đậm điểm Bonus nếu Ký chủ vả mặt tàn nhẫn, giáng phạt nếu mềm lòng.",
+    quote: "“Đàn ông ngoại tình bảo là bản năng, bị bắt quả tang lại bảo tai nạn. Cưng muốn nghe hắn khóc thêm năm phút hay tống hắn vào tù chiều nay?”",
+    zones: {
+      head: { title: "ĐẦU // SON ĐỎ RƯỢU CHÁT", text: "Tóc đen nhánh uốn sóng cổ điển, môi đỏ rượu chát, ánh mắt sắc như dao cạo nhìn thấu mọi lời nói dối." },
+      chest: { title: "VÓC DÁNG // ĐỒNG HỒ CÁT", text: "Diện sườn xám cách tân xẻ cao hoặc vest nữ may đo ôm sát đường cong cơ thể." },
+      hand: { title: "TAY // TẨU BẠC & QUẠT NGÀ", text: "Cầm tẩu thuốc bạc chạm hoa bỉ ngạn dài 20cm và quạt xếp gọng ngà chuyên dùng nâng cằm kẻ đang quỳ dưới đất." },
+      stance: { title: "CHÂN // ĐẾ ĐỎ ĐANH THÉP", text: "Giày cao gót đế đỏ gõ nhịp lạnh lùng trên sàn đá; ghét cay ghét đắng đàn ông cặn bã và kẻ lụy tình." }
+    }
   },
   {
     id: "tieuthat",
@@ -195,22 +218,35 @@ const VAULT_NPCS = [
     clearance: "LEVEL 1",
     emblem: "🩹",
     name: "TIỂU THẤT (#707)",
-    role: "Thực Tập Sinh Hậu Đậu",
-    artifact: "Cuộn băng gạc & máy Casio liệt phím dấu cộng (+)",
-    scent: "Băng y tế, bụi đất & mùi chập điện",
-    bio: "Ký chủ đời trước vỡ nợ nên bị giữ lại làm lao động không lương. Thường nhập vào trợ lý hậu đậu hoặc mèo hoang; tai nạn vật lý của cậu hay vô tình bóc phốt kẻ thù.",
-    quote: "“Đại ca ơi em trượt chân hất chậu nước trúng ổ máy chiếu... sao nó lại phát clip của ả vậy?!”"
+    role: "Thực Tập Sinh Hệ Thống (Lao Động Không Lương)",
+    artifact: "Cuộn băng gạc y tế & máy tính Casio cũ liệt mất phím dấu cộng (+)",
+    scent: "Băng gạc y tế, bụi đường & mùi khét chập điện máy chiếu",
+    bio: "Ký chủ đời trước vì ngây thơ cứu người nên bị phản diện lừa sạch phước báu, phải ở lại Cục làm lao động công ích. Thường bị nhét vào xác trợ lý hậu đậu, tiểu đồng gầy trơ xương, mèo hoang trọc lông hoặc robot hút bụi chập mạch.",
+    quote: "“Đ-đại ca! Em chỉ định bê chậu nước đi đổ thôi, ai ngờ trượt chân hất vào ổ máy chiếu... sao nó tự phát clip của thiên kim giả vậy?!”",
+    zones: {
+      head: { title: "ĐẦU // CUỘN BĂNG GẠC", text: "Luôn quấn băng gạc quanh đầu hoặc chân, biểu cảm ngơ ngác sợ sệt trước Thanh Tra Tạ Vô Cữu." },
+      chest: { title: "VẬT CHỦ // TIẾT KIỆM CHI PHÍ", text: "Linh hồn thường bị Hệ Thống 00 nhét bừa vào trợ lý hậu đậu, mèo trọc lông hoặc robot hút bụi trong biệt thự." },
+      hand: { title: "TAY // CASIO LIỆT PHÍM (+)", text: "Chiếc máy tính bấm tay cũ kỹ liệt hoàn toàn phím dấu cộng (+), chỉ còn bấm được mỗi phím dấu trừ (-)." },
+      stance: { title: "CƠ CHẾ // PHÁ ĐÁM VÔ TÌNH", text: "Mang mệnh Cạn Phước: cứ cố giúp lại trượt ngã kéo tụt tóc giả hoặc hất nước làm lộ clip ngoại tình của kẻ thù." }
+    }
   },
   {
     id: "sd",
     code: "OMEGA // Sd.",
-    clearance: "LEVEL 5 [LOCKED]",
+    clearance: "LEVEL 5 [BỊ NIÊM PHONG]",
     emblem: "💠",
     name: "QUÝ CÔ 'Sd.'",
-    role: "[DỮ LIỆU BỊ NIÊM PHONG]",
-    isSd: true,
-    bio: "ACCESS DENIED",
-    quote: ""
+    role: "Sovereign Director — Trùm Cuối Kiến Tạo Hệ Thống",
+    artifact: "Tuxedo đen bóng, nơ đen đính huy hiệu bạc & đóa hoa 4 cánh màu trắng bạc",
+    scent: "Tuyết lạnh đỉnh núi cao, hoa linh lan trắng nở về đêm, Gin Tonic đắng & giấy bạc mới",
+    bio: "[GROUND TRUTH]: Bề ngoài là Nhà bảo trợ nghệ thuật / Chủ tịch quỹ đầu tư ngầm ngồi ở lô VIP cao nhất. Thực chất là Kẻ Kiến Tạo Hệ Thống Báo Ứng & Trùm Buôn Lậu Khí Vận Đa Vũ Trụ — kẻ đã rút cạn Phước Báu rực rỡ nhất của Ký chủ, xẻ nhỏ ban phát cho lũ Kẻ Cướp Phước để ngồi trên cao thưởng thức vở kịch đòi nợ.",
+    quote: "“Khoác lên thứ ánh sáng đi mượn mà cứ ngỡ mình là mặt trời... Bước lên đó và xé toạc lớp da giả tạo của chúng ra cho tôi xem nào.”",
+    zones: {
+      head: { title: "ĐẦU // ĐÔI MẮT XANH BĂNG", text: "Tóc dài trắng bạch kim bồng bềnh rủ mái chạm hàng mi; da trắng sứ lạnh lẽo, mắt xanh băng khép hờ nhìn từ trên cao xuống." },
+      chest: { title: "VE ÁO TRÁI // HOA BỐN CÁNH", text: "Tuxedo đen thủ công, sơ mi trắng xếp ly cúc onyx, nơ đen huy hiệu bạc & đóa hoa bốn cánh trắng bạc cài ve áo trái." },
+      hand: { title: "CỬ CHỈ // CHỦ NỢ TỐI CAO", text: "Ngón tay thon dài trắng muốt khẽ chỉnh chiếc nơ đen; chỉ đứng hoặc ngồi trên tầng thượng nhìn xuống đám đông hỗn loạn." },
+      stance: { title: "BẢN CHẤT // TRÙM BUÔN LẬU KHÍ VẬN", text: "Cao 1m78 phi giới tính. Chính Sd. là kẻ lập hợp đồng nợ giả và thu hồi 80% phí dịch vụ từ Hệ Thống 00 chảy về tài khoản 'Sd.'." }
+    }
   }
 ];
 
@@ -1357,98 +1393,144 @@ document.getElementById("btn-dismiss-intrusion")?.addEventListener("click", () =
   pushReceipt("> Đã ngắt tín hiệu báo động thủ công.");
 });
 
-// DỰNG DÁNG NGƯỜI HOLOGRAM SVG THEO GIỚI TÍNH, CHIỀU CAO (CM) VÀ CÂN NẶNG (KG)
-function renderBodyMorphologySVG(stats) {
-  const gender = stats.gender || "Nam";
-  const h = Math.max(140, Math.min(220, Number(stats.heightCm) || 175));
-  const w = Number(stats.weightKg);
-  const bmi = w > 0 ? w / Math.pow(h / 100, 2) : 20.5;
+// KHỞI TẠO MÔ HÌNH 3D XOAY 360 + CHỈ ĐIỂM VÙNG + BIỂU ĐỒ AI CHẠY TRỰC TIẾP
+let currentLabNpc = null;
+let currentLabZone = "head";
+let aiChartTimer = null;
+let aiStreamTimer = null;
+const aiBars = Array.from({ length: 22 }, () => 25 + Math.random() * 65);
+let aiPhase = 0;
 
-  const scaleY = Math.max(0.84, Math.min(1.12, h / 180));
-  const wFactor = Math.max(0.8, Math.min(1.28, bmi / 21));
+function updateMorphCalloutLines(projectedPts) {
+  const pod = document.getElementById("lab-morph-pod");
+  const svg = document.getElementById("lab-callout-svg");
+  if (!pod || !svg || !projectedPts) return;
 
-  // Biến thiên vai, eo, hông theo Giới tính
-  let shoulder = 24 * wFactor;
-  let waist = 13 * wFactor;
-  let hip = 15 * wFactor;
-  if (gender === "Nữ") {
-    shoulder = 19 * wFactor;
-    waist = 10.5 * wFactor;
-    hip = 19.5 * wFactor;
-  } else if (gender === "Phi giới tính") {
-    shoulder = 20.5 * wFactor;
-    waist = 11.5 * wFactor;
-    hip = 15.5 * wFactor;
-  } else if (gender === "AI / Vô tính") {
-    shoulder = 22;
-    waist = 14;
-    hip = 14;
+  const pRect = pod.getBoundingClientRect();
+  if (!pRect.width || !pRect.height) return;
+
+  let html = "";
+  Object.entries(projectedPts).forEach(([zoneKey, pt]) => {
+    const btn = pod.querySelector(`.zone-pin-btn[data-zone="${zoneKey}"]`);
+    if (!btn) return;
+    const bRect = btn.getBoundingClientRect();
+    const isLeft = bRect.left - pRect.left < pRect.width * 0.5;
+    const endX = isLeft ? (bRect.right - pRect.left) : (bRect.left - pRect.left);
+    const endY = bRect.top + bRect.height * 0.5 - pRect.top;
+    const midX = pt.x + (endX - pt.x) * 0.45;
+    const activeCls = zoneKey === currentLabZone ? "is-active" : "";
+
+    html += `<path class="${activeCls}" d="M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} L ${midX.toFixed(1)} ${endY.toFixed(1)} L ${endX.toFixed(1)} ${endY.toFixed(1)}" />`;
+    html += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${zoneKey === currentLabZone ? 4 : 2.6}" />`;
+  });
+  svg.innerHTML = html;
+}
+
+const npcMorph3D = initNpcMorph3D({
+  canvasId: "lab-morph-canvas",
+  onProjectZones: (pts) => {
+    if (!npcDossierModal?.classList.contains("hidden")) updateMorphCalloutLines(pts);
+  },
+  onSelectZone: (zoneKey) => selectLabZone(zoneKey)
+});
+
+function selectLabZone(zoneKey) {
+  if (!currentLabNpc) return;
+  currentLabZone = zoneKey;
+  npcMorph3D.setActiveZone(zoneKey);
+
+  document.querySelectorAll(".zone-pin-btn").forEach((b) =>
+    b.classList.toggle("is-active", b.dataset.zone === zoneKey)
+  );
+
+  const info = currentLabNpc.zones?.[zoneKey];
+  const detailBox = document.getElementById("lab-zone-detail");
+  if (detailBox && info) {
+    detailBox.innerHTML = `<strong>[CHỈ ĐIỂM VÙNG: ${info.title}]</strong>${info.text}`;
   }
+}
 
-  const cx = 80;
-  const topY = 195 - 156 * scaleY;
-  const neckY = topY + 22 * scaleY;
-  const shY = neckY + 10 * scaleY;
-  const waistY = shY + 42 * scaleY;
-  const hipY = waistY + 24 * scaleY;
-  const kneeY = hipY + 34 * scaleY;
-  const footY = 202;
+document.querySelectorAll(".zone-pin-btn").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    if (state.sfx) radio.playClickChime();
+    selectLabZone(btn.dataset.zone);
+  })
+);
 
-  const torsoPath = `
-    M ${cx - shoulder} ${shY}
-    Q ${cx} ${shY - 6} ${cx + shoulder} ${shY}
-    L ${cx + waist} ${waistY}
-    L ${cx + hip} ${hipY}
-    L ${cx + hip * 0.72} ${kneeY}
-    L ${cx + hip * 0.45} ${footY}
-    L ${cx + 4} ${footY}
-    L ${cx + 3} ${hipY + 6}
-    L ${cx - 3} ${hipY + 6}
-    L ${cx - 4} ${footY}
-    L ${cx - hip * 0.45} ${footY}
-    L ${cx - hip * 0.72} ${kneeY}
-    L ${cx - hip} ${hipY}
-    L ${cx - waist} ${waistY}
-    Z
-  `;
+function startAiLabTelemetryLoop(npc, stats) {
+  stopAiLabTelemetryLoop();
+  const chart = document.getElementById("lab-ai-chart");
+  const ctx = chart?.getContext("2d");
+  const streamBox = document.getElementById("lab-ai-stream");
 
-  const leftArm = `M ${cx - shoulder} ${shY + 3} L ${cx - shoulder - 9 * wFactor} ${waistY + 6} L ${cx - shoulder - 11 * wFactor} ${hipY + 14}`;
-  const rightArm = `M ${cx + shoulder} ${shY + 3} L ${cx + shoulder + 9 * wFactor} ${waistY + 6} L ${cx + shoulder + 11 * wFactor} ${hipY + 14}`;
+  const aiPackets = [
+    `> AI_CORE: Syncing ${npc.code} neural topology...`,
+    `> BIOMETRICS: Height ${stats.heightCm || 175}cm | Temp ${stats.bodyTemp || "36.6°C"}`,
+    `> OLFACTORY_ID: ${npc.scent?.slice(0, 38) || "Unknown"}...`,
+    `> CAUSALITY_CHECK: Clearance [${npc.clearance}] verified.`,
+    `> BEHAVIOR_MODEL: Predicting face-slap response curve...`,
+    `> TELEMETRY_NODE: 0x${Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, "0")} OK`
+  ];
+  let packetCursor = 0;
 
-  return `
-    <svg viewBox="0 0 160 220" aria-hidden="true">
-      <defs>
-        <radialGradient id="corePulse" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffffff" />
-          <stop offset="45%" stop-color="var(--c-primary)" />
-          <stop offset="100%" stop-color="transparent" />
-        </radialGradient>
-      </defs>
-      <!-- Thước đo laser chiều cao bên trái -->
-      <line x1="18" y1="${topY}" x2="18" y2="${footY}" stroke="var(--c-secondary)" stroke-width="1" stroke-dasharray="3 3" />
-      <line x1="14" y1="${topY}" x2="28" y2="${topY}" stroke="var(--c-secondary)" stroke-width="1.4" />
-      <line x1="14" y1="${footY}" x2="28" y2="${footY}" stroke="var(--c-secondary)" stroke-width="1.4" />
-      <text x="22" y="${topY - 5}" fill="var(--c-secondary)" font-size="7.5" font-family="JetBrains Mono">${h} CM</text>
+  aiStreamTimer = setInterval(() => {
+    if (!streamBox) return;
+    const div = document.createElement("div");
+    if (packetCursor % 3 === 0) div.className = "hot";
+    div.textContent = aiPackets[packetCursor % aiPackets.length] + ` [${(95 + Math.random() * 4.9).toFixed(1)}%]`;
+    packetCursor++;
+    streamBox.prepend(div);
+    if (streamBox.children.length > 8) streamBox.lastChild.remove();
+  }, 550);
 
-      <!-- Vòng chân đế -->
-      <ellipse cx="${cx}" cy="${footY + 4}" rx="42" ry="7" fill="rgba(var(--rgb-primary), 0.18)" stroke="var(--c-primary)" stroke-width="1" />
+  function renderChart() {
+    if (ctx && chart) {
+      const st = getComputedStyle(htmlEl);
+      const pRgb = st.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
+      const sRgb = st.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
+      const w = chart.width, h = chart.height;
+      aiPhase += 0.08;
+      ctx.clearRect(0, 0, w, h);
 
-      <!-- Đầu & Khung cơ thể -->
-      <circle cx="${cx}" cy="${topY + 10 * scaleY}" r="${10 * Math.min(1.08, wFactor)}" fill="rgba(var(--rgb-primary), 0.18)" stroke="var(--c-primary)" stroke-width="1.5" />
-      <line x1="${cx}" y1="${topY + 20 * scaleY}" x2="${cx}" y2="${hipY}" stroke="rgba(var(--rgb-secondary), 0.6)" stroke-width="1" stroke-dasharray="2 2" />
-      <path d="${torsoPath}" fill="rgba(var(--rgb-primary), 0.22)" stroke="var(--c-primary)" stroke-width="1.6" />
-      <path d="${leftArm}" fill="none" stroke="var(--c-primary)" stroke-width="${3.2 * wFactor}" stroke-linecap="round" />
-      <path d="${rightArm}" fill="none" stroke="var(--c-primary)" stroke-width="${3.2 * wFactor}" stroke-linecap="round" />
+      // Lưới nền
+      ctx.strokeStyle = `rgba(${pRgb}, 0.14)`;
+      ctx.lineWidth = 1;
+      for (let y = 22; y < h; y += 22) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
 
-      <!-- Lõi tim / Linh hồn phát sáng -->
-      <circle cx="${cx}" cy="${shY + 15 * scaleY}" r="11" fill="url(#corePulse)" opacity="0.85" />
-      <circle cx="${cx}" cy="${shY + 15 * scaleY}" r="2.6" fill="#fff" />
-    </svg>
-    <div class="portrait-scan-beam"></div>
-  `;
+      // Biểu đồ cột AI dao động (giống Ảnh 2 & 3)
+      const colW = w / aiBars.length;
+      for (let i = 0; i < aiBars.length; i++) {
+        aiBars[i] += (Math.random() - 0.5) * 14;
+        aiBars[i] = Math.max(12, Math.min(82, aiBars[i]));
+        const bh = (aiBars[i] / 100) * (h - 14);
+        ctx.fillStyle = i % 4 === 0 ? `rgba(${sRgb}, 0.72)` : `rgba(${pRgb}, 0.48)`;
+        ctx.fillRect(i * colW + 3, h - bh, colW - 6, bh);
+      }
+
+      // Đường sóng tần số AI chạy phía trước
+      ctx.strokeStyle = `rgba(${sRgb}, 0.95)`;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 6) {
+        const y = h * 0.42 + Math.sin(x * 0.045 + aiPhase) * 16 + Math.cos(x * 0.11 - aiPhase * 1.4) * 7;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    aiChartTimer = requestAnimationFrame(renderChart);
+  }
+  renderChart();
+}
+
+function stopAiLabTelemetryLoop() {
+  cancelAnimationFrame(aiChartTimer);
+  clearInterval(aiStreamTimer);
 }
 
 function openNpcBioLabModal(npc) {
+  currentLabNpc = npc;
   const stats = getMergedNpcStats(npc.id);
   const h = Number(stats.heightCm) || 175;
   const w = Number(stats.weightKg) || 0;
@@ -1464,7 +1546,7 @@ function openNpcBioLabModal(npc) {
     if ((stats.avatarUrl || "").trim()) {
       portraitBox.innerHTML = `<img src="${stats.avatarUrl.trim()}" alt="${npc.name}" /><div class="portrait-scan-beam"></div>`;
     } else {
-      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Thêm link vào config.js hoặc bấm ⚙️ Setting ảnh)</small></div><div class="portrait-scan-beam"></div>`;
+      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Dán link vào config.js hoặc bấm ⚙️ Setting ảnh)</small></div><div class="portrait-scan-beam"></div>`;
     }
   }
 
@@ -1481,9 +1563,8 @@ function openNpcBioLabModal(npc) {
     vitalList.innerHTML = vitals.map(([k, v]) => `<div class="vital-row"><span>${k}</span><strong>${v}</strong></div>`).join("");
   }
 
-  // Bên phải: Dáng người theo setting Giới tính / Chiều cao / Cân nặng
+  // Bên phải: Dáng 3D theo giới tính/chiều cao/cân nặng
   document.getElementById("lab-morph-tag").textContent = `${(stats.gender || "Nam").toUpperCase()} • ${h} CM`;
-  document.getElementById("lab-morph-pod").innerHTML = renderBodyMorphologySVG(stats);
   document.getElementById("lab-morph-stats").innerHTML = `
     <div><small>GIỚI TÍNH</small><strong>${stats.gender || "Nam"}</strong></div>
     <div><small>TUỔI</small><strong>${stats.age || "??"}</strong></div>
@@ -1491,13 +1572,10 @@ function openNpcBioLabModal(npc) {
     <div><small>CÂN NẶNG / BMI</small><strong>${w > 0 ? `${w} KG (${bmiText})` : "PHI VẬT CHẤT"}</strong></div>
   `;
 
-  // Thanh LED phân đoạn (giống Systems Online)
+  // Thanh LED phân đoạn
   const segList = document.getElementById("lab-seg-bars");
   if (segList) {
-    const bars = stats.bars || [
-      { label: "SYNC LEVEL", val: 92 },
-      { label: "THREAT RATING", val: 85 }
-    ];
+    const bars = stats.bars || [{ label: "SYNC LEVEL", val: 92 }];
     segList.innerHTML = bars.map((b) => {
       const litCount = Math.round((b.val / 100) * 12);
       const cells = Array.from({ length: 12 }, (_, idx) => `<i class="${idx < litCount ? "on" : ""}"></i>`).join("");
@@ -1510,10 +1588,16 @@ function openNpcBioLabModal(npc) {
   document.getElementById("lab-quote").textContent = npc.quote;
 
   npcDossierModal?.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    npcMorph3D.setSubject(npc, stats);
+    selectLabZone("head");
+    startAiLabTelemetryLoop(npc, stats);
+  });
   if (state.sfx) radio.playClickChime();
 }
 
 function closeNpcBioLabModal() {
+  stopAiLabTelemetryLoop();
   npcDossierModal?.classList.add("hidden");
   document.querySelectorAll(".dossier-flip-card.is-flipped").forEach((c) => c.classList.remove("is-flipped"));
 }
@@ -1537,9 +1621,9 @@ function runCardLoadingThenOpenModal(cardEl, npc) {
   const packets = [
     `> ACCESSING BUREAU_NODE: ${npc.code}...`,
     `> DECRYPTING BIOMETRIC STREAM [AES-512]...`,
-    `> PARSING ANATOMY & SCENT TELEMETRY...`,
-    `> COMPILING VITAL MATRIX & KARMIC LEDS...`,
-    `> DATA READY. EXPANDING DISPLAY!`
+    `> BUILDING 3D ANATOMY MESH & HOTSPOTS...`,
+    `> COMPILING AI DIAGNOSTICS & VITAL MATRIX...`,
+    `> DATA READY. EXPANDING 3D BIO-LAB!`
   ];
 
   let pct = 0;
@@ -1571,7 +1655,7 @@ function renderVaultCards() {
 
     const frontHint = npc.isSd
       ? `<span class="sd-err-tag">[TRUY CẬP BỊ CẤM // KHÔNG CÓ QUYỀN]</span>`
-      : `[ BẤM LẬT THẺ &amp; QUÉT DỮ LIỆU ]`;
+      : `[ BẤM LẬT THẺ &amp; QUÉT 3D ]`;
 
     const thumbHtml = (stats.avatarUrl || "").trim()
       ? `<img src="${stats.avatarUrl.trim()}" alt="" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:1.5px solid var(--c-primary);" />`
@@ -1610,8 +1694,8 @@ function renderVaultCards() {
   });
 }
 
-// BẢNG SETTING ẢNH & DÁNG NPC
-const npcEditorPanel = document.getElementById("npc-editor-panel");
+// BẢNG SETTING ẢNH & DÁNG NPC (BAO GỒM CẢ NÚT XEM THỬ BIO-LAB 3D CHO CHỦ WEB)
+const vaultNpcEditorPanel = document.getElementById("npc-editor-panel");
 const npcEditSelect = document.getElementById("npc-edit-select");
 function syncNpcEditorFields() {
   if (!npcEditSelect) return;
@@ -1623,34 +1707,43 @@ function syncNpcEditorFields() {
 }
 document.getElementById("btn-toggle-npc-editor")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  npcEditorPanel?.classList.toggle("hidden");
+  vaultNpcEditorPanel?.classList.toggle("hidden");
   syncNpcEditorFields();
 });
 npcEditSelect?.addEventListener("change", syncNpcEditorFields);
 
-document.getElementById("npc-edit-file")?.addEventListener("change", async (e) => {
-  const file = e.target.files?.[0];
-  if (!file || !npcEditSelect) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = 360; c.height = 440;
-      const ctx = c.getContext("2d");
-      const ratio = Math.max(c.width / img.width, c.height / img.height);
-      const nw = img.width * ratio, nh = img.height * ratio;
-      ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
-      const ov = getNpcOverrides();
-      const id = npcEditSelect.value;
-      ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
-      localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
-      renderVaultCards();
-      pushReceipt(`> Đã tải ảnh test cho NPC [${id}] (bấm thẻ để xem trong Bio-Lab!).`);
+document.getElementById("btn-npc-preview-lab")?.addEventListener("click", () => {
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*";
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    if (!file || !npcEditSelect?.value) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 512;
+        const ctx = c.getContext("2d");
+        if (!ctx) return;
+        const ratio = Math.max(c.width / img.width, c.height / img.height);
+        const nw = img.width * ratio, nh = img.height * ratio;
+        ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
+        const ov = getNpcOverrides();
+        const id = npcEditSelect.value;
+        ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
+        localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
+        renderVaultCards();
+        pushReceipt(`> Đã tải ảnh test cho NPC [${id}].`);
+      };
+      img.src = reader.result;
     };
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
+  });
+  fileInput.click();
 });
 
 npcEditorPanel?.addEventListener("submit", (e) => {
@@ -1668,7 +1761,7 @@ npcEditorPanel?.addEventListener("submit", (e) => {
   if (urlVal) ov[id].avatarUrl = urlVal;
   localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
   renderVaultCards();
-  pushReceipt(`> Đã lưu cấu hình ảnh & thể hình cho [${id}]. Bấm thẻ để xem bảng chỉ số phóng to.`);
+  pushReceipt(`> Đã lưu cấu hình ảnh & thể hình cho [${id}].`);
 });
 
 document.getElementById("btn-npc-copy-cfg")?.addEventListener("click", () => {
@@ -1689,6 +1782,7 @@ document.getElementById("btn-npc-reset")?.addEventListener("click", () => {
 
 function setVaultState(unlocked) {
   state.vaultUnlocked = unlocked;
+  if (unlocked) clearVaultHintBox();
   vaultLockScreen?.classList.toggle("hidden", unlocked);
   vaultCardsStage?.classList.toggle("hidden", !unlocked);
   const vaultTabNode = document.querySelector('.holo-tab-card[data-tab="tab-vault"] .card-top-meta em');
@@ -1725,10 +1819,18 @@ document.getElementById("vault-riddle-form")?.addEventListener("submit", (e) => 
 
 vaultHintBtn?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
+  if (state.vaultHintStep === 7) {
+    clearVaultHintBox();
+    return;
+  }
+
   const proto = VAULT_PROTOCOLS[activeProtocolIdx];
-  if (state.vaultHintStep < 7) state.vaultHintStep += 1;
+  state.vaultHintStep += 1;
   const step = state.vaultHintStep;
   if (!vaultHintBox) return;
+
+  clearInterval(hintSelfDestructInterval);
+  clearTimeout(hintSelfDestructTimeout);
 
   vaultHintBox.classList.remove("hidden");
   const messages = {
@@ -1738,12 +1840,32 @@ vaultHintBtn?.addEventListener("click", () => {
     4: proto.clue34,
     5: proto.clue5,
     6: "😰 <b>Tiểu Thất #707:</b> <em>(Ngó nghiêng xem Tạ Vô Cữu có đi ngang qua không)</em> “Đừng bấm nữa mà đại ca... em toát hết mồ hôi lạnh rồi đây này, nhỡ hệ thống phát hiện ra em tuồn thông tin là cả hai đứa bị thanh lý luôn đó!!”",
-    7: proto.cheatMsg
+    7: `${proto.cheatMsg}
+        <div class="hint-destruct-bar">
+          <span>⏱️ Tự xóa dấu vết trước khi Tạ Vô Cữu phát hiện: <b id="hint-cd-sec">5.0s</b></span>
+          <div class="hint-cd-track"><i id="hint-cd-fill" style="width:100%"></i></div>
+        </div>`
   };
 
   vaultHintBox.innerHTML = messages[step];
+
   if (step === 7) {
-    pushReceipt("🆘 【TIỂU THẤT #707】: Đã liều mạng bấm lén lộ mật mã (đừng để Tạ Vô Cữu phát hiện).");
+    pushReceipt("🆘 【TIỂU THẤT #707】: Đã lén lộ mật mã trong 5 giây (đừng để Tạ Vô Cữu thấy!).");
+    const DURATION_MS = 5000;
+    const startedAt = Date.now();
+    const secEl = document.getElementById("hint-cd-sec");
+    const fillEl = document.getElementById("hint-cd-fill");
+
+    hintSelfDestructInterval = setInterval(() => {
+      const rem = Math.max(0, DURATION_MS - (Date.now() - startedAt));
+      if (secEl) secEl.textContent = `${(rem / 1000).toFixed(1)}s`;
+      if (fillEl) fillEl.style.width = `${(rem / DURATION_MS) * 100}%`;
+    }, 60);
+
+    hintSelfDestructTimeout = setTimeout(() => {
+      clearVaultHintBox();
+      pushReceipt("💨 【TIỂU THẤT #707】: Đã xóa sạch dấu vết mật mã kịp lúc.");
+    }, DURATION_MS);
   }
 });
 
@@ -1751,6 +1873,7 @@ document.getElementById("btn-vault-lock")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   const inp = document.getElementById("vault-pass-input");
   if (inp) inp.value = "";
+  clearVaultHintBox();
   setVaultState(false);
   pushReceipt("🔒 【KÉT BẢO MẬT】: Đã khóa lại Kho Hồ Sơ Mật.");
 });

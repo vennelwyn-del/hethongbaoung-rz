@@ -1,16 +1,16 @@
-// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (USER KHÔNG THẤY)
+// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (ĐÃ ĐIỀN ĐỦ 6 NPC KỂ CẢ Sd.)
 
 export const SITE_CONFIG = {
-  // 1. DÁN LINK HOẶC ĐƯỜNG DẪN ẢNH NỀN VÀO ĐÂY
+  // 1. LINK ẢNH BACKGROUND
   backgroundImage: {
-    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png",
+    defaultUrl: "", // Dán lại link ảnh nền của bạn nếu cần (vd: "./assets/.../canvas_bg.png")
     byTheme: {
       "orbital-cyan": "",
       "cyber-violet": "",
       "acid": "",
       "crimson-karma": ""
     },
-    opacity: 0.6 // Tăng lên 0.55 - 0.75 để ảnh nền hiện rõ nét dưới lớp lưới 3D
+    opacity: 0.55
   },
 
   // 2. LINK NHẠC CHO RADIO
@@ -27,7 +27,7 @@ export const SITE_CONFIG = {
     sfx: true
   },
 
-  // 4. SETTING ẢNH & CHỈ SỐ HÌNH THỂ CHO TỪNG NPC CỐ ĐỊNH (Dán link ảnh vào avatarUrl)
+  // 4. HỒ SƠ CHỈ SỐ & ẢNH CỐ ĐỊNH CHO CẢ 6 NPC (BAO GỒM CẢ Sd.)
   npcProfiles: {
     sys00: {
       avatarUrl: "",
@@ -35,16 +35,16 @@ export const SITE_CONFIG = {
       age: "∞",
       heightCm: 175,
       weightKg: 0,
-      build: "Lõi Máy Chủ Kiểm Toán Lượng Tử",
+      build: "Chương trình kiểm toán tự động • Phi vật chất",
       heartRate: "00 BPM",
-      pressure: "80% RAKE",
+      pressure: "80% PHÍ",
       bodyTemp: "18.4 °C",
       soulSat: "100%",
       bars: [
-        { label: "ĐỘ BÓC LỘT TƯ BẢN", val: 99 },
-        { label: "LÃNH CẢM HÀNH CHÍNH", val: 100 },
-        { label: "TỐC ĐỘ IN HÓA ĐƠN", val: 96 },
-        { label: "LÒNG TRẮC ẨN", val: 0 }
+        { label: "TƯ BẢN BÓC LỘT", val: 100 },
+        { label: "HÀNH CHÍNH HÓA BI KỊCH", val: 98 },
+        { label: "TỐC ĐỘ IN HÓA ĐƠN", val: 99 },
+        { label: "LÒNG TỪ BI MIỄN PHÍ", val: 0 }
       ]
     },
     tavocuu: {
@@ -54,15 +54,15 @@ export const SITE_CONFIG = {
       heightCm: 188,
       weightKg: 76,
       build: "Cao gầy rắn rỏi • Vai rộng phẳng phiu",
-      heartRate: "54 BPM",
+      heartRate: "52 BPM",
       pressure: "110/70",
-      bodyTemp: "35.6 °C",
-      soulSat: "99%",
+      bodyTemp: "35.4 °C",
+      soulSat: "99.6%",
       bars: [
-        { label: "UY ÁP KIỂM TOÁN", val: 95 },
-        { label: "ĐỘ LẠNH TÂM LÝ", val: 98 },
+        { label: "UY ÁP KIỂM TOÁN", val: 96 },
+        { label: "NGUYÊN TẮC TÀN NHẪN", val: 99 },
         { label: "KHÁNG CẨU HUYẾT", val: 100 },
-        { label: "NGUY HIỂM PHÁP LÝ", val: 94 }
+        { label: "ĐIỀU TRA MÃ NGUỒN Sd.", val: 84 }
       ]
     },
     lucnha: {
@@ -71,16 +71,16 @@ export const SITE_CONFIG = {
       age: "27",
       heightCm: 185,
       weightKg: 79,
-      build: "Săn chắc cơ bắp • Nhiều sẹo dao",
+      build: "Săn chắc hoang dã • Cơ bắp đầy sẹo",
       heartRate: "76 BPM",
-      pressure: "124/78",
-      bodyTemp: "37.1 °C",
-      soulSat: "94%",
+      pressure: "126/78",
+      bodyTemp: "37.2 °C",
+      soulSat: "94.1%",
       bars: [
-        { label: "THỰC CHIẾN ĐƯỜNG PHỐ", val: 92 },
-        { label: "LÁCH LUẬT CHỢ ĐEN", val: 97 },
-        { label: "MÁU LẠNH THƯƠNG TRƯỜNG", val: 88 },
-        { label: "ĐỘ BẤT CẦN ĐỜI", val: 95 }
+        { label: "THỰC CHIẾN ĐƯỜNG PHỐ", val: 93 },
+        { label: "LÁCH LUẬT CHỢ ĐEN", val: 98 },
+        { label: "ĐỘ SÒNG PHẲNG", val: 95 },
+        { label: "TUÂN THỦ HỆ THỐNG", val: 4 }
       ]
     },
     nguhongdiep: {
@@ -90,15 +90,15 @@ export const SITE_CONFIG = {
       heightCm: 171,
       weightKg: 53,
       build: "Đồng hồ cát quyến rũ • Sắc sảo",
-      heartRate: "66 BPM",
+      heartRate: "64 BPM",
       pressure: "114/72",
       bodyTemp: "36.5 °C",
-      soulSat: "97%",
+      soulSat: "97.8%",
       bars: [
-        { label: "MỊ LỰC NGUY HIỂM", val: 98 },
-        { label: "ĐỘ CAY ĐỘC NGÔN TỪ", val: 96 },
-        { label: "THAO TÚNG DƯ LUẬN", val: 95 },
-        { label: "THÙ GHÉT TRA NAM", val: 100 }
+        { label: "MỊ LỰC ĐỘC DƯỢC", val: 98 },
+        { label: "PHÁN XÉT TRA NAM", val: 100 },
+        { label: "THAO TÚNG TRUYỀN THÔNG", val: 95 },
+        { label: "ĐỘ KHOAN NHƯỢNG", val: 2 }
       ]
     },
     tieuthat: {
@@ -107,16 +107,34 @@ export const SITE_CONFIG = {
       age: "~19",
       heightCm: 168,
       weightKg: 51,
-      build: "Gầy mảnh khảnh • Quấn băng gạc",
-      heartRate: "128 BPM",
+      build: "Gầy trơ xương • Băng gạc quấn người",
+      heartRate: "126 BPM",
       pressure: "102/68",
-      bodyTemp: "36.8 °C",
-      soulSat: "82%",
+      bodyTemp: "36.9 °C",
+      soulSat: "82.4%",
       bars: [
-        { label: "TẦN SUẤT TAI NẠN VẬT LÝ", val: 99 },
-        { label: "ĐỘ TRUNG THÀNH NGÂY THƠ", val: 96 },
-        { label: "KHẢ NĂNG BÓC PHỐT NHẦM", val: 94 },
-        { label: "CHỈ SỐ MAY MẮN", val: 3 }
+        { label: "TAI NẠN VẬT LÝ VÔ TÌNH", val: 99 },
+        { label: "ĐỘ SÙNG BÁI KÝ CHỦ", val: 97 },
+        { label: "PHÁ MÀN KỊCH TRÀ XANH", val: 94 },
+        { label: "VẬN MAY BẨM SINH", val: 3 }
+      ]
+    },
+    sd: {
+      avatarUrl: "",
+      gender: "Nữ (Phi giới tính)",
+      age: "???",
+      heightCm: 178,
+      weightKg: 58,
+      build: "Thanh mảnh cao ráo • Quý tộc phi giới tính",
+      heartRate: "44 BPM",
+      pressure: "SOVEREIGN",
+      bodyTemp: "33.8 °C",
+      soulSat: "100% [SSS]",
+      bars: [
+        { label: "QUYỀN LỰC KIẾN TẠO", val: 100 },
+        { label: "LƯỜI BIẾNG THƯỢNG ĐẲNG", val: 99 },
+        { label: "THAO TÚNG 10 KHU VỰC", val: 100 },
+        { label: "TÍNH NHÂN ĐẠO", val: 1 }
       ]
     }
   }
