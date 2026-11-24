@@ -2,6 +2,7 @@
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
+import { initNpcMorph3D } from "./npc-morph-3d.js";
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
