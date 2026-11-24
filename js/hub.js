@@ -1,5 +1,5 @@
 // js/hub.js — Tab trượt Ảnh 1 + Khung System Ảnh 3 + Tam Giác Ngược 10 Tầng Ảnh 4
-
+import { initInvertedPyramid3D } from "./pyramid-3d.js";
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
@@ -206,64 +206,51 @@ window.addEventListener("resize", () => {
   if (!document.getElementById("tab-pyramid").classList.contains("hidden")) drawPyramidArrow();
 });
 
-// 5. SƠ ĐỒ TAM GIÁC NGƯỢC 10 TẦNG BAY LƠ LỬNG + MŨI TÊN CHỈ ĐIỂM + LẬT MỞ CHI TIẾT (ẢNH 4)
-const pyramidContainer = document.getElementById("inverted-pyramid");
+// 5. MÔ HÌNH 3D TAM GIÁC NGƯỢC THẬT + MŨI TÊN BÁM TỌA ĐỘ 3D + LẬT MỞ CHI TIẾT
+let pyramidOriginScreen = null;
 
-function renderInvertedPyramid() {
-  pyramidContainer.innerHTML = "";
-  SECTORS.forEach((sec, idx) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    // Tam giác ngược: tầng 1 rộng 100%, thu hẹp dần xuống tầng 10 ở chóp nhọn 24%
-    const widthPct = 100 - idx * 7.8;
-    btn.style.width = `${widthPct}%`;
-    btn.dataset.tierId = String(sec.id);
-    btn.className = `pyramid-tier ${sec.id === 10 ? "is-apex" : ""} ${sec.id === state.selectedPyramidTier ? "is-selected" : ""}`;
-    btn.innerHTML = sec.id === 10
-      ? `<span>Đ10 VÔ GIAN</span>`
-      : `<span>TẦNG ${String(sec.id).padStart(2, "0")} // ${sec.name.replace(/^Điện \d+ — /, "")}</span>`;
-
-    btn.addEventListener("click", () => selectPyramidTier(sec.id, true));
-    pyramidContainer.appendChild(btn);
-  });
-}
-
-function drawPyramidArrow() {
+function updateLaserPointerFrom3D() {
   const layout = document.getElementById("pyramid-layout");
-  const activeTier = pyramidContainer.querySelector(`.pyramid-tier[data-tier-id="${state.selectedPyramidTier}"]`);
   const card = document.getElementById("tier-flip-card");
   const path = document.getElementById("pyramid-pointer-path");
   const originDot = document.getElementById("pyramid-pointer-origin");
-  if (!layout || !activeTier || !card || !path) return;
+  if (!layout || !card || !path || !pyramidOriginScreen) return;
 
   const lRect = layout.getBoundingClientRect();
-  const tRect = activeTier.getBoundingClientRect();
   const cRect = card.getBoundingClientRect();
 
-  const startX = tRect.right - lRect.left + 4;
-  const startY = tRect.top - lRect.top + tRect.height / 2;
+  const startX = pyramidOriginScreen.x - lRect.left;
+  const startY = pyramidOriginScreen.y - lRect.top;
   const endX = cRect.left - lRect.left - 8;
   const endY = cRect.top - lRect.top + 48;
-  const midX = startX + (endX - startX) * 0.48;
+  const midX = startX + (endX - startX) * 0.5;
 
   originDot.setAttribute("cx", String(startX));
   originDot.setAttribute("cy", String(startY));
   path.setAttribute("d", `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`);
 }
 
+const pyramid3D = initInvertedPyramid3D({
+  canvasId: "pyramid-3d-canvas",
+  onSelectTier: (tierId) => selectPyramidTier(tierId, true),
+  onProjectOrigin: (sx, sy) => {
+    pyramidOriginScreen = { x: sx, y: sy };
+    if (!document.getElementById("tab-pyramid").classList.contains("hidden")) {
+      updateLaserPointerFrom3D();
+    }
+  }
+});
+
 function selectPyramidTier(tierId, playEffect = false) {
   if (playEffect && state.sfx) radio.playClickChime();
   state.selectedPyramidTier = tierId;
+  pyramid3D.setSelectedTier(tierId);
+
   const sec = SECTORS.find((s) => s.id === tierId) || SECTORS[0];
-
-  pyramidContainer.querySelectorAll(".pyramid-tier").forEach((el) =>
-    el.classList.toggle("is-selected", Number(el.dataset.tierId) === tierId)
-  );
-
   const flipInner = document.getElementById("tier-flip-inner");
   if (playEffect) {
     flipInner.classList.remove("is-flipping");
-    void flipInner.offsetWidth; // reset animation
+    void flipInner.offsetWidth;
     flipInner.classList.add("is-flipping");
   }
 
@@ -273,8 +260,6 @@ function selectPyramidTier(tierId, playEffect = false) {
   document.getElementById("tier-region").textContent = sec.region;
   document.getElementById("tier-crime").textContent = sec.desc;
   document.getElementById("tier-rule").textContent = sec.rule;
-
-  requestAnimationFrame(() => drawPyramidArrow());
 }
 
 document.getElementById("btn-lock-from-pyramid").addEventListener("click", () => {
@@ -282,10 +267,9 @@ document.getElementById("btn-lock-from-pyramid").addEventListener("click", () =>
   const sec = SECTORS.find((s) => s.id === state.selectedPyramidTier) || SECTORS[0];
   state.selectedSector = sec.name;
   updateStatsUI();
-  pushReceipt(`> Khóa tầng ${sec.id}/10 từ Sơ đồ: [${sec.name}].`);
+  pushReceipt(`> Khóa tầng ${sec.id}/10 từ Mô hình 3D: [${sec.name}].`);
 });
 
-renderInvertedPyramid();
 selectPyramidTier(1, false);
 
 // 6. RECEIPT, STATS & HỢP ĐỒNG
@@ -654,3 +638,22 @@ applyTheme(state.theme, false);
 updateStatsUI();
 updateGallerySlide();
 restoreSession();
+// 10. HÀNG SỐ DỮ LIỆU CHẠY LIÊN TỤC HAI BÊN VIỀN MÀN HÌNH
+const railL = document.getElementById("stream-rail-left");
+const railR = document.getElementById("stream-rail-right");
+
+setInterval(() => {
+  if (!railL || !railR) return;
+  const lineL = document.createElement("span");
+  const isHot = Math.random() < 0.18;
+  if (isHot) lineL.className = "hot";
+  lineL.textContent = `${Math.floor(1000 + Math.random() * 8999)}.${Math.floor(10 + Math.random() * 89)} // 0x${Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, "0")}`;
+  railL.prepend(lineL);
+  if (railL.children.length > 36) railL.lastChild.remove();
+
+  const lineR = document.createElement("span");
+  if (Math.random() < 0.16) lineR.className = "hot";
+  lineR.textContent = `SYNC:${(94 + Math.random() * 5.9).toFixed(2)}% [${Math.floor(Math.random() * 2)}${Math.floor(Math.random() * 2)}${Math.floor(Math.random() * 2)}${Math.floor(Math.random() * 2)}]`;
+  railR.prepend(lineR);
+  if (railR.children.length > 36) railR.lastChild.remove();
+}, 240);

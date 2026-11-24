@@ -496,3 +496,119 @@
   .rank-block { grid-template-columns: 42px 42px 1fr; }
   .rank-pb { grid-column: 1 / -1; text-align: left; }
 }
+/* DẢI HÀNG SỐ DỮ LIỆU CHẠY LIÊN TỤC HAI BÊN VIỀN MÀN HÌNH */
+.data-stream-rail {
+  position: fixed;
+  top: 72px;
+  bottom: 24px;
+  width: 112px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.58rem;
+  line-height: 1.65;
+  color: rgba(var(--rgb-primary), 0.34);
+  display: flex;
+  flex-direction: column;
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+.rail-left { left: 10px; text-align: left; }
+.rail-right { right: 14px; text-align: right; color: rgba(var(--rgb-secondary), 0.32); }
+.data-stream-rail span.hot { color: rgba(var(--rgb-secondary), 0.72); }
+
+@media (max-width: 1420px) {
+  .data-stream-rail { display: none; }
+}
+
+/* ÁNH SÁNG LOÁNG CHÉO QUA THẺ TAB & KHUNG SYSTEM */
+.holo-tab-card,
+.system-quest-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.holo-tab-card::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -130%;
+  width: 65%;
+  height: 180%;
+  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.24) 50%, transparent 80%);
+  transform: skewX(-18deg);
+  transition: left 0.65s ease;
+  pointer-events: none;
+}
+.holo-tab-card:hover::after,
+.holo-tab-card.is-active::after {
+  left: 155%;
+}
+
+.system-quest-shell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(var(--rgb-primary), 0.09) 48%, rgba(255, 255, 255, 0.08) 52%, transparent);
+  animation: shellSheen 7s infinite ease-in-out;
+  pointer-events: none;
+}
+@keyframes shellSheen {
+  0% { left: -80%; }
+  45%, 100% { left: 140%; }
+}
+
+/* THAY EMOJI BẰNG VECTOR HOLOGRAM PHÁT SÁNG */
+.tab-visual svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--c-primary);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px var(--glow-primary));
+  transition: stroke 0.25s, filter 0.25s, transform 0.25s;
+}
+.holo-tab-card.is-active .tab-visual svg,
+.holo-tab-card:hover .tab-visual svg {
+  stroke: var(--c-secondary);
+  filter: drop-shadow(0 0 12px var(--glow-secondary));
+  transform: scale(1.08);
+}
+
+/* THẺ TAB NGHIÊNG 3D NHẸ TẠO CUNG TRÒN */
+.holo-tab-card:nth-child(1) { transform: perspective(900px) rotateY(9deg); }
+.holo-tab-card:nth-child(2) { transform: perspective(900px) rotateY(4deg); }
+.holo-tab-card:nth-child(4) { transform: perspective(900px) rotateY(-4deg); }
+.holo-tab-card:nth-child(5) { transform: perspective(900px) rotateY(-9deg); }
+
+/* VIEWPORT MÔ HÌNH 3D TAM GIÁC NGƯỢC THẬT */
+.pyramid-3d-viewport {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--rgb-primary), 0.35);
+  background: radial-gradient(circle at 50% 45%, rgba(var(--rgb-primary), 0.14), rgba(3, 5, 16, 0.72) 78%);
+  box-shadow: inset 0 0 32px rgba(var(--rgb-primary), 0.14);
+  overflow: hidden;
+}
+#pyramid-3d-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.pyramid-hud-tag {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-size: 0.62rem;
+  color: var(--c-primary);
+  opacity: 0.78;
+  pointer-events: none;
+}
