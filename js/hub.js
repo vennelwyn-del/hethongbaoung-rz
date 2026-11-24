@@ -1,4 +1,4 @@
-// js/hub.js — Carousel 3D Vòng Tròn Vô Tận + Buồng Lái 3 Cánh + Live Preview Hồ Sơ (Copy sang GG AI)
+// js/hub.js — Full Hub VR 3D + Live Preview Hồ sơ + Bình luận Báo Ứng Net (Ẩn danh / Tài khoản login)
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
@@ -13,6 +13,8 @@ import {
   saveDebtorState,
   signOfficialContract,
   fetchLeaderboardUsers,
+  fetchForumComments,
+  postForumComment,
   logoutSimpleAccount
 } from "./firebase.js";
 
@@ -21,6 +23,7 @@ const vrBg = initVRCanvas();
 const radio = new SystemRadio();
 
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23041634'/><text x='32' y='40' font-size='28' text-anchor='middle' fill='%2300E5FF'>⚖️</text></svg>";
+const ANON_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23081226'/><text x='32' y='41' font-size='28' text-anchor='middle' fill='%235EA8FF'>🎭</text></svg>";
 const VALID_THEMES = ["orbital-cyan", "cyber-violet", "acid", "crimson-karma"];
 let savedTheme = localStorage.getItem("bao_ung_theme") || "orbital-cyan";
 if (!VALID_THEMES.includes(savedTheme)) savedTheme = "orbital-cyan";
@@ -36,6 +39,9 @@ const state = {
   selectedPkg: "Gói Báo Ứng Pháp Đình",
   manifestForm: "pos",
   username: getSavedSessionUsername(),
+  currentProfile: null,
+  forumPostMode: "account", // Mặc định theo tài khoản login; có thể đổi sang "anon"
+  extraForumSysPosts: [],
   lastDossierText: "",
   draftAudit: null,
   selectedPyramidTier: 1,
@@ -117,15 +123,15 @@ const MARKET_ITEMS = [
 ];
 
 const FORUM_POSTS_BASE = [
-  { author: "@Phòng_Kiểm_Toán [GHIM]", body: "Cảnh báo kỷ luật: Tuần này có 14 Con nợ tại Điện 3 bị thanh lý thẳng tay vì mềm lòng nghe tra nam khóc lóc dưới mưa." },
-  { author: "@Thực_Tập_Sinh_707 (Tiểu Thất)", body: "Đại ca ơi em thề là em chỉ định bê chậu nước đi đổ thôi, ai ngờ trượt chân hất trúng ổ cắm máy chiếu... tự nhiên phát luôn clip ngoại tình của thiên kim giả trong nhà kho!" },
-  { author: "@Quạ_Đen_Chợ_Đen (Lục Nha)", body: "Ai đang kẹt ở Điện 1, 2, 3 cần máy ghi âm giấu kín hay thuốc giảm đau không tính lãi Hệ thống thì ghé tiệm cầm đồ cuối hẻm." }
+  { authorLabel: "@Phòng_Kiểm_Toán [GHIM]", authorSub: "Hệ Thống • Ghim toàn server", avatarUrl: DEFAULT_AVATAR, body: "Cảnh báo kỷ luật: Tuần này có 14 Con nợ tại Điện 3 bị thanh lý thẳng tay vì mềm lòng nghe tra nam khóc lóc dưới mưa." },
+  { authorLabel: "@Thực_Tập_Sinh_707 (Tiểu Thất)", authorSub: "Thực tập sinh Cục Báo Ứng", avatarUrl: DEFAULT_AVATAR, body: "Đại ca ơi em thề là em chỉ định bê chậu nước đi đổ thôi, ai ngờ trượt chân hất trúng ổ cắm máy chiếu... tự nhiên phát luôn clip ngoại tình của thiên kim giả trong nhà kho!" },
+  { authorLabel: "@Quạ_Đen_Chợ_Đen (Lục Nha)", authorSub: "Chợ Đen Tầng Dưới", avatarUrl: DEFAULT_AVATAR, body: "Ai đang kẹt ở Điện 1, 2, 3 cần máy ghi âm giấu kín hay thuốc giảm đau không tính lãi Hệ thống thì ghé tiệm cầm đồ cuối hẻm." }
 ];
 
 const FORUM_EXTRA_POOL = [
-  { author: "@Lão_Làng_Thập_Điện", body: "Mẹo sống còn: Đừng bao giờ cầm USB bản gốc vào phòng kín đe dọa kẻ thù khi chưa có camera trực tiếp hoặc người của Tạ Vô Cữu ở ngoài. Nó đánh cướp bản gốc ngay tại chỗ đấy!" },
-  { author: "@Con_Nợ_Ẩn_Danh", body: "Vừa thắng kiện tống cổ gã tổng tài vào tù xong, bước ra cổng tòa án oai phong lẫm liệt thì gãy gót giày lăn xuống cầu thang. Hệ Thống 00 lập tức trừ -2 PB phí làm trầy đá hoa cương bậc thềm." },
-  { author: "@Tin_Đồn_Tầng_Thượng", body: "Đêm qua lại thấy Quý Cô tóc trắng cài hoa bốn cánh đứng ở lô VIP cao nhất sảnh đấu giá. Không ai tra ra nổi dòng tiền 80% phí dịch vụ chảy về tài khoản mang chữ ký Sd. cả..." }
+  { authorLabel: "@Lão_Làng_Thập_Điện", authorSub: "Ký chủ vượt 7 Điện", avatarUrl: ANON_AVATAR, body: "Mẹo sống còn: Đừng bao giờ cầm USB bản gốc vào phòng kín đe dọa kẻ thù khi chưa có camera trực tiếp hoặc người của Tạ Vô Cữu ở ngoài. Nó đánh cướp bản gốc ngay tại chỗ đấy!" },
+  { authorLabel: "@Con_Nợ_Ẩn_Danh", authorSub: "Ẩn danh", avatarUrl: ANON_AVATAR, body: "Vừa thắng kiện tống cổ gã tổng tài vào tù xong, bước ra cổng tòa án oai phong lẫm liệt thì gãy gót giày lăn xuống cầu thang. Hệ Thống 00 lập tức trừ -2 PB phí làm trầy đá hoa cương bậc thềm." },
+  { authorLabel: "@Tin_Đồn_Tầng_Thượng", authorSub: "Tin mật nội bộ", avatarUrl: ANON_AVATAR, body: "Đêm qua lại thấy Quý Cô tóc trắng cài hoa bốn cánh đứng ở lô VIP cao nhất sảnh đấu giá. Không ai tra ra nổi dòng tiền 80% phí dịch vụ chảy về tài khoản mang chữ ký Sd. cả..." }
 ];
 
 const BUREAU_ENTITIES = [
@@ -294,6 +300,7 @@ function switchTab(tabId, snapCarousel = true) {
   document.getElementById("quest-window-title").textContent = TAB_TITLES[tabId] || "SYSTEM INFO";
 
   if (tabId === "tab-ranking") loadAndRenderLeaderboard();
+  if (tabId === "tab-forum") loadAndRenderForum();
   if (tabId === "tab-pyramid") {
     requestAnimationFrame(() => {
       pyramid3D.resize();
@@ -910,27 +917,181 @@ for (const item of MARKET_ITEMS) {
   marketList.appendChild(row);
 }
 
-// 11. DIỄN ĐÀN !DIENDAN & NHÂN SỰ CỤC
+// 11. DIỄN ĐÀN !DIENDAN + BÌNH LUẬN USER (MẶC ĐỊNH TÀI KHOẢN / CHUYỂN ẨN DANH)
 const forumFeed = document.getElementById("forum-feed");
-function renderForumFeed(posts) {
-  forumFeed.innerHTML = "";
-  for (const post of posts) {
-    const div = document.createElement("div");
-    div.className = "forum-post";
-    div.innerHTML = `<span class="author">${post.author}</span><p>${post.body}</p>`;
-    forumFeed.appendChild(div);
+const btnModeAccount = document.getElementById("btn-mode-account");
+const btnModeAnon = document.getElementById("btn-mode-anon");
+const forumAccountPreview = document.getElementById("forum-account-preview");
+const forumPostHint = document.getElementById("forum-post-hint");
+const forumCommentInput = document.getElementById("forum-comment-input");
+const forumCharCount = document.getElementById("forum-char-count");
+
+function getAccountIdentityInfo() {
+  if (!state.username || !state.currentProfile) return null;
+  const prof = state.currentProfile;
+  const name = prof.lastProfile?.name || prof.displayName || prof.username;
+  const code = prof.contractLocked && prof.debtorCode ? ` (${prof.debtorCode})` : "";
+  return {
+    authorLabel: `${name}${code}`,
+    authorSub: `@${prof.username} • ${state.selectedSector}`,
+    avatarUrl: prof.avatarUrl || DEFAULT_AVATAR
+  };
+}
+
+function updateForumIdentityUI() {
+  const accInfo = getAccountIdentityInfo();
+  if (forumAccountPreview) {
+    forumAccountPreview.textContent = accInfo ? accInfo.authorLabel : "Đăng nhập để dùng tài khoản";
+  }
+
+  btnModeAccount?.classList.toggle("is-active", state.forumPostMode === "account");
+  btnModeAnon?.classList.toggle("is-active", state.forumPostMode === "anon");
+
+  if (forumPostHint) {
+    if (state.forumPostMode === "anon") {
+      forumPostHint.textContent = "Chế độ: 🎭 Đang ẩn danh (@Con_Nợ_Ẩn_Danh — giấu hoàn toàn tên & mã)";
+    } else if (accInfo) {
+      forumPostHint.textContent = `Chế độ mặc định: 👤 Đăng bằng tài khoản [${accInfo.authorLabel}]`;
+    } else {
+      forumPostHint.textContent = "Chưa đăng nhập — bấm 'Đăng Ẩn Danh' để viết ngay hoặc đăng nhập để dùng tên thật";
+    }
   }
 }
-renderForumFeed(FORUM_POSTS_BASE);
+
+btnModeAccount?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  if (!state.username) {
+    openModal("modal-auth");
+    return;
+  }
+  state.forumPostMode = "account";
+  updateForumIdentityUI();
+});
+
+btnModeAnon?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  state.forumPostMode = "anon";
+  updateForumIdentityUI();
+});
+
+forumCommentInput?.addEventListener("input", () => {
+  if (forumCharCount) forumCharCount.textContent = `${forumCommentInput.value.length}/500`;
+});
+
+function formatGMT7Timestamp(ms) {
+  if (!ms) return "Hệ thống";
+  const d = new Date(ms + 7 * 3600 * 1000);
+  return `${d.toISOString().slice(5, 10)} ${d.toISOString().slice(11, 16)} GMT+7`;
+}
+
+function createForumPostElement(post) {
+  const div = document.createElement("div");
+  div.className = `forum-post ${post.isAnonymous ? "is-anon" : post.timestamp ? "is-user" : ""}`;
+
+  const head = document.createElement("div");
+  head.className = "forum-post-head";
+
+  const avt = document.createElement("img");
+  avt.className = "forum-post-avt";
+  avt.src = post.avatarUrl || (post.isAnonymous ? ANON_AVATAR : DEFAULT_AVATAR);
+  avt.alt = "Avatar";
+
+  const meta = document.createElement("div");
+  meta.className = "forum-post-meta";
+
+  const authorSpan = document.createElement("span");
+  authorSpan.className = "author";
+  authorSpan.textContent = post.authorLabel || "@Con_Nợ_Ẩn_Danh";
+
+  const subSmall = document.createElement("small");
+  const timeTxt = post.timestamp ? `${formatGMT7Timestamp(post.timestamp)} • ` : "";
+  const sectorTxt = post.sector ? `${post.sector}` : "";
+  subSmall.textContent = `${timeTxt}${post.authorSub || sectorTxt || "Báo Ứng Net"}`;
+
+  meta.append(authorSpan, subSmall);
+  head.append(avt, meta);
+
+  const bodyP = document.createElement("p");
+  bodyP.textContent = post.body || "";
+
+  div.append(head, bodyP);
+  return div;
+}
+
+async function loadAndRenderForum() {
+  if (!forumFeed) return;
+  let userPosts = [];
+  try {
+    userPosts = await fetchForumComments(40);
+  } catch (_) {
+    userPosts = [];
+  }
+  const allPosts = [...state.extraForumSysPosts, ...userPosts, ...FORUM_POSTS_BASE];
+  forumFeed.innerHTML = "";
+  allPosts.forEach((p) => forumFeed.appendChild(createForumPostElement(p)));
+}
+
+document.getElementById("forum-composer")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const bodyText = forumCommentInput?.value.trim();
+  if (!bodyText) return;
+
+  if (state.forumPostMode === "account" && !state.username) {
+    openModal("modal-auth");
+    return;
+  }
+
+  const submitBtn = document.getElementById("btn-post-forum");
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    const isAnon = state.forumPostMode === "anon";
+    const acc = getAccountIdentityInfo();
+    const anonCode = `#${Math.floor(100 + Math.random() * 899)}`;
+
+    const payload = isAnon
+      ? {
+          authorLabel: `@Con_Nợ_Ẩn_Danh ${anonCode}`,
+          authorSub: `Ẩn danh • ${state.selectedSector}`,
+          avatarUrl: ANON_AVATAR,
+          isAnonymous: true,
+          sector: state.selectedSector,
+          body: bodyText
+        }
+      : {
+          authorLabel: acc.authorLabel,
+          authorSub: acc.authorSub,
+          avatarUrl: acc.avatarUrl,
+          isAnonymous: false,
+          sector: state.selectedSector,
+          body: bodyText
+        };
+
+    await postForumComment(payload);
+    if (state.sfx) radio.playClickChime();
+    forumCommentInput.value = "";
+    if (forumCharCount) forumCharCount.textContent = "0/500";
+    await loadAndRenderForum();
+    pushReceipt(`【BÁO ỨNG NET】: Đã đăng bình luận dưới danh nghĩa [${payload.authorLabel}].`);
+  } catch (err) {
+    pushReceipt(`【LỖI BÁO ỨNG NET】: ${err.message}`);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+});
 
 document.getElementById("btn-refresh-forum").addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
   const extra = FORUM_EXTRA_POOL[Math.floor(Math.random() * FORUM_EXTRA_POOL.length)];
   const livePost = {
-    author: `@Tình_Báo_${state.selectedSector.slice(0, 6).replace(/\s+/g, "_")}`,
+    authorLabel: `@Tình_Báo_${state.selectedSector.slice(0, 6).replace(/\s+/g, "_")}`,
+    authorSub: "Tin quét trực tiếp",
+    avatarUrl: DEFAULT_AVATAR,
     body: `Cập nhật nóng tại [${state.selectedSector}]: Kẻ Cướp Phước đang thuê thủy quân dọn sạch lịch sử giao dịch. Con nợ nào chuẩn bị vả mặt nhớ chụp vi bằng trước khi vào phòng kín!`
   };
-  renderForumFeed([livePost, extra, ...FORUM_POSTS_BASE]);
+  state.extraForumSysPosts = [livePost, extra];
+  await loadAndRenderForum();
+
   if (!state.contractLocked) { pushReceipt("【BÁO ỨNG NET】: Chế độ khách quét tin miễn phí."); return; }
   state.pb = Number((state.pb - 0.5).toFixed(2));
   updateStatsUI();
@@ -994,16 +1155,25 @@ const authMsg = document.getElementById("auth-msg");
 function applyProfileUI(profile) {
   const topAvatar = document.getElementById("topbar-avatar");
   if (!profile) {
-    state.username = null; state.contractLocked = false; state.pb = null; state.debtorCode = "CHƯA CẤP";
+    state.username = null;
+    state.currentProfile = null;
+    state.contractLocked = false;
+    state.pb = null;
+    state.debtorCode = "CHƯA CẤP";
+    state.forumPostMode = "anon"; // Khách chưa đăng nhập mặc định ẩn danh
     document.getElementById("user-dot").classList.remove("online");
     topAvatar.classList.add("hidden");
     document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
     authOut.classList.remove("hidden"); authIn.classList.add("hidden");
-    lockContractFormUI({ contractLocked: false }); updateStatsUI();
+    lockContractFormUI({ contractLocked: false });
+    updateStatsUI();
+    updateForumIdentityUI();
     return;
   }
 
   state.username = profile.username;
+  state.currentProfile = profile;
+  state.forumPostMode = "account"; // Đã đăng nhập -> mặc định đăng bằng tài khoản login
   state.contractLocked = Boolean(profile.contractLocked);
   state.debtorCode = profile.contractLocked ? (profile.debtorCode || "#000") : "CHƯA CẤP";
   state.pb = profile.contractLocked && typeof profile.meritBalance === "number" ? profile.meritBalance : null;
@@ -1021,7 +1191,9 @@ function applyProfileUI(profile) {
   document.getElementById("profile-username").textContent = `@${profile.username}`;
   authOut.classList.add("hidden"); authIn.classList.remove("hidden");
 
-  lockContractFormUI(profile); updateStatsUI();
+  lockContractFormUI(profile);
+  updateStatsUI();
+  updateForumIdentityUI();
 }
 
 function compressImageToDataUrl(file) {
@@ -1077,6 +1249,7 @@ document.getElementById("simple-auth-form").addEventListener("submit", async (e)
     authMsg.textContent = "Đang đăng nhập...";
     applyProfileUI(await loginSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
+    closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
 document.getElementById("btn-register-simple").addEventListener("click", async () => {
@@ -1084,6 +1257,7 @@ document.getElementById("btn-register-simple").addEventListener("click", async (
     authMsg.textContent = "Đang tạo tài khoản...";
     applyProfileUI(await registerSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
+    closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
 document.getElementById("btn-logout").addEventListener("click", () => { logoutSimpleAccount(); applyProfileUI(null); });
@@ -1128,5 +1302,7 @@ setInterval(() => {
 applyTheme(state.theme, false);
 updateStatsUI();
 updateLiveDossierPreview();
+updateForumIdentityUI();
+loadAndRenderForum();
 switchTab("tab-profile", true);
 restoreSession();

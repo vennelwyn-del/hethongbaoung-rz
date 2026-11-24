@@ -1,4 +1,4 @@
-// js/firebase.js — Tài khoản đơn giản, Khóa hợp đồng 1 lần, Avatar & Bảng Xếp Hạng Realtime DB
+// js/firebase.js — Tài khoản, Khóa hợp đồng 1 lần, Avatar, BXH & Bình luận Báo Ứng Net Realtime DB
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -6,6 +6,7 @@ import {
   ref,
   get,
   set,
+  push,
   update,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -22,6 +23,7 @@ const firebaseConfig = {
 };
 
 const DB_ROOT = "hethongbaoung_debtors";
+const FORUM_ROOT = "hethongbaoung_forum";
 const SESSION_KEY = "bao_ung_session_user";
 export const isFirebaseConfigured = Boolean(firebaseConfig.databaseURL);
 
@@ -60,10 +62,10 @@ export async function registerSimpleAccount(rawUsername, password) {
     passHash,
     avatarUrl: "",
     debtorCode: "CHƯA CẤP",
-    meritBalance: null,       // Chưa ký hợp đồng chính thức -> chưa hiện Phước Báu
+    meritBalance: null,
     contractLocked: false,
     lastProfile: null,
-    theme: localStorage.getItem("bao_ung_theme") || "cyber-violet",
+    theme: localStorage.getItem("bao_ung_theme") || "orbital-cyan",
     createdAt: serverTimestamp()
   };
 
@@ -102,7 +104,6 @@ export async function saveDebtorState(username, partialData) {
   });
 }
 
-// Ký Hợp Đồng Chính Thức: Chỉ cho phép 1 lần duy nhất mỗi tài khoản
 export async function signOfficialContract(username, payload) {
   if (!username) throw new Error("Bạn cần đăng nhập/tạo tài khoản trước khi ký chính thức.");
   const userRef = ref(db, `${DB_ROOT}/${username}`);
@@ -122,11 +123,10 @@ export async function signOfficialContract(username, payload) {
     signedAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
-  await update(userRef, sealed);
+  await update(ref(db, `${DB_ROOT}/${username}`), sealed);
   return { ...current, ...sealed };
 }
 
-// Lấy toàn bộ User đã ký hợp đồng chính thức để đưa lên Bảng Xếp Hạng
 export async function fetchLeaderboardUsers() {
   const snap = await get(ref(db, DB_ROOT));
   if (!snap.exists()) return [];
@@ -141,6 +141,33 @@ export async function fetchLeaderboardUsers() {
       meritBalance: u.meritBalance,
       sector: u.lastProfile?.sector || "Thập Điện"
     }));
+}
+
+// BÁO ỨNG NET: Đọc & Đăng bình luận (Ẩn danh hoặc Tài khoản login)
+export async function fetchForumComments(limit = 40) {
+  const snap = await get(ref(db, FORUM_ROOT));
+  if (!snap.exists()) return [];
+  const raw = snap.val();
+  return Object.entries(raw)
+    .map(([id, val]) => ({ id, ...val }))
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+    .slice(0, limit);
+}
+
+export async function postForumComment(payload) {
+  const newRef = push(ref(db, FORUM_ROOT));
+  const entry = {
+    authorLabel: payload.authorLabel,
+    authorSub: payload.authorSub || "",
+    avatarUrl: payload.avatarUrl || "",
+    isAnonymous: Boolean(payload.isAnonymous),
+    sector: payload.sector || "Sảnh Chờ 00",
+    body: String(payload.body || "").trim().slice(0, 500),
+    timestamp: Date.now(),
+    createdAt: serverTimestamp()
+  };
+  await set(newRef, entry);
+  return { id: newRef.key, ...entry };
 }
 
 export function logoutSimpleAccount() {

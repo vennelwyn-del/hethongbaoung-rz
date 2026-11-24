@@ -448,12 +448,44 @@
           <div class="market-list" id="market-list"></div>
         </div>
 
-        <!-- TAB 6: MẠNG NỘI BỘ BÁO ỨNG NET (!diendan) & NHÂN SỰ CỤC -->
+        <!-- TAB 6: MẠNG NỘI BỘ BÁO ỨNG NET (!diendan) + COMMENT USER & ẨN DANH -->
         <div class="hub-panel hidden" id="tab-forum">
           <div class="pane-bar">
             <span>[ MẠNG NỘI BỘ BÁO ỨNG NET v4.0 — !DIENDAN ]</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-refresh-forum" type="button">Quét tin mới (-0.50 PB)</button>
           </div>
+
+          <!-- KHUNG SETTING ĐĂNG BÌNH LUẬN (MẶC ĐỊNH TÀI KHOẢN LOGIN / CHUYỂN ẨN DANH) -->
+          <form class="forum-composer" id="forum-composer">
+            <div class="composer-identity-row">
+              <span class="composer-label">CHẾ ĐỘ ĐĂNG TIN:</span>
+              <div class="identity-toggle-group">
+                <button type="button" class="identity-mode-btn holo-tactile is-active" id="btn-mode-account" data-post-mode="account">
+                  👤 <span id="forum-account-preview">Tài khoản đăng nhập</span>
+                </button>
+                <button type="button" class="identity-mode-btn holo-tactile" id="btn-mode-anon" data-post-mode="anon">
+                  🎭 Đăng Ẩn Danh
+                </button>
+              </div>
+            </div>
+
+            <textarea
+              id="forum-comment-input"
+              rows="3"
+              maxlength="500"
+              placeholder="Bóc phốt Kẻ Cướp Phước, chia sẻ mẹo vả mặt hoặc than thở vận đen lên Báo Ứng Net..."
+              required
+            ></textarea>
+
+            <div class="composer-footer">
+              <small id="forum-post-hint">Đang chọn: Mặc định theo tài khoản đăng nhập</small>
+              <div class="composer-actions">
+                <span class="char-counter" id="forum-char-count">0/500</span>
+                <button type="submit" class="btn-primary holo-tactile mini-btn" id="btn-post-forum">📡 ĐĂNG LÊN NET</button>
+              </div>
+            </div>
+          </form>
+
           <div class="forum-feed" id="forum-feed"></div>
           <div class="pane-bar" style="margin-top: 18px;"><span>[ HỒ SƠ NHÂN SỰ CỐ ĐỊNH CỤC BÁO ỨNG ]</span></div>
           <div class="entities-grid" id="entities-grid"></div>

@@ -947,3 +947,319 @@
   overflow-y: auto;
   user-select: all;
 }
+/* KHUNG SETTING & ĐĂNG BÌNH LUẬN BÁO ỨNG NET */
+.forum-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 14px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(var(--rgb-primary), 0.45);
+  background: linear-gradient(165deg, rgba(var(--rgb-primary), 0.1), rgba(2, 6, 18, 0.86));
+}
+
+.composer-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.setting-label {
+  font-size: 0.66rem;
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+.forum-mode-switch {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.forum-mode-btn {
+  padding: 6px 11px;
+  border: 1px solid rgba(var(--rgb-primary), 0.38);
+  background: rgba(0, 0, 0, 0.38);
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  cursor: pointer;
+}
+.forum-mode-btn.is-active {
+  border-color: var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.2);
+  color: var(--c-secondary);
+  box-shadow: 0 0 12px var(--glow-secondary);
+}
+
+.forum-identity-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px dashed rgba(var(--rgb-primary), 0.32);
+  background: rgba(0, 0, 0, 0.34);
+}
+.forum-identity-avt {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  object-fit: cover;
+  border: 1px solid var(--c-primary);
+  flex-shrink: 0;
+}
+.forum-identity-meta {
+  flex: 1;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.forum-identity-meta small { font-size: 0.56rem; color: var(--text-muted); }
+.forum-identity-meta strong { font-size: 0.72rem; color: var(--text-main); }
+
+.forum-tag-select {
+  padding: 7px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(var(--rgb-primary), 0.4);
+  background: rgba(2, 5, 16, 0.85);
+  color: var(--c-primary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+}
+
+.forum-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 74px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--rgb-primary), 0.4);
+  background: rgba(2, 5, 16, 0.82);
+  color: var(--text-main);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.forum-textarea:focus {
+  outline: none;
+  border-color: var(--c-secondary);
+  box-shadow: 0 0 14px rgba(var(--rgb-secondary), 0.22);
+}
+
+.composer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.forum-char-count { font-size: 0.64rem; color: var(--text-muted); }
+.forum-post-msg { flex: 1; font-size: 0.68rem; color: var(--c-secondary); }
+
+/* HIỂN THỊ BÀI ĐĂNG USER TRÊN BÁO ỨNG NET */
+.forum-post.is-user-post {
+  border-left: 3px solid var(--c-secondary);
+  background: linear-gradient(135deg, rgba(var(--rgb-primary), 0.09), rgba(2, 6, 18, 0.76));
+}
+.forum-post-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.forum-post-avt {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(var(--rgb-primary), 0.55);
+  flex-shrink: 0;
+}
+.forum-post-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.forum-post-author-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.forum-badge {
+  font-size: 0.56rem;
+  padding: 1px 6px;
+  border: 1px solid rgba(var(--rgb-primary), 0.45);
+  color: var(--c-primary);
+  background: rgba(var(--rgb-primary), 0.1);
+}
+.forum-badge.is-anon {
+  border-color: var(--c-secondary);
+  color: var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.14);
+}
+.forum-post-time { font-size: 0.58rem; color: var(--text-muted); }
+.forum-post-body {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.84rem;
+  color: var(--text-main) !important;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.forum-post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed rgba(var(--rgb-primary), 0.22);
+}
+.forum-action-btn {
+  padding: 4px 9px;
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--c-primary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  cursor: pointer;
+}
+.forum-action-btn:hover,
+.forum-action-btn.is-liked {
+  border-color: var(--c-secondary);
+  color: var(--c-secondary);
+}
+.forum-del-btn {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+/* KHUNG BÌNH LUẬN BÁO ỨNG NET (TÀI KHOẢN LOGIN / ẨN DANH) */
+.forum-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 14px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(var(--rgb-primary), 0.45);
+  background: linear-gradient(165deg, rgba(var(--rgb-primary), 0.1), rgba(2, 6, 18, 0.88));
+}
+
+.composer-identity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.composer-label {
+  font-size: 0.66rem;
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+.identity-toggle-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.identity-mode-btn {
+  padding: 6px 11px;
+  border: 1px solid rgba(var(--rgb-primary), 0.4);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.identity-mode-btn.is-active {
+  border-color: var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.22);
+  color: var(--text-main);
+  box-shadow: 0 0 12px var(--glow-secondary);
+}
+
+#forum-comment-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background: rgba(0, 0, 0, 0.48);
+  color: var(--text-main);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.composer-footer small {
+  font-size: 0.64rem;
+  color: var(--c-secondary);
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.char-counter {
+  font-size: 0.64rem;
+  color: var(--text-muted);
+}
+
+.forum-post-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.forum-post-avt {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--c-primary);
+  flex-shrink: 0;
+}
+
+.forum-post-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.forum-post-meta .author {
+  margin-bottom: 0;
+  font-size: 0.75rem;
+}
+
+.forum-post-meta small {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.forum-post.is-anon {
+  border-left: 3px solid var(--c-primary);
+}
+
+.forum-post.is-user {
+  border-left: 3px solid var(--c-secondary);
+}
