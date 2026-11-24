@@ -310,6 +310,16 @@
             <label class="field"><span>Họ và tên Ký chủ</span><input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required /></label>
             <label class="field"><span>Mã số / Biệt danh</span><input type="text" id="f-codename" placeholder="vd: Kẻ Đòi Nợ Máu" /></label>
             <label class="field"><span>Tuổi (18+)</span><input type="number" id="f-age" min="18" max="99" value="24" required /></label>
+            <label class="field">
+                  <span>Chủng tộc / Hình thái 3D</span>
+                  <select id="npc-edit-species">
+                    <option value="Người">Người thật (Nhân loại)</option>
+                    <option value="Thú nhân">Thú nhân (Người + Tai &amp; Đuôi)</option>
+                    <option value="Thú (Cáo)">Thú 3D: Cáo Linh (Fox)</option>
+                    <option value="Thú (Chim Quạ)">Thú 3D: Chim Quạ Đen</option>
+                    <option value="Thú (Ngựa)">Thú 3D: Chiến Mã</option>
+                  </select>
+                </label>
             <label class="field"><span>Giới tính &amp; Đại từ xưng hô</span><input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required /></label>
             <label class="field">
               <span>Xu hướng tính dục</span>
@@ -746,7 +756,14 @@
         <!-- CỘT 2 (GIỮA): MÔ HÌNH NGƯỜI 3D XOAY 360 + ZOOM + TIA CHỈ ĐIỂM VÙNG -->
         <div class="bio-lab-col">
           <div class="bio-subpanel morph-stage-card">
-            <div class="subpanel-head"><span>3D ANATOMICAL MANNEQUIN (KÉO XOAY • LĂN ZOOM)</span><small id="lab-morph-tag">NAM • 188 CM</small></div>
+          <div class="subpanel-head">
+              <span>3D MORPHOLOGY VIEWER</span>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <small id="lab-morph-tag">NAM • 188 CM</small>
+                <button class="btn-secondary holo-tactile" id="btn-lab-random-morph" type="button" style="padding:2px 7px; font-size:0.56rem;">🎲 RANDOM</button>
+                <button class="btn-secondary holo-tactile" id="btn-lab-toggle-shader" type="button" style="padding:2px 7px; font-size:0.56rem;">💎 HOLO</button>
+              </div>
+            </div>
 
             <div class="morph-pod-viewport morph-pod-tall" id="lab-morph-pod">
               <canvas id="lab-morph-canvas"></canvas>

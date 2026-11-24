@@ -1658,6 +1658,43 @@ function closeNpcBioLabModal() {
   document.querySelectorAll(".dossier-flip-card.is-flipped").forEach((c) => c.classList.remove("is-flipped"));
 }
 document.getElementById("btn-close-npc-modal")?.addEventListener("click", closeNpcBioLabModal);
+const btnLabShader = document.getElementById("btn-lab-toggle-shader");
+let labShaderMode = "holo";
+btnLabShader?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  labShaderMode = npcMorph3D.setRenderMode(labShaderMode === "holo" ? "real" : "holo");
+  btnLabShader.textContent = labShaderMode === "holo" ? "💎 HOLO" : "🎨 MÀU THẬT";
+});
+
+document.getElementById("btn-lab-random-morph")?.addEventListener("click", () => {
+  if (!currentLabNpc) return;
+  if (state.sfx) radio.playClickChime();
+  const speciesPool = ["Người", "Người", "Thú nhân", "Thú (Cáo)", "Thú (Chim Quạ)", "Thú (Ngựa)"];
+  const genderPool = ["Nam", "Nữ"];
+  const randSpecies = speciesPool[Math.floor(Math.random() * speciesPool.length)];
+  const randGender = genderPool[Math.floor(Math.random() * genderPool.length)];
+  const randH = Math.floor(155 + Math.random() * 42);
+  const randW = Math.floor(45 + Math.random() * 45);
+  const randBmi = (randW / Math.pow(randH / 100, 2)).toFixed(1);
+
+  const customStats = {
+    ...getMergedNpcStats(currentLabNpc.id),
+    species: randSpecies,
+    gender: randGender,
+    heightCm: randH,
+    weightKg: randW
+  };
+
+  document.getElementById("lab-morph-tag").textContent = `${randSpecies.toUpperCase()} • ${randH} CM`;
+  document.getElementById("lab-morph-stats").innerHTML = `
+    <div><small>CHỦNG TỘC</small><strong>${randSpecies}</strong></div>
+    <div><small>GIỚI TÍNH</small><strong>${randGender}</strong></div>
+    <div><small>CHIỀU CAO</small><strong>${randH} CM</strong></div>
+    <div><small>CÂN NẶNG / BMI</small><strong>${randW} KG (${randBmi})</strong></div>
+  `;
+  npcMorph3D.setSubject(currentLabNpc, customStats);
+  pushReceipt(`🎲 【RANDOM HÌNH THÁI】: ${currentLabNpc.name} → ${randSpecies} (${randGender} | ${randH}cm | ${randW}kg).`);
+});
 
 function runCardLoadingThenOpenModal(cardEl, npc) {
   clearInterval(cardLoadTimer);
@@ -1806,6 +1843,7 @@ npcEditorPanel?.addEventListener("submit", (e) => {
   const urlVal = document.getElementById("npc-edit-avatar").value.trim();
   ov[id] = {
     ...(ov[id] || {}),
+    species: document.getElementById("npc-edit-species")?.value || "Người",
     gender: document.getElementById("npc-edit-gender").value,
     heightCm: Number(document.getElementById("npc-edit-height").value) || 175,
     weightKg: Number(document.getElementById("npc-edit-weight").value) || 0
@@ -1828,6 +1866,8 @@ document.getElementById("btn-npc-copy-cfg")?.addEventListener("click", () => {
 document.getElementById("btn-npc-reset")?.addEventListener("click", () => {
   localStorage.removeItem(NPC_OVERRIDE_KEY);
   syncNpcEditorFields();
+  const spSel = document.getElementById("npc-edit-species");
+  if (spSel) spSel.value = st.species || "Người";
   renderVaultCards();
   pushReceipt("> Đã đặt lại ảnh & dáng NPC về mặc định của config.js.");
 });
