@@ -1,22 +1,43 @@
 /* ==========================================================================
-   2 TEMPLATE MÀU:
-   1. cyber-violet (Mặc định): #3F136D / #6F1594 / #221A6C / #3BB8F8 / #F787F8
-   2. acid: #B2F601 / #62C0F6 / #343645
+   4 TEMPLATE MÀU ĐỒNG BỘ CSS + THREE.JS WEBGL:
+   1. orbital-cyan (Mặc định): Xanh Băng Vũ Trụ chuẩn 4 ảnh concept
+   2. cyber-violet: Tím-Xanh nguyên bản
+   3. acid: Acid-Xanh nguyên bản
+   4. crimson-karma: Đỏ Báo Ứng / Vàng Nhân Quả
    ========================================================================== */
 
 :root,
+[data-theme="orbital-cyan"] {
+  --bg-void: #020612;
+  --bg-deep: #071936;
+  --bg-glass: rgba(6, 24, 58, 0.34);
+  --bg-glass-strong: rgba(4, 13, 34, 0.78);
+  --text-main: #e8f8ff;
+  --text-muted: #82b4d8;
+  --c-primary: #00e5ff;
+  --c-secondary: #5ea8ff;
+  --c-mid: #0a3c78;
+  --c-dark: #041634;
+  --c-ember: #b8fbff;
+  --rgb-primary: 0, 229, 255;
+  --rgb-secondary: 94, 168, 255;
+  --glow-primary: rgba(0, 229, 255, 0.58);
+  --glow-secondary: rgba(94, 168, 255, 0.5);
+  --floor-grid: rgba(0, 229, 255, 0.18);
+}
+
 [data-theme="cyber-violet"] {
   --bg-void: #050512;
   --bg-deep: #130b33;
-  --bg-glass: rgba(34, 26, 108, 0.24);      /* #221A6C trong suốt */
-  --bg-glass-strong: rgba(20, 12, 54, 0.72);
+  --bg-glass: rgba(34, 26, 108, 0.28);
+  --bg-glass-strong: rgba(16, 10, 44, 0.8);
   --text-main: #eef7ff;
   --text-muted: #98a8df;
-  --c-primary: #3BB8F8;                     /* Cyan điện quang */
-  --c-secondary: #F787F8;                   /* Hồng tím neon */
-  --c-mid: #6F1594;
-  --c-dark: #3F136D;
-  --c-ember: #F787F8;
+  --c-primary: #3bb8f8;
+  --c-secondary: #f787f8;
+  --c-mid: #6f1594;
+  --c-dark: #3f136d;
+  --c-ember: #f787f8;
   --rgb-primary: 59, 184, 248;
   --rgb-secondary: 247, 135, 248;
   --glow-primary: rgba(59, 184, 248, 0.55);
@@ -27,18 +48,37 @@
 [data-theme="acid"] {
   --bg-void: #090b10;
   --bg-deep: #1a1d26;
-  --bg-glass: rgba(52, 54, 69, 0.28);       /* #343645 trong suốt */
-  --bg-glass-strong: rgba(28, 30, 40, 0.78);
+  --bg-glass: rgba(52, 54, 69, 0.3);
+  --bg-glass-strong: rgba(22, 24, 34, 0.82);
   --text-main: #f3fde6;
   --text-muted: #95abc0;
-  --c-primary: #62C0F6;                     /* Xanh điện */
-  --c-secondary: #B2F601;                   /* Vàng chanh Acid */
+  --c-primary: #62c0f6;
+  --c-secondary: #b2f601;
   --c-mid: #343645;
   --c-dark: #21232e;
-  --c-ember: #B2F601;
+  --c-ember: #b2f601;
   --rgb-primary: 98, 192, 246;
   --rgb-secondary: 178, 246, 1;
   --glow-primary: rgba(98, 192, 246, 0.52);
   --glow-secondary: rgba(178, 246, 1, 0.5);
   --floor-grid: rgba(98, 192, 246, 0.15);
+}
+
+[data-theme="crimson-karma"] {
+  --bg-void: #0a0206;
+  --bg-deep: #240712;
+  --bg-glass: rgba(56, 10, 24, 0.34);
+  --bg-glass-strong: rgba(24, 5, 12, 0.82);
+  --text-main: #fff1f3;
+  --text-muted: #d4949f;
+  --c-primary: #ff2e54;
+  --c-secondary: #f5b700;
+  --c-mid: #6e0e26;
+  --c-dark: #380513;
+  --c-ember: #ffd166;
+  --rgb-primary: 255, 46, 84;
+  --rgb-secondary: 245, 183, 0;
+  --glow-primary: rgba(255, 46, 84, 0.56);
+  --glow-secondary: rgba(245, 183, 0, 0.5);
+  --floor-grid: rgba(255, 46, 84, 0.18);
 }

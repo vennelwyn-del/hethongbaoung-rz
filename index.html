@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="cyber-violet">
+<html lang="vi" data-theme="orbital-cyan">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +27,7 @@
         <span class="brand-glyph">⚖️</span>
         <span class="brand-text">
           <strong>BÁO ỨNG // VR-00</strong>
-          <small>TRANG CHỦ HỆ THỐNG</small>
+          <small>ORBITAL GATE TERMINAL</small>
         </span>
       </a>
     </div>
@@ -43,12 +43,18 @@
         <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.05" value="0.35" />
       </div>
 
-      <div class="theme-switcher" role="group">
-        <button class="theme-dot" data-set-theme="cyber-violet" title="Template 1: Tím-Xanh">
+      <div class="theme-switcher" role="group" aria-label="Chọn giao diện màu">
+        <button class="theme-dot" data-set-theme="orbital-cyan" title="Vũ Trụ Xanh Băng">
+          <span style="background: linear-gradient(135deg, #00E5FF, #5EA8FF, #071936);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="cyber-violet" title="Tím-Xanh Cyber">
           <span style="background: linear-gradient(135deg, #3F136D, #3BB8F8, #F787F8);"></span>
         </button>
-        <button class="theme-dot" data-set-theme="acid" title="Template 2: Acid-Xanh">
+        <button class="theme-dot" data-set-theme="acid" title="Acid-Xanh">
           <span style="background: linear-gradient(135deg, #B2F601, #62C0F6, #343645);"></span>
+        </button>
+        <button class="theme-dot" data-set-theme="crimson-karma" title="Đỏ Báo Ứng / Vàng Nhân Quả">
+          <span style="background: linear-gradient(135deg, #FF2E54, #F5B700, #240712);"></span>
         </button>
       </div>
 
@@ -60,20 +66,25 @@
     </div>
   </header>
 
-  <!-- GIAO DIỆN 1: RADIAL TECH GATE THEO ẢNH 2 -->
+  <!-- GIAO DIỆN 1: CỔNG QUỸ ĐẠO VŨ TRỤ VR (ẢNH 2) -->
   <main class="vr-room">
     <section class="radial-gate-stage" id="screen-gate">
-      <!-- Dải mạch điện bên trái -->
-      <div class="circuit-wing left-wing" aria-hidden="true">
-        <div class="data-blocks"><i></i><i></i><i class="lit"></i><i></i></div>
-        <div class="circuit-track"><span class="chevrons">◀◀◀◀◀</span></div>
-        <div class="circuit-subline"></div>
-      </div>
+      <!-- Bảng Holo Trái -->
+      <aside class="hoyo-frame gate-wing-panel wing-left-gate" aria-hidden="true">
+        <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
+        <span class="wing-kicker">ORBITAL STATION // KARMIC-00</span>
+        <div class="wing-stat-line"><span>ĐỘ CAO QUỸ ĐẠO</span><strong>42,180 KM</strong></div>
+        <div class="wing-stat-line"><span>LƯỚI THẬP ĐIỆN</span><strong>10 KHU VỰC</strong></div>
+        <div class="wing-stat-line"><span>PHÍ TRUYỀN TỐNG</span><strong>-100.00 PB</strong></div>
+        <div class="circuit-wing">
+          <div class="data-blocks"><i></i><i></i><i class="lit"></i><i></i></div>
+          <div class="circuit-track"><span class="chevrons">◀◀◀◀◀</span></div>
+        </div>
+      </aside>
 
       <!-- Cổng tròn trung tâm + 8 tia nút tọa độ -->
       <button class="holo-gate radial-core-btn" id="portal-gate" type="button" aria-label="Nhấn để vào Hệ Thống Báo Ứng">
         <svg class="gate-svg g-rays" viewBox="0 0 500 500" aria-hidden="true">
-          <!-- 8 tia phóng xạ kết thúc bằng chấm tròn giống Ảnh 2 -->
           <line x1="250" y1="250" x2="290" y2="38" /><circle cx="290" cy="38" r="5" />
           <line x1="250" y1="250" x2="425" y2="95" /><circle cx="425" cy="95" r="5" />
           <line x1="250" y1="250" x2="470" y2="250" /><circle cx="470" cy="250" r="4.5" />
@@ -92,6 +103,9 @@
           <circle cx="210" cy="210" r="150" stroke-dasharray="36 12 8 12" />
           <circle cx="210" cy="210" r="136" stroke-dasharray="3 4" />
         </svg>
+        <svg class="gate-svg g-ring-3" viewBox="0 0 420 420" aria-hidden="true">
+          <circle cx="210" cy="210" r="122" stroke-dasharray="28 64" />
+        </svg>
 
         <div class="gate-touch-core">
           <div class="scan-laser" id="gate-scan-laser"></div>
@@ -102,18 +116,25 @@
         </div>
       </button>
 
-      <!-- Dải mạch điện bên phải -->
-      <div class="circuit-wing right-wing" aria-hidden="true">
-        <div class="data-blocks"><i class="lit"></i><i></i><i></i><i class="lit"></i></div>
-        <div class="circuit-track"><span class="chevrons">▶▶▶▶▶</span></div>
-        <div class="circuit-subline"></div>
-      </div>
+      <!-- Bảng Holo Phải -->
+      <aside class="hoyo-frame gate-wing-panel wing-right-gate" aria-hidden="true">
+        <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
+        <span class="wing-kicker">CAUSALITY AUDITOR // v4.0</span>
+        <div class="wing-stat-line"><span>CHẾ ĐỘ MÔ PHỎNG</span><strong>VR FULL 3D</strong></div>
+        <div class="wing-stat-line"><span>LÃI SUẤT TÍN DỤNG</span><strong>10% / 10 TURN</strong></div>
+        <div class="wing-stat-line"><span>TÍN HIỆU MẬT MÃ</span><strong>SIG: Sd.</strong></div>
+        <div class="circuit-wing">
+          <div class="data-blocks"><i class="lit"></i><i></i><i></i><i class="lit"></i></div>
+          <div class="circuit-track"><span class="chevrons">▶▶▶▶▶</span></div>
+        </div>
+      </aside>
     </section>
   </main>
 
   <!-- MODAL TÀI KHOẢN FIREBASE -->
   <div class="modal-backdrop hidden" id="modal-auth">
-    <div class="sys-modal">
+    <div class="hoyo-frame sys-modal">
+      <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
       <div class="modal-head">
         <h3>🪪 TÀI KHOẢN CON NỢ // AVATAR &amp; FIREBASE</h3>
         <button class="modal-close" data-close-modal="modal-auth" type="button">✕</button>

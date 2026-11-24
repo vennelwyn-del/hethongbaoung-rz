@@ -1,4 +1,4 @@
-// js/holo-shader.js — GLSL Hologram Shader (Fresnel Rim Lighting + Animated Volumetric Scanlines + Glitch)
+// js/holo-shader.js — GLSL Hologram Shader (Fresnel Rim + Volumetric Scanlines + Micro Glitch)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
 
@@ -17,9 +17,9 @@ export function createHoloMaterial(colorHex, opacity = 0.72) {
 
       void main() {
         vec3 pos = position;
-        float glitchWave = sin(uTime * 11.0 + pos.y * 9.0);
-        float glitchMask = step(0.985, sin(uTime * 2.3));
-        pos.x += glitchWave * glitchMask * 0.04;
+        float glitchWave = sin(uTime * 13.0 + pos.y * 10.0);
+        float glitchMask = step(0.988, sin(uTime * 2.1));
+        pos.x += glitchWave * glitchMask * 0.045;
 
         vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
         vWorldPos = worldPosition.xyz;
@@ -41,16 +41,16 @@ export function createHoloMaterial(colorHex, opacity = 0.72) {
         vec3 normal = normalize(vNormal);
         vec3 viewDir = normalize(vViewPosition);
 
-        // Hiệu ứng Fresnel: Cạnh viền rực sáng hơn lõi
-        float fresnel = pow(1.0 - abs(dot(normal, viewDir)), 2.2);
+        float fresnel = pow(1.0 - abs(dot(normal, viewDir)), 2.1);
 
-        // Đường quét hologram chạy dọc vật thể 3D
-        float stripes = sin(vWorldPos.y * 26.0 - uTime * 5.2) * 0.5 + 0.5;
-        stripes = pow(stripes, 3.0);
+        float stripes = sin(vWorldPos.y * 28.0 - uTime * 5.6) * 0.5 + 0.5;
+        stripes = pow(stripes, 3.2);
 
-        float alpha = (fresnel * 0.85 + stripes * 0.28 + 0.08) * uOpacity;
-        vec3 glow = uColor * (1.2 + fresnel * 1.4 + stripes * 0.5);
-        gl_FragColor = vec4(glow, clamp(alpha, 0.0, 0.95));
+        float pulse = 0.92 + 0.08 * sin(uTime * 3.0 + vWorldPos.y * 1.5);
+        float alpha = (fresnel * 0.88 + stripes * 0.28 + 0.09) * uOpacity * pulse;
+        vec3 glow = uColor * (1.25 + fresnel * 1.55 + stripes * 0.55);
+
+        gl_FragColor = vec4(glow, clamp(alpha, 0.0, 0.96));
       }
     `,
     transparent: true,
