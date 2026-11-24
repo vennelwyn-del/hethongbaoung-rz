@@ -1,11 +1,11 @@
-// js/hub.js — Full Hub VR 3D + Live Preview + Báo Ứng Net + Tab 07 Hồ Sơ Mật (Giải đố & Lỗi Xâm Nhập Sd.)
+// js/hub.js — Bản Full hoàn chỉnh (Carousel 3D + Live Hồ Sơ + Báo Ứng Net + Kho Mật 3D Bio-Lab)
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
+import { initNpcMorph3D } from "./npc-morph-3d.js";
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
-import { initNpcMorph3D } from "./npc-morph-3d.js";
 import {
   getSavedSessionUsername,
   registerSimpleAccount,
@@ -138,7 +138,7 @@ const FORUM_EXTRA_POOL = [
   { authorLabel: "@Con_Nợ_Ẩn_Danh", authorSub: "Ẩn danh", avatarUrl: ANON_AVATAR, body: "Vừa thắng kiện tống cổ gã tổng tài vào tù xong, bước ra cổng tòa án oai phong lẫm liệt thì gãy gót giày lăn xuống cầu thang. Hệ Thống 00 lập tức trừ -2 PB phí làm trầy đá hoa cương bậc thềm." },
   { authorLabel: "@Tin_Đồn_Tầng_Thượng", authorSub: "Tin mật nội bộ", avatarUrl: ANON_AVATAR, body: "Đêm qua lại thấy Quý Cô tóc trắng cài hoa bốn cánh đứng ở lô VIP cao nhất sảnh đấu giá. Không ai tra ra nổi dòng tiền 80% phí dịch vụ chảy về tài khoản mang chữ ký Sd. cả..." }
 ];
-// DỮ LIỆU ĐẦY ĐỦ 6 NPC CỐ ĐỊNH + 4 VÙNG CHỈ ĐIỂM CƠ THỂ (BAO GỒM CẢ Sd.)
+
 const VAULT_NPCS = [
   {
     id: "sys00",
@@ -333,13 +333,15 @@ drawRadioScope();
 
 const radioToggle = document.getElementById("radio-toggle");
 const radioTrackName = document.getElementById("radio-track-name");
-radioTrackName.textContent = radio.currentTrackName;
-radioToggle.addEventListener("click", () => {
+if (radioTrackName) radioTrackName.textContent = radio.currentTrackName;
+radioToggle?.addEventListener("click", () => {
   const playing = radio.toggle();
   radioToggle.querySelector(".radio-icon").textContent = playing ? "❚❚" : "▶";
 });
-document.getElementById("radio-next").addEventListener("click", () => { radioTrackName.textContent = radio.nextTrack(); });
-document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
+document.getElementById("radio-next")?.addEventListener("click", () => {
+  if (radioTrackName) radioTrackName.textContent = radio.nextTrack();
+});
+document.getElementById("radio-vol")?.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
 // 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (7 THẺ)
 const galleryViewport = document.getElementById("gallery-viewport");
@@ -386,9 +388,7 @@ function layoutCoverflowCards() {
 }
 
 function animateCarousel() {
-  if (!isCarouselDragging) {
-    carouselPos += (carouselTarget - carouselPos) * 0.14;
-  }
+  if (!isCarouselDragging) carouselPos += (carouselTarget - carouselPos) * 0.14;
   layoutCoverflowCards();
   requestAnimationFrame(animateCarousel);
 }
@@ -404,7 +404,8 @@ function switchTab(tabId, snapCarousel = true) {
 
   tabCards.forEach((c) => c.classList.toggle("is-active", c.dataset.tab === tabId));
   document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
-  document.getElementById("quest-window-title").textContent = TAB_TITLES[tabId] || "SYSTEM INFO";
+  const titleEl = document.getElementById("quest-window-title");
+  if (titleEl) titleEl.textContent = TAB_TITLES[tabId] || "SYSTEM INFO";
 
   if (tabId === "tab-ranking") loadAndRenderLeaderboard();
   if (tabId === "tab-forum") loadAndRenderForum();
@@ -476,12 +477,12 @@ if (galleryViewport) {
   }, { passive: false });
 }
 
-document.getElementById("btn-slide-left").addEventListener("click", () => {
+document.getElementById("btn-slide-left")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   carouselTarget = Math.round(carouselTarget) - 1;
   switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
 });
-document.getElementById("btn-slide-right").addEventListener("click", () => {
+document.getElementById("btn-slide-right")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   carouselTarget = Math.round(carouselTarget) + 1;
   switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
@@ -489,7 +490,7 @@ document.getElementById("btn-slide-right").addEventListener("click", () => {
 
 window.addEventListener("resize", () => {
   layoutCoverflowCards();
-  if (!document.getElementById("tab-pyramid").classList.contains("hidden")) {
+  if (!document.getElementById("tab-pyramid")?.classList.contains("hidden")) {
     pyramid3D.resize();
     updateLaserPointerFrom3D();
   }
@@ -523,7 +524,7 @@ const pyramid3D = initInvertedPyramid3D({
   onSelectTier: (tierId) => selectPyramidTier(tierId, true),
   onProjectOrigin: (sx, sy) => {
     pyramidOriginScreen = { x: sx, y: sy };
-    if (!document.getElementById("tab-pyramid").classList.contains("hidden")) {
+    if (!document.getElementById("tab-pyramid")?.classList.contains("hidden")) {
       updateLaserPointerFrom3D();
     }
   }
@@ -550,7 +551,7 @@ function selectPyramidTier(tierId, playEffect = false) {
   document.getElementById("tier-rule").textContent = sec.rule;
 }
 
-document.getElementById("btn-lock-from-pyramid").addEventListener("click", () => {
+document.getElementById("btn-lock-from-pyramid")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   const sec = SECTORS.find((s) => s.id === state.selectedPyramidTier) || SECTORS[0];
   state.selectedSector = sec.name;
@@ -566,10 +567,11 @@ selectPyramidTier(1, false);
 
 // 6. RECEIPT, MÁY IN HÓA ĐƠN NHIỆT & STATS
 function pushReceipt(text) {
-  const p = document.createElement("p");
-  p.textContent = text;
-  receiptFeed.prepend(p);
-
+  if (receiptFeed) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    receiptFeed.prepend(p);
+  }
   if (thermalPaper) {
     const tp = document.createElement("p");
     tp.textContent = text;
@@ -580,11 +582,16 @@ function pushReceipt(text) {
 
 function updateStatsUI() {
   const pbText = state.contractLocked && typeof state.pb === "number" ? `${state.pb.toFixed(2)} PB` : "CHƯA KÝ HỢP ĐỒNG";
-  document.getElementById("hud-pb-side").textContent = pbText;
-  document.getElementById("hud-code-side").textContent = state.debtorCode || "CHƯA CẤP";
-  document.getElementById("hud-sector-badge").textContent = state.selectedSector;
-  document.getElementById("manifest-mode-label").textContent = MANIFEST_FORMS[state.manifestForm]?.label || "POS ĐEN HIỆN ĐẠI";
+  const pbSide = document.getElementById("hud-pb-side");
+  const codeSide = document.getElementById("hud-code-side");
+  const secSide = document.getElementById("hud-sector-badge");
+  const manSide = document.getElementById("manifest-mode-label");
   const profilePb = document.getElementById("profile-pb");
+
+  if (pbSide) pbSide.textContent = pbText;
+  if (codeSide) codeSide.textContent = state.debtorCode || "CHƯA CẤP";
+  if (secSide) secSide.textContent = state.selectedSector;
+  if (manSide) manSide.textContent = MANIFEST_FORMS[state.manifestForm]?.label || "POS ĐEN HIỆN ĐẠI";
   if (profilePb) profilePb.textContent = pbText;
 }
 
@@ -761,12 +768,13 @@ function renderAuditReceipt(bundle, isOfficial) {
   ].join("\n");
 
   document.getElementById("audit-receipt-box").textContent = displayReceipt;
-  document.getElementById("audit-result").classList.remove("hidden");
+  document.getElementById("audit-result")?.classList.remove("hidden");
   updateLiveDossierPreview();
 }
 
 function lockContractFormUI(profileObj) {
   const form = document.getElementById("contract-form");
+  if (!form) return;
   if (profileObj.lastProfile) {
     const lp = profileObj.lastProfile;
     document.getElementById("f-name").value = lp.name || "";
@@ -789,12 +797,13 @@ function lockContractFormUI(profileObj) {
   form.querySelectorAll("input, select, button").forEach((el) => { el.disabled = locked; });
   const fillBtn = document.getElementById("btn-fill-sample");
   if (fillBtn) fillBtn.disabled = locked;
-  document.getElementById("contract-lock-banner").classList.toggle("hidden", !locked);
-  document.getElementById("contract-status-badge").textContent = locked ? "ĐÃ NIÊM PHONG (1/1)" : "CHƯA KÝ CHÍNH THỨC";
+  document.getElementById("contract-lock-banner")?.classList.toggle("hidden", !locked);
+  const stBadge = document.getElementById("contract-status-badge");
+  if (stBadge) stBadge.textContent = locked ? "ĐÃ NIÊM PHONG (1/1)" : "CHƯA KÝ CHÍNH THỨC";
   updateLiveDossierPreview();
 }
 
-document.getElementById("btn-sign-draft").addEventListener("click", () => {
+document.getElementById("btn-sign-draft")?.addEventListener("click", () => {
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
   const bundle = buildAuditBundle();
@@ -803,7 +812,7 @@ document.getElementById("btn-sign-draft").addEventListener("click", () => {
   pushReceipt(`【BẢN NHÁP】: Random thử ${bundle.finalPB.toFixed(2)} PB.`);
 });
 
-document.getElementById("contract-form").addEventListener("submit", async (e) => {
+contractFormEl?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
@@ -837,9 +846,9 @@ function copyDossierWithFeedback(triggerBtn) {
 
 document.getElementById("btn-copy-dossier")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
 document.getElementById("btn-copy-live")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
-document.getElementById("btn-goto-rank").addEventListener("click", () => switchTab("tab-ranking"));
+document.getElementById("btn-goto-rank")?.addEventListener("click", () => switchTab("tab-ranking"));
 
-// 8. BẢNG XẾP HẠNG 24H GMT+7
+// 8. BẢNG XẾP HẠNG 24H GMT+7 + ĐỒNG HỒ CHU KỲ
 function getGMT7Info() {
   const gmt7Ms = Date.now() + 7 * 3600 * 1000;
   const d = new Date(gmt7Ms);
@@ -858,10 +867,12 @@ function hashSeed(str) {
   return h >>> 0;
 }
 
+let lastVaultDateKey = getGMT7Info().dateKey;
 const DAILY_TAGS = ["Đang cày nợ", "Vận đen cấp SSS", "Săn hào quang", "Khả nghi cao", "Đang bị Tạ Vô Cữu soi"];
 
 async function loadAndRenderLeaderboard() {
   const track = document.getElementById("rank-track");
+  if (!track) return;
   const { dateKey } = getGMT7Info();
   document.getElementById("rank-date-gmt7").textContent = dateKey;
   track.innerHTML = `<p class="muted" style="padding:12px;">Đang đồng bộ danh sách Con nợ từ Firebase...</p>`;
@@ -879,9 +890,11 @@ async function loadAndRenderLeaderboard() {
       block.innerHTML = `
         <div class="rank-num">#${String(idx + 1).padStart(2, "0")}</div>
         <img class="rank-avt" src="${u.avatarUrl || DEFAULT_AVATAR}" alt="Avatar" />
-        <div class="rank-info"><strong>${u.displayName} (${u.debtorCode})</strong><small>@${u.username} • ${u.sector}</small></div>
+        <div class="rank-info"><strong></strong><small></small></div>
         <div class="rank-pb">${u.meritBalance.toFixed(2)} PB<small>${tag}</small></div>
       `;
+      block.querySelector(".rank-info strong").textContent = `${u.displayName} (${u.debtorCode})`;
+      block.querySelector(".rank-info small").textContent = `@${u.username} • ${u.sector}`;
       track.appendChild(block);
     });
   } catch (err) {
@@ -889,34 +902,16 @@ async function loadAndRenderLeaderboard() {
   }
 }
 
-document.getElementById("btn-refresh-rank").addEventListener("click", () => {
+document.getElementById("btn-refresh-rank")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   loadAndRenderLeaderboard();
 });
-
-setInterval(() => {
-  const { dateKey, countdown, gmt7Time } = getGMT7Info();
-  document.getElementById("clock-utc").textContent = `${gmt7Time} +7`;
-  const cdEl = document.getElementById("rank-countdown");
-  const dtEl = document.getElementById("rank-date-gmt7");
-  if (cdEl) cdEl.textContent = countdown;
-  if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) loadAndRenderLeaderboard();
-  const vCdEl = document.getElementById("vault-countdown");
-  if (vCdEl) vCdEl.textContent = countdown;
-  if (lastVaultDateKey && lastVaultDateKey !== dateKey) {
-    lastVaultDateKey = dateKey;
-    renderVaultRiddles();
-    if (state.vaultUnlocked) setVaultState(false);
-    pushReceipt("【KÉT BẢO MẬT 24H】: Đã sang chu kỳ mới — Hệ thống tự động cập nhật bộ câu hỏi xác thực.");
-  }
-  const bytes = Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0"));
-  document.getElementById("hex-matrix").textContent = `0x${bytes.join(" ")}`;
-}, 1000);
 
 // 9. KHO TRỌNG ÁN + MÔ PHỎNG !NHIEMVU
 const sectorsGrid = document.getElementById("sectors-grid");
 let previewSector = SECTORS[0];
 function renderSectors() {
+  if (!sectorsGrid) return;
   sectorsGrid.innerHTML = "";
   for (const sec of SECTORS) {
     const btn = document.createElement("button");
@@ -935,14 +930,14 @@ function renderSectors() {
 }
 renderSectors();
 
-document.getElementById("btn-random-case").addEventListener("click", () => {
+document.getElementById("btn-random-case")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   previewSector = SECTORS[Math.floor(Math.random() * SECTORS.length)];
   document.getElementById("sd-title").textContent = `${previewSector.name} — ${previewSector.sub}`;
   document.getElementById("sd-desc").textContent = previewSector.desc;
   renderSectors();
 });
-document.getElementById("btn-lock-sector").addEventListener("click", () => {
+document.getElementById("btn-lock-sector")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   state.selectedSector = previewSector.name;
   if (!state.contractLocked) {
@@ -1017,19 +1012,21 @@ document.querySelectorAll(".manifest-btn").forEach((btn) =>
 setManifestForm("pos");
 
 const marketList = document.getElementById("market-list");
-for (const item of MARKET_ITEMS) {
-  const row = document.createElement("div");
-  row.className = "market-item";
-  row.innerHTML = `<div><h4>${item.name}</h4><p>${item.note}</p></div><button type="button" class="btn-secondary holo-tactile market-buy">${item.costPB} PB</button>`;
-  row.querySelector("button").addEventListener("click", async () => {
-    if (state.sfx) radio.playClickChime();
-    if (!state.contractLocked) { pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch."); return; }
-    state.pb = Number((state.pb + item.costPB).toFixed(2));
-    updateStatsUI();
-    pushReceipt(`【GIAO DỊCH】: ${item.name} (${item.costPB} PB).`);
-    if (state.username) await saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
-  });
-  marketList.appendChild(row);
+if (marketList) {
+  for (const item of MARKET_ITEMS) {
+    const row = document.createElement("div");
+    row.className = "market-item";
+    row.innerHTML = `<div><h4>${item.name}</h4><p>${item.note}</p></div><button type="button" class="btn-secondary holo-tactile market-buy">${item.costPB} PB</button>`;
+    row.querySelector("button").addEventListener("click", async () => {
+      if (state.sfx) radio.playClickChime();
+      if (!state.contractLocked) { pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch."); return; }
+      state.pb = Number((state.pb + item.costPB).toFixed(2));
+      updateStatsUI();
+      pushReceipt(`【GIAO DỊCH】: ${item.name} (${item.costPB} PB).`);
+      if (state.username) await saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
+    });
+    marketList.appendChild(row);
+  }
 }
 
 // 11. DIỄN ĐÀN !DIENDAN + BÌNH LUẬN USER
@@ -1132,11 +1129,8 @@ function createForumPostElement(post) {
 async function loadAndRenderForum() {
   if (!forumFeed) return;
   let userPosts = [];
-  try {
-    userPosts = await fetchForumComments(40);
-  } catch (_) {
-    userPosts = [];
-  }
+  try { userPosts = await fetchForumComments(40); }
+  catch (_) { userPosts = []; }
   const allPosts = [...state.extraForumSysPosts, ...userPosts, ...FORUM_POSTS_BASE];
   forumFeed.innerHTML = "";
   allPosts.forEach((p) => forumFeed.appendChild(createForumPostElement(p)));
@@ -1185,7 +1179,7 @@ document.getElementById("forum-composer")?.addEventListener("submit", async (e) 
     await loadAndRenderForum();
     pushReceipt(
       saved.localOnly
-        ? `【BÁO ỨNG NET (TẠM TRÊN MÁY)】: Firebase đang khóa quyền ghi — hãy Publish Rules trên Firebase Console để đồng bộ mọi người.`
+        ? `【BÁO ỨNG NET (TẠM TRÊN MÁY)】: Firebase đang khóa quyền ghi — hãy Publish Rules trên Firebase Console.`
         : `【BÁO ỨNG NET】: Đã đăng bình luận dưới danh nghĩa [${payload.authorLabel}].`
     );
   } catch (err) {
@@ -1195,7 +1189,7 @@ document.getElementById("forum-composer")?.addEventListener("submit", async (e) 
   }
 });
 
-document.getElementById("btn-refresh-forum").addEventListener("click", async () => {
+document.getElementById("btn-refresh-forum")?.addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
   const extra = FORUM_EXTRA_POOL[Math.floor(Math.random() * FORUM_EXTRA_POOL.length)];
   const livePost = {
@@ -1218,7 +1212,8 @@ document.getElementById("btn-goto-vault")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   switchTab("tab-vault", true);
 });
-// 12. TAB 07: KHO HỒ SƠ MẬT (ĐỐ 24H + LẬT THẺ LOADING -> PHÓNG TO BIO-LAB + BÁO ĐỘNG Sd.)
+
+// 12. TAB 07: KHO HỒ SƠ MẬT (5 BỘ ĐỀ 24H + GỢI Ý TỰ HỦY + MÔ HÌNH 3D + BIO-LAB + BÁO ĐỘNG Sd.)
 const VAULT_PROTOCOLS = [
   {
     passcode: "57223",
@@ -1302,14 +1297,12 @@ function getMergedNpcStats(npcId) {
   const ov = getNpcOverrides()[npcId] || {};
   return { ...base, ...ov };
 }
-
 function getDailyVaultProtocolIndex() {
   const { dateKey } = getGMT7Info();
   return hashSeed(`vault_daily:${dateKey}`) % VAULT_PROTOCOLS.length;
 }
 
 let activeProtocolIdx = getDailyVaultProtocolIndex();
-let lastVaultDateKey = getGMT7Info().dateKey;
 let vaultAttempts = 0;
 let cardLoadTimer = null;
 
@@ -1327,6 +1320,18 @@ const npcDossierModal = document.getElementById("npc-dossier-modal");
 let intrusionInterval = null;
 let intrusionTimeout = null;
 let savedThemeBeforeAlarm = null;
+let hintSelfDestructInterval = null;
+let hintSelfDestructTimeout = null;
+
+function clearVaultHintBox() {
+  clearInterval(hintSelfDestructInterval);
+  clearTimeout(hintSelfDestructTimeout);
+  state.vaultHintStep = 0;
+  if (vaultHintBox) {
+    vaultHintBox.classList.add("hidden");
+    vaultHintBox.innerHTML = "";
+  }
+}
 
 function renderVaultRiddles() {
   activeProtocolIdx = getDailyVaultProtocolIndex();
@@ -1338,11 +1343,10 @@ function renderVaultRiddles() {
   if (titleEl) titleEl.textContent = "🔐 KÉT LƯU TRỮ HỒ SƠ MẬT — XÁC THỰC TRÍ TUỆ";
   if (listEl) listEl.innerHTML = proto.riddles.map((r) => `<li>${r}</li>`).join("");
 
-  state.vaultHintStep = 0;
+  clearVaultHintBox();
   vaultAttempts = 0;
   if (vaultHintBtn) vaultHintBtn.textContent = "💡 HỎI TIỂU THẤT";
   if (vaultErrMsg) vaultErrMsg.textContent = "";
-  vaultHintBox?.classList.add("hidden");
   const inp = document.getElementById("vault-pass-input");
   if (inp) inp.value = "";
 }
@@ -1393,7 +1397,7 @@ document.getElementById("btn-dismiss-intrusion")?.addEventListener("click", () =
   pushReceipt("> Đã ngắt tín hiệu báo động thủ công.");
 });
 
-// KHỞI TẠO MÔ HÌNH 3D XOAY 360 + CHỈ ĐIỂM VÙNG + BIỂU ĐỒ AI CHẠY TRỰC TIẾP
+// MÔ HÌNH 3D XOAY 360 + CHỈ ĐIỂM VÙNG + BIỂU ĐỒ AI CHẠY
 let currentLabNpc = null;
 let currentLabZone = "head";
 let aiChartTimer = null;
@@ -1492,14 +1496,12 @@ function startAiLabTelemetryLoop(npc, stats) {
       aiPhase += 0.08;
       ctx.clearRect(0, 0, w, h);
 
-      // Lưới nền
       ctx.strokeStyle = `rgba(${pRgb}, 0.14)`;
       ctx.lineWidth = 1;
       for (let y = 22; y < h; y += 22) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
 
-      // Biểu đồ cột AI dao động (giống Ảnh 2 & 3)
       const colW = w / aiBars.length;
       for (let i = 0; i < aiBars.length; i++) {
         aiBars[i] += (Math.random() - 0.5) * 14;
@@ -1509,7 +1511,6 @@ function startAiLabTelemetryLoop(npc, stats) {
         ctx.fillRect(i * colW + 3, h - bh, colW - 6, bh);
       }
 
-      // Đường sóng tần số AI chạy phía trước
       ctx.strokeStyle = `rgba(${sRgb}, 0.95)`;
       ctx.lineWidth = 1.8;
       ctx.beginPath();
@@ -1540,7 +1541,6 @@ function openNpcBioLabModal(npc) {
   document.getElementById("lab-npc-name").textContent = npc.name;
   document.getElementById("lab-npc-role").textContent = `${npc.role} • ${stats.build || ""}`;
 
-  // Góc trái: Ảnh NPC hoặc khung Holo trống
   const portraitBox = document.getElementById("lab-portrait-box");
   if (portraitBox) {
     if ((stats.avatarUrl || "").trim()) {
@@ -1550,7 +1550,6 @@ function openNpcBioLabModal(npc) {
     }
   }
 
-  // Vital Matrix bên trái
   const vitalList = document.getElementById("lab-vital-list");
   if (vitalList) {
     const vitals = [
@@ -1563,7 +1562,6 @@ function openNpcBioLabModal(npc) {
     vitalList.innerHTML = vitals.map(([k, v]) => `<div class="vital-row"><span>${k}</span><strong>${v}</strong></div>`).join("");
   }
 
-  // Bên phải: Dáng 3D theo giới tính/chiều cao/cân nặng
   document.getElementById("lab-morph-tag").textContent = `${(stats.gender || "Nam").toUpperCase()} • ${h} CM`;
   document.getElementById("lab-morph-stats").innerHTML = `
     <div><small>GIỚI TÍNH</small><strong>${stats.gender || "Nam"}</strong></div>
@@ -1572,7 +1570,6 @@ function openNpcBioLabModal(npc) {
     <div><small>CÂN NẶNG / BMI</small><strong>${w > 0 ? `${w} KG (${bmiText})` : "PHI VẬT CHẤT"}</strong></div>
   `;
 
-  // Thanh LED phân đoạn
   const segList = document.getElementById("lab-seg-bars");
   if (segList) {
     const bars = stats.bars || [{ label: "SYNC LEVEL", val: 92 }];
@@ -1694,8 +1691,8 @@ function renderVaultCards() {
   });
 }
 
-// BẢNG SETTING ẢNH & DÁNG NPC (BAO GỒM CẢ NÚT XEM THỬ BIO-LAB 3D CHO CHỦ WEB)
-const vaultNpcEditorPanel = document.getElementById("npc-editor-panel");
+// BẢNG SETTING ẢNH & DÁNG NPC
+const npcEditorPanel = document.getElementById("npc-editor-panel");
 const npcEditSelect = document.getElementById("npc-edit-select");
 function syncNpcEditorFields() {
   if (!npcEditSelect) return;
@@ -1707,43 +1704,39 @@ function syncNpcEditorFields() {
 }
 document.getElementById("btn-toggle-npc-editor")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  vaultNpcEditorPanel?.classList.toggle("hidden");
+  npcEditorPanel?.classList.toggle("hidden");
   syncNpcEditorFields();
 });
 npcEditSelect?.addEventListener("change", syncNpcEditorFields);
 
 document.getElementById("btn-npc-preview-lab")?.addEventListener("click", () => {
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.accept = "image/*";
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files?.[0];
-    if (!file || !npcEditSelect?.value) return;
+  const npc = VAULT_NPCS.find((n) => n.id === npcEditSelect.value);
+  if (npc) openNpcBioLabModal(npc);
+});
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const c = document.createElement("canvas");
-        c.width = 512;
-        c.height = 512;
-        const ctx = c.getContext("2d");
-        if (!ctx) return;
-        const ratio = Math.max(c.width / img.width, c.height / img.height);
-        const nw = img.width * ratio, nh = img.height * ratio;
-        ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
-        const ov = getNpcOverrides();
-        const id = npcEditSelect.value;
-        ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
-        localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
-        renderVaultCards();
-        pushReceipt(`> Đã tải ảnh test cho NPC [${id}].`);
-      };
-      img.src = reader.result;
+document.getElementById("npc-edit-file")?.addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (!file || !npcEditSelect) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = 360; c.height = 440;
+      const ctx = c.getContext("2d");
+      const ratio = Math.max(c.width / img.width, c.height / img.height);
+      const nw = img.width * ratio, nh = img.height * ratio;
+      ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
+      const ov = getNpcOverrides();
+      const id = npcEditSelect.value;
+      ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
+      localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
+      renderVaultCards();
+      pushReceipt(`> Đã tải ảnh test cho NPC [${id}].`);
     };
-    reader.readAsDataURL(file);
-  });
-  fileInput.click();
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 });
 
 npcEditorPanel?.addEventListener("submit", (e) => {
@@ -1880,6 +1873,33 @@ document.getElementById("btn-vault-lock")?.addEventListener("click", () => {
 
 renderVaultRiddles();
 
+// ĐỒNG HỒ CHU KỲ 24H GMT+7 (BXH + KÉT BẢO MẬT)
+setInterval(() => {
+  const { dateKey, countdown, gmt7Time } = getGMT7Info();
+  const clockEl = document.getElementById("clock-utc");
+  if (clockEl) clockEl.textContent = `${gmt7Time} +7`;
+
+  const cdEl = document.getElementById("rank-countdown");
+  const dtEl = document.getElementById("rank-date-gmt7");
+  if (cdEl) cdEl.textContent = countdown;
+  if (dtEl && dtEl.textContent !== "----/--/--" && dtEl.textContent !== dateKey) loadAndRenderLeaderboard();
+
+  const vCdEl = document.getElementById("vault-countdown");
+  if (vCdEl) vCdEl.textContent = countdown;
+  if (lastVaultDateKey && lastVaultDateKey !== dateKey) {
+    lastVaultDateKey = dateKey;
+    renderVaultRiddles();
+    if (state.vaultUnlocked) setVaultState(false);
+    pushReceipt("【KÉT BẢO MẬT 24H】: Đã sang chu kỳ mới — Hệ thống tự động cập nhật bộ câu hỏi xác thực.");
+  }
+
+  const hexEl = document.getElementById("hex-matrix");
+  if (hexEl) {
+    const bytes = Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0"));
+    hexEl.textContent = `0x${bytes.join(" ")}`;
+  }
+}, 1000);
+
 // 13. MÁY IN HÓA ĐƠN NHIỆT & LỆNH NHANH CÁNH PHẢI
 document.getElementById("btn-print-receipt")?.addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
@@ -1914,12 +1934,12 @@ document.querySelectorAll("[data-cmd]").forEach((btn) => {
 });
 
 // 14. MODAL TÀI KHOẢN & AVATAR
-const openModal = (id) => document.getElementById(id).classList.remove("hidden");
-const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+const openModal = (id) => document.getElementById(id)?.classList.remove("hidden");
+const closeModal = (id) => document.getElementById(id)?.classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) =>
   btn.addEventListener("click", () => closeModal(btn.dataset.closeModal))
 );
-document.getElementById("btn-auth").addEventListener("click", () => openModal("modal-auth"));
+document.getElementById("btn-auth")?.addEventListener("click", () => openModal("modal-auth"));
 
 const authOut = document.getElementById("auth-logged-out");
 const authIn = document.getElementById("auth-logged-in");
@@ -1934,10 +1954,12 @@ function applyProfileUI(profile) {
     state.pb = null;
     state.debtorCode = "CHƯA CẤP";
     state.forumPostMode = "anon";
-    document.getElementById("user-dot").classList.remove("online");
-    topAvatar.classList.add("hidden");
-    document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
-    authOut.classList.remove("hidden"); authIn.classList.add("hidden");
+    document.getElementById("user-dot")?.classList.remove("online");
+    topAvatar?.classList.add("hidden");
+    const uLbl = document.getElementById("user-label");
+    if (uLbl) uLbl.textContent = "ĐĂNG NHẬP";
+    authOut?.classList.remove("hidden");
+    authIn?.classList.add("hidden");
     lockContractFormUI({ contractLocked: false });
     updateStatsUI();
     updateForumIdentityUI();
@@ -1954,15 +1976,18 @@ function applyProfileUI(profile) {
   if (profile.theme && VALID_THEMES.includes(profile.theme)) applyTheme(profile.theme, false);
 
   const avt = profile.avatarUrl || DEFAULT_AVATAR;
-  topAvatar.src = avt; topAvatar.classList.remove("hidden");
-  document.getElementById("profile-avatar").src = avt;
-  document.getElementById("avatar-url-input").value = profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : "";
+  if (topAvatar) { topAvatar.src = avt; topAvatar.classList.remove("hidden"); }
+  const profAvt = document.getElementById("profile-avatar");
+  if (profAvt) profAvt.src = avt;
+  const avtInput = document.getElementById("avatar-url-input");
+  if (avtInput) avtInput.value = profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : "";
 
-  document.getElementById("user-dot").classList.add("online");
+  document.getElementById("user-dot")?.classList.add("online");
   document.getElementById("user-label").textContent = profile.displayName || profile.username;
   document.getElementById("profile-name").textContent = state.contractLocked ? `Con nợ ${state.debtorCode} (Đã khóa)` : "Chưa ký hợp đồng chính thức";
   document.getElementById("profile-username").textContent = `@${profile.username}`;
-  authOut.classList.add("hidden"); authIn.classList.remove("hidden");
+  authOut?.classList.add("hidden");
+  authIn?.classList.remove("hidden");
 
   lockContractFormUI(profile);
   updateStatsUI();
@@ -1990,13 +2015,13 @@ function compressImageToDataUrl(file) {
   });
 }
 
-document.getElementById("btn-save-avatar-url").addEventListener("click", async () => {
+document.getElementById("btn-save-avatar-url")?.addEventListener("click", async () => {
   if (!state.username) return;
   await saveDebtorState(state.username, { avatarUrl: document.getElementById("avatar-url-input").value.trim() });
   applyProfileUI(await fetchDebtorByUsername(state.username));
   document.getElementById("auth-sync-msg").textContent = "Đã lưu Avatar lên Firebase.";
 });
-document.getElementById("avatar-file-input").addEventListener("change", async (e) => {
+document.getElementById("avatar-file-input")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file || !state.username) return;
   try {
@@ -2016,7 +2041,7 @@ async function restoreSession() {
   } catch { applyProfileUI(null); }
 }
 
-document.getElementById("simple-auth-form").addEventListener("submit", async (e) => {
+document.getElementById("simple-auth-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
     authMsg.textContent = "Đang đăng nhập...";
@@ -2025,7 +2050,7 @@ document.getElementById("simple-auth-form").addEventListener("submit", async (e)
     closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
-document.getElementById("btn-register-simple").addEventListener("click", async () => {
+document.getElementById("btn-register-simple")?.addEventListener("click", async () => {
   try {
     authMsg.textContent = "Đang tạo tài khoản...";
     applyProfileUI(await registerSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
@@ -2033,7 +2058,7 @@ document.getElementById("btn-register-simple").addEventListener("click", async (
     closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
-document.getElementById("btn-logout").addEventListener("click", () => { logoutSimpleAccount(); applyProfileUI(null); });
+document.getElementById("btn-logout")?.addEventListener("click", () => { logoutSimpleAccount(); applyProfileUI(null); });
 
 // 15. DỮ LIỆU CHẠY VIỀN & ĐỒNG HỒ SINH TRẮC HỌC
 const railL = document.getElementById("stream-rail-left");
