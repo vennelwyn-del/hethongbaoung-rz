@@ -213,6 +213,25 @@
               <div class="card-mid-telemetry"><span>NET v4.0</span><span>SIG: Sd.</span></div>
               <div class="tab-caption"><strong>06 // BÁO ỨNG NET</strong><small>Diễn đàn nội bộ • Nhân sự Cục</small></div>
             </button>
+            <!-- THẺ 07: HỒ SƠ MẬT NHÂN SỰ CỤC (CÓ KHÓA PASS + CẢNH BÁO Sd.) -->
+            <button class="holo-tab-card" data-tab="tab-vault" type="button">
+              <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
+                <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
+                <path class="frame-inner" d="M22,12 H198 L208,22 V308 L198,318 H22 L12,308 V22 Z" />
+                <line class="rail-glow" x1="4" y1="108" x2="4" y2="222" />
+                <line class="rail-glow" x1="216" y1="108" x2="216" y2="222" />
+                <circle class="node-glow" cx="13" cy="13" r="4.5" /><circle class="node-glow" cx="207" cy="13" r="4.5" />
+                <circle class="node-glow" cx="13" cy="317" r="4.5" /><circle class="node-glow" cx="207" cy="317" r="4.5" />
+              </svg>
+              <div class="card-top-meta"><span>NODE // 07</span><em>LOCKED</em></div>
+              <div class="tab-visual">
+                <div class="reactor-rings" aria-hidden="true"><i></i><i></i></div>
+                <div class="circuit-arms" aria-hidden="true"></div>
+                <svg viewBox="0 0 64 64"><rect x="16" y="28" width="32" height="24" rx="4"/><path d="M22 28 V20 A10 10 0 0 1 42 20 V28"/><circle cx="32" cy="40" r="3.5"/><line x1="32" y1="43.5" x2="32" y2="47"/></svg>
+              </div>
+              <div class="card-mid-telemetry"><span>CLEARANCE: LV.5</span><span>ENCRYPTED</span></div>
+              <div class="tab-caption"><strong>07 // HỒ SƠ MẬT CỤC</strong><small>Giải đố mở khóa • Thẻ lật NPC &amp; Sd.</small></div>
+            </button>
           </div>
         </div>
 
@@ -487,8 +506,45 @@
           </form>
 
           <div class="forum-feed" id="forum-feed"></div>
-          <div class="pane-bar" style="margin-top: 18px;"><span>[ HỒ SƠ NHÂN SỰ CỐ ĐỊNH CỤC BÁO ỨNG ]</span></div>
-          <div class="entities-grid" id="entities-grid"></div>
+         <div class="vault-teaser-bar">
+            <span>🔐 Hồ sơ chi tiết các Nhân sự Cấp Cao Cục Báo Ứng đã được chuyển vào Kho Lưu Trữ Mật (Yêu cầu giải mã).</span>
+            <button class="btn-secondary holo-tactile mini-btn" id="btn-goto-vault" type="button">MỞ TAB 07: HỒ SƠ MẬT →</button>
+          </div>
+        </div>
+
+        <!-- TAB 7: KHO HỒ SƠ MẬT NHÂN SỰ CỤC (GIẢI ĐỐ PASS + LẬT THẺ 3D + LỖI XÂM NHẬP Sd.) -->
+        <div class="hub-panel hidden" id="tab-vault">
+          <!-- MÀN KHÓA GIẢI ĐỐ MẸO -->
+          <!-- MÀN KHÓA GIẢI ĐỐ MẸO & LOGIC CĂNG NÃO (3 BỘ ĐỀ XOAY VÒNG) -->
+          <div class="vault-lock-screen" id="vault-lock-screen">
+            <div class="vault-lock-header">
+              <div class="vault-header-top">
+                <span class="vault-badge" id="vault-protocol-badge">PROTOCOL ALPHA // LEVEL 5</span>
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-switch-protocol" type="button">🔄 ĐỔI BỘ ĐỀ KHÁC</button>
+              </div>
+              <h4 id="vault-protocol-title">🔐 KÉT BẢO MẬT: BẪY NGÔN TỪ &amp; TOÁN HỌC NGƯỢC</h4>
+              <p>Giải đúng <strong>5 câu đố vặn vẹo</strong> bên dưới (cẩn thận bẫy đọc lướt), ghép 5 chữ số theo đúng thứ tự để mở Kho Thẻ:</p>
+            </div>
+
+            <ol class="riddle-list" id="vault-riddle-list"></ol>
+
+            <form class="vault-pass-form" id="vault-riddle-form">
+              <input type="text" id="vault-pass-input" maxlength="8" placeholder="Nhập mật mã 5 số..." autocomplete="off" required />
+              <button class="btn-primary holo-tactile" type="submit">🔓 GIẢI MÃ TRUY CẬP</button>
+              <button class="btn-secondary holo-tactile" id="btn-vault-hint" type="button">💡 GỢI Ý CỦA TIỂU THẤT</button>
+            </form>
+            <p class="vault-msg" id="vault-error-msg"></p>
+            <div class="vault-hint-box hidden" id="vault-hint-box"></div>
+          </div>
+
+          <!-- KHO 6 THẺ LẬT 3D (SAU KHI MỞ PASS) -->
+          <div class="vault-cards-stage hidden" id="vault-cards-stage">
+            <div class="pane-bar">
+              <span>[ ĐÃ XÁC THỰC — BẤM VÀO TỪNG THẺ ĐỂ LẬT XEM HỒ SƠ MẬT ]</span>
+              <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
+            </div>
+            <div class="vault-cards-grid" id="vault-cards-grid"></div>
+          </div>
         </div>
 
         <!-- BIÊN LAI TRỰC TIẾP -->
@@ -593,7 +649,32 @@
       </div>
     </div>
   </div>
+  <!-- MÀN HÌNH CẢNH BÁO XÂM NHẬP HỆ THỐNG (KHI BẤM THẺ Sd.) -->
+  <div class="intrusion-overlay hidden" id="intrusion-overlay" role="alertdialog" aria-modal="true">
+    <div class="hazard-tape tape-top">
+      <span>⚠ WARNING // UNAUTHORIZED BREACH DETECTED // PHÁT HIỆN KẺ XÂM NHẬP HỆ THỐNG // ERROR 403 ⚠</span>
+    </div>
 
+    <div class="intrusion-alert-box">
+      <div class="intrusion-icon">⚠</div>
+      <div class="intrusion-code">SYSTEM ERROR 403 // CLEARANCE OMEGA VIOLATION</div>
+      <h2 class="intrusion-title">CẢNH BÁO: KẺ XÂM NHẬP HỆ THỐNG!</h2>
+      <p class="intrusion-desc">
+        <strong>KHÔNG CÓ QUYỀN TRUY CẬP HỒ SƠ [Sd.]</strong><br />
+        Hệ thống Kiểm toán Trung tâm đã khóa luồng dữ liệu, ghi nhận dấu vết linh hồn và phát lệnh truy vết khẩn cấp tới Thanh Tra Trưởng Tạ Vô Cữu.
+      </p>
+      <div class="intrusion-trace">
+        <span id="intrusion-status-line">TRACING SOUL SIGNATURE... LOCKDOWN IN PROGRESS</span>
+        <strong id="intrusion-timer">4.2s</strong>
+      </div>
+      <div class="intrusion-progress"><span id="intrusion-progress-bar"></span></div>
+      <button class="btn-ghost mini-btn" id="btn-dismiss-intrusion" type="button" style="margin-top:10px; border-color:rgba(255,80,100,0.45); color:#ffb3be;">Ngắt tín hiệu khẩn cấp</button>
+    </div>
+
+    <div class="hazard-tape tape-bottom">
+      <span>⚠ ACCESS DENIED // TRUY CẬP BỊ TỪ CHỐI // SYSTEM LOCKDOWN // DO NOT ATTEMPT AGAIN ⚠</span>
+    </div>
+  </div>
   <script type="module" src="./js/hub.js"></script>
 </body>
 </html>

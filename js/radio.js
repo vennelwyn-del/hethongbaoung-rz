@@ -1,4 +1,4 @@
-// js/radio.js — Phát danh sách nhạc từ js/config.js (tự fallback sang AI Synth nếu url rỗng)
+// js/radio.js — Nhạc nền, Âm thanh lật thẻ 3D & Còi báo động xâm nhập hệ thống (4.2 giây)
 
 import { SITE_CONFIG } from "./config.js";
 
@@ -22,6 +22,7 @@ export class SystemRadio {
     this.isPlaying = false;
     this.trackIndex = 0;
     this.volume = 0.35;
+    this.sirenStopFn = null;
   }
 
   get currentTrack() {
@@ -136,5 +137,95 @@ export class SystemRadio {
     gain.connect(this.ctx.destination);
     osc.start();
     osc.stop(this.ctx.currentTime + 0.17);
+  }
+
+  playFlipChime() {
+    this.initAudio();
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(340, now);
+    osc.frequency.exponentialRampToValueAtTime(840, now + 0.09);
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.13);
+  }
+
+  stopWarningSiren() {
+    if (this.sirenStopFn) {
+      this.sirenStopFn();
+      this.sirenStopFn = null;
+    }
+  }
+
+  // Còi báo động xâm nhập hệ thống kéo dài ~4.2 giây
+  playWarningSiren(durationSec = 4.2) {
+    this.stopWarningSiren();
+    this.initAudio();
+
+    const now = this.ctx.currentTime;
+    const endTime = now + durationSec;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1100;
+    filter.Q.value = 1.8;
+
+    const alarmGain = this.ctx.createGain();
+    const baseLevel = Math.max(0.14, this.volume * 0.42);
+    alarmGain.gain.setValueAtTime(0.001, now);
+    alarmGain.gain.exponentialRampToValueAtTime(baseLevel, now + 0.08);
+    alarmGain.gain.setValueAtTime(baseLevel, Math.max(now + 0.1, endTime - 0.35));
+    alarmGain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+
+    filter.connect(alarmGain);
+    alarmGain.connect(this.ctx.destination);
+
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    osc1.type = "sawtooth";
+    osc2.type = "square";
+
+    // LFO quét tần số còi hụ liên tục + nhịp đập cảnh báo
+    const sweepLfo = this.ctx.createOscillator();
+    const sweepDepth = this.ctx.createGain();
+    sweepLfo.type = "sine";
+    sweepLfo.frequency.value = 2.4; // ~2.4 nhịp hú mỗi giây
+    sweepDepth.gain.value = 230;
+
+    osc1.frequency.value = 690;
+    osc2.frequency.value = 696; // Lệch pha nhẹ tạo độ gắt sci-fi
+    sweepLfo.connect(sweepDepth);
+    sweepDepth.connect(osc1.frequency);
+    sweepDepth.connect(osc2.frequency);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+
+    osc1.start(now);
+    osc2.start(now);
+    sweepLfo.start(now);
+
+    osc1.stop(endTime + 0.02);
+    osc2.stop(endTime + 0.02);
+    sweepLfo.stop(endTime + 0.02);
+
+    this.sirenStopFn = () => {
+      try {
+        osc1.stop();
+        osc2.stop();
+        sweepLfo.stop();
+        osc1.disconnect();
+        osc2.disconnect();
+        sweepLfo.disconnect();
+        alarmGain.disconnect();
+      } catch (_) {}
+    };
+
+    return this.sirenStopFn;
   }
 }

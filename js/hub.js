@@ -1,4 +1,4 @@
-// js/hub.js — Full Hub VR 3D + Live Preview Hồ sơ + Bình luận Báo Ứng Net (Ẩn danh / Tài khoản login)
+// js/hub.js — Full Hub VR 3D + Live Preview + Báo Ứng Net + Tab 07 Hồ Sơ Mật (Giải đố & Lỗi Xâm Nhập Sd.)
 
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
@@ -25,6 +25,7 @@ const radio = new SystemRadio();
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23041634'/><text x='32' y='40' font-size='28' text-anchor='middle' fill='%2300E5FF'>⚖️</text></svg>";
 const ANON_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23081226'/><text x='32' y='41' font-size='28' text-anchor='middle' fill='%235EA8FF'>🎭</text></svg>";
 const VALID_THEMES = ["orbital-cyan", "cyber-violet", "acid", "crimson-karma"];
+
 let savedTheme = localStorage.getItem("bao_ung_theme") || "orbital-cyan";
 if (!VALID_THEMES.includes(savedTheme)) savedTheme = "orbital-cyan";
 
@@ -40,12 +41,14 @@ const state = {
   manifestForm: "pos",
   username: getSavedSessionUsername(),
   currentProfile: null,
-  forumPostMode: "account", // Mặc định theo tài khoản login; có thể đổi sang "anon"
+  forumPostMode: "account",
   extraForumSysPosts: [],
   lastDossierText: "",
   draftAudit: null,
   selectedPyramidTier: 1,
-  activeTabId: "tab-profile"
+  activeTabId: "tab-profile",
+  vaultUnlocked: false,
+  vaultHintStep: 0
 };
 
 const SECTORS = [
@@ -67,7 +70,8 @@ const TAB_TITLES = {
   "tab-ranking": "BẢNG XẾP HẠNG CON NỢ 24H",
   "tab-sectors": "KHO TRỌNG ÁN & MÔ PHỎNG !NHIEMVU",
   "tab-market": "CHỢ ĐEN LỤC NHA & HÌNH THÁI !HETHONG",
-  "tab-forum": "BÁO ỨNG NET v4.0 (!DIENDAN)"
+  "tab-forum": "BÁO ỨNG NET v4.0 (!DIENDAN)",
+  "tab-vault": "KHO HỒ SƠ MẬT NHÂN SỰ CỤC (BẢO MẬT)"
 };
 
 const CONTRACT_PACKAGES = [
@@ -134,13 +138,79 @@ const FORUM_EXTRA_POOL = [
   { authorLabel: "@Tin_Đồn_Tầng_Thượng", authorSub: "Tin mật nội bộ", avatarUrl: ANON_AVATAR, body: "Đêm qua lại thấy Quý Cô tóc trắng cài hoa bốn cánh đứng ở lô VIP cao nhất sảnh đấu giá. Không ai tra ra nổi dòng tiền 80% phí dịch vụ chảy về tài khoản mang chữ ký Sd. cả..." }
 ];
 
-const BUREAU_ENTITIES = [
-  { name: "Hệ Thống 00", role: "Kế Toán Viên Kiểm Toán", desc: "Quy đổi mọi bi kịch thành hóa đơn nhiệt từng số lẻ. Phí dịch vụ mặc định: 80%.", sealed: false },
-  { name: "Tạ Vô Cữu", role: "Tổng Kiểm Toán Trưởng", desc: "Đồng hồ quả quýt bạc chạy ngược. Thẩm phán / Pháp y lạnh lùng, dị ứng cẩu huyết.", sealed: false },
-  { name: "Lục Nha", role: "Trùm Chợ Đen Xuyên Không", desc: "Vết sẹo tia sét ở cổ, đồng xu dính máu. Bán vật tư vật lý lách luật không tính lãi Hệ thống.", sealed: false },
-  { name: "Ngu Hồng Diệp", role: "Giám Ngục Vọng Ngữ & Ái Dục", desc: "Tẩu thuốc bạc hoa bỉ ngạn, hương anh đào. Ghét nhất kẻ yếu đuối tha thứ tra nam.", sealed: false },
-  { name: "Tiểu Thất #707", role: "Thực Tập Sinh Hậu Đậu", desc: "Băng gạc quấn đầu, máy Casio liệt phím (+). Vô tình phá kịch bản kẻ thù bằng tai nạn vật lý.", sealed: false },
-  { name: "Quý Cô 'Sd.'", role: "[DỮ LIỆU NIÊM PHONG — TẦNG SSS]", desc: "Tuxedo đen, tóc trắng bạc, mắt xanh băng, hoa bốn cánh trên ve áo. Chân tướng chỉ mở tại Điện 10.", sealed: true }
+// DỮ LIỆU 6 THẺ LẬT 3D KHO HỒ SƠ MẬT (THẺ 06 Sd. KHÓA BÁO ĐỘNG ĐỎ)
+const VAULT_NPCS = [
+  {
+    id: "sys00",
+    code: "ID // 00",
+    clearance: "LEVEL 1",
+    emblem: "🧮",
+    name: "HỆ THỐNG 00",
+    role: "Kế Toán Viên Kiểm Toán",
+    artifact: "Bàn Tính Gãy & Cuộn Hóa Đơn Nhiệt",
+    scent: "Mùi giấy in nhiệt nóng rực & đồng xu kim loại",
+    bio: "Chương trình kiểm toán tự động mang tư duy tư bản tuyệt đối. Không an ủi, chỉ báo giá nẹp xương trả góp 18%/tuần và trừ thẳng 80% phí dịch vụ khi kết toán.",
+    quote: "“Khuyến nghị Ký chủ giữ bình tĩnh để tiết kiệm chi phí y tế.”"
+  },
+  {
+    id: "tavocuu",
+    code: "ID // 01",
+    clearance: "LEVEL 3",
+    emblem: "⚖️",
+    name: "TẠ VÔ CỮU",
+    role: "Tổng Kiểm Toán Trưởng",
+    artifact: "Đồng hồ quả quýt bạc vỡ mặt kính chạy ngược",
+    scent: "Tuyết lạnh đầu mùa, mực hồ sơ cũ & bạc hà khô",
+    bio: "Cao 1m88, thường giáng lâm dưới vỏ bọc Thẩm phán Tòa án Tối cao hoặc Pháp y độc lập. Cực ghét ủy mị cẩu huyết; chỉ công chứng đòn vả mặt khi có đủ bằng chứng thép.",
+    quote: "“Tôi đến để công chứng bản án kẻ thù giúp cô, hoặc ký giấy chứng tử cho cô.”"
+  },
+  {
+    id: "lucnha",
+    code: "ID // 02",
+    clearance: "LEVEL 3",
+    emblem: "🪙",
+    name: "LỤC NHA",
+    role: "Trùm Chợ Đen Xuyên Không",
+    artifact: "Sợi dây đỏ treo đồng xu cổ dính máu & sẹo tia sét",
+    scent: "Rượu trắng nặng độ, thuốc súng & đồng thau cũ",
+    bio: "Ký chủ đào tẩu sống trong các điểm mù tín hiệu, chuyên mở tiệm cầm đồ hẻm tối. Bán vật tư vật lý lách luật (máy nghe lén, mở khóa cơ, thuốc giảm đau) lấy tiền mặt.",
+    quote: "“Mua của con Hệ thống hút máu kia làm gì? Đưa năm trăm tệ đây anh lo cho.”"
+  },
+  {
+    id: "nguhongdiep",
+    code: "ID // 03",
+    clearance: "LEVEL 3",
+    emblem: "🚬",
+    name: "NGU HỒNG DIỆP",
+    role: "Giám Ngục Vọng Ngữ & Ái Dục",
+    artifact: "Tẩu thuốc bạc chạm hoa bỉ ngạn & quạt ngà",
+    scent: "Gỗ hồng mộc, rượu vang lâu năm & thuốc lá anh đào",
+    bio: "Quản lý Điện 1 & Điện 3, thường xuất hiện với vỏ bọc Luật sư ly hôn bất bại hoặc Bà trùm truyền thông. Thưởng đậm cho màn Hỏa táng tràng tàn nhẫn, ghét cay kẻ lụy tình.",
+    quote: "“Cưng định nghe hắn khóc thêm năm phút nữa hay tống hắn vào tù luôn chiều nay?”"
+  },
+  {
+    id: "tieuthat",
+    code: "ID // 04",
+    clearance: "LEVEL 1",
+    emblem: "🩹",
+    name: "TIỂU THẤT (#707)",
+    role: "Thực Tập Sinh Hậu Đậu",
+    artifact: "Cuộn băng gạc & máy Casio liệt phím dấu cộng (+)",
+    scent: "Băng y tế, bụi đất & mùi chập điện",
+    bio: "Ký chủ đời trước vỡ nợ nên bị giữ lại làm lao động không lương. Thường nhập vào trợ lý hậu đậu hoặc mèo hoang; tai nạn vật lý của cậu hay vô tình bóc phốt kẻ thù.",
+    quote: "“Đại ca ơi em trượt chân hất chậu nước trúng ổ máy chiếu... sao nó lại phát clip của ả vậy?!”"
+  },
+  {
+    id: "sd",
+    code: "OMEGA // Sd.",
+    clearance: "LEVEL 5 [LOCKED]",
+    emblem: "💠",
+    name: "QUÝ CÔ 'Sd.'",
+    role: "[DỮ LIỆU BỊ NIÊM PHONG]",
+    isSd: true,
+    bio: "ACCESS DENIED",
+    quote: ""
+  }
 ];
 
 const ARCHETYPE_RANGES = { villain: [2500, 3900], jinx: [900, 1800], scapegoat: [500, 1400], slave: [1100, 2200], avenger: [3800, 5500] };
@@ -234,7 +304,7 @@ radioToggle.addEventListener("click", () => {
 document.getElementById("radio-next").addEventListener("click", () => { radioTrackName.textContent = radio.nextTrack(); });
 document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (INFINITE CIRCULAR COVERFLOW)
+// 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (7 THẺ)
 const galleryViewport = document.getElementById("gallery-viewport");
 const tabCards = Array.from(document.querySelectorAll(".holo-tab-card"));
 const TOTAL_TABS = tabCards.length;
@@ -917,7 +987,7 @@ for (const item of MARKET_ITEMS) {
   marketList.appendChild(row);
 }
 
-// 11. DIỄN ĐÀN !DIENDAN + BÌNH LUẬN USER (MẶC ĐỊNH TÀI KHOẢN / CHUYỂN ẨN DANH)
+// 11. DIỄN ĐÀN !DIENDAN + BÌNH LUẬN USER
 const forumFeed = document.getElementById("forum-feed");
 const btnModeAccount = document.getElementById("btn-mode-account");
 const btnModeAnon = document.getElementById("btn-mode-anon");
@@ -960,10 +1030,7 @@ function updateForumIdentityUI() {
 
 btnModeAccount?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
-  if (!state.username) {
-    openModal("modal-auth");
-    return;
-  }
+  if (!state.username) { openModal("modal-auth"); return; }
   state.forumPostMode = "account";
   updateForumIdentityUI();
 });
@@ -1005,8 +1072,7 @@ function createForumPostElement(post) {
 
   const subSmall = document.createElement("small");
   const timeTxt = post.timestamp ? `${formatGMT7Timestamp(post.timestamp)} • ` : "";
-  const sectorTxt = post.sector ? `${post.sector}` : "";
-  subSmall.textContent = `${timeTxt}${post.authorSub || sectorTxt || "Báo Ứng Net"}`;
+  subSmall.textContent = `${timeTxt}${post.authorSub || post.sector || "Báo Ứng Net"}`;
 
   meta.append(authorSpan, subSmall);
   head.append(avt, meta);
@@ -1067,12 +1133,16 @@ document.getElementById("forum-composer")?.addEventListener("submit", async (e) 
           body: bodyText
         };
 
-    await postForumComment(payload);
+    const saved = await postForumComment(payload);
     if (state.sfx) radio.playClickChime();
     forumCommentInput.value = "";
     if (forumCharCount) forumCharCount.textContent = "0/500";
     await loadAndRenderForum();
-    pushReceipt(`【BÁO ỨNG NET】: Đã đăng bình luận dưới danh nghĩa [${payload.authorLabel}].`);
+    pushReceipt(
+      saved.localOnly
+        ? `【BÁO ỨNG NET (TẠM TRÊN MÁY)】: Firebase đang khóa quyền ghi — hãy Publish Rules trên Firebase Console để đồng bộ mọi người.`
+        : `【BÁO ỨNG NET】: Đã đăng bình luận dưới danh nghĩa [${payload.authorLabel}].`
+    );
   } catch (err) {
     pushReceipt(`【LỖI BÁO ỨNG NET】: ${err.message}`);
   } finally {
@@ -1099,15 +1169,254 @@ document.getElementById("btn-refresh-forum").addEventListener("click", async () 
   if (state.username) await saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
 });
 
-const entitiesGrid = document.getElementById("entities-grid");
-for (const ent of BUREAU_ENTITIES) {
-  const card = document.createElement("div");
-  card.className = `entity-card ${ent.sealed ? "is-sealed" : ""}`;
-  card.innerHTML = `<strong>${ent.name}</strong><small>${ent.role}</small><p>${ent.desc}</p>`;
-  entitiesGrid.appendChild(card);
+document.getElementById("btn-goto-vault")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  switchTab("tab-vault", true);
+});
+
+// 12. TAB 07: KHO HỒ SƠ MẬT (3 BỘ ĐỀ ĐỐ MẸO + LOGIC VẶN VẸO + LẬT THẺ 3D + BÁO ĐỘNG Sd.)
+const VAULT_PROTOCOLS = [
+  {
+    badge: "PROTOCOL ALPHA // CẤP ĐỘ: HẠI NÃO",
+    title: "🔐 BỘ ĐỀ 1: BẪY NGÔN TỪ, XÁC SUẤT & LOGIC THẨM VẤN",
+    passcode: "57223",
+    riddles: [
+      "<strong>Chữ số 1 (Bẫy đại số):</strong> Lục Nha bán một món đồ cổ <b>kèm hộp nhung</b> giá tổng cộng <b>110 tệ</b>. Biết món đồ cổ <b>đắt hơn chiếc hộp đúng 100 tệ</b>. Hỏi chiếc hộp giá bao nhiêu tệ?",
+      "<strong>Chữ số 2 (Bẫy găng tay):</strong> Trong ngăn kéo tối om có <b>6 chiếc găng tay đỏ</b> (3 trái, 3 phải) và <b>6 chiếc găng tay đen</b> (3 trái, 3 phải). Trong bóng tối không nhìn thấy gì, cần bốc ra <b>tối thiểu bao nhiêu chiếc</b> để <b>CHẮC CHẮN 100%</b> ghép được ít nhất <b>1 đôi hợp lệ cùng màu</b> (1 trái + 1 phải)?",
+      "<strong>Chữ số 3 (Bẫy lũy thừa):</strong> Hệ Thống 00 thả một loại virus nhân bản <b>gấp đôi số lượng sau mỗi 1 giây</b>. Đúng giây thứ <b>60</b> virus lấp đầy <b>100%</b> bộ nhớ. Hỏi từ lúc virus đạt mức <b>25%</b> thì cần chờ thêm <b>bao nhiêu giây nữa</b> để nó đầy 100%?",
+      "<strong>Chữ số 4 (Bẫy huyết thống):</strong> Tạ Vô Cữu giơ một bức ảnh lên và nói: <em>“Cha mẹ tôi không có con trai nào khác ngoài tôi, cũng không có con gái. Nhưng <b>cha của người trong ảnh</b> lại chính là <b>con trai của cha tôi</b>.”</em> Người trong ảnh là ai? (Nhập: <b>1</b> = Chính Tạ Vô Cữu | <b>2</b> = Con ruột của Tạ Vô Cữu | <b>3</b> = Cha của Tạ Vô Cữu | <b>4</b> = Em họ)",
+      "<strong>Chữ số 5 (Bẫy nói dối):</strong> Có 3 nghi phạm <b>A, B, C</b>; biết <b>chỉ có ĐÚNG 1 thủ phạm</b> và <b>chỉ có ĐÚNG 1 người nói thật</b> (2 kẻ còn lại nói dối). <b>A</b> khai: <em>“Tôi không trộm”</em>; <b>B</b> khai: <em>“A đã trộm”</em>; <b>C</b> khai: <em>“Tôi không trộm”</em>. Thủ phạm là ai? (Nhập: <b>1</b> = A | <b>2</b> = B | <b>3</b> = C | <b>0</b> = Vô nghiệm)"
+    ],
+    hint1: "💡 Tiểu Thất gợi ý: (1) Nếu hộp 10 tệ thì đồ cổ phải 110 tệ => tổng thành 120 mất rồi!; (2) Đừng nhầm với bài toán ĐÔI TẤT — găng tay có phân biệt Trái/Phải nên xui nhất là bốc hết 3 trái đỏ + 3 trái đen; (3) Virus gấp đôi mỗi giây nên lùi 1 giây là còn một nửa; (4) Đọc kỹ chữ “CHA CỦA người trong ảnh”; (5) Thử giả sử từng người là thủ phạm rồi đếm xem có đúng 1 người nói thật không!",
+    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Alpha là <b>57223</b> (Hộp 5 tệ • 7 chiếc găng • 2 giây cuối • Con ruột = 2 • Thủ phạm C = 3)."
+  },
+  {
+    badge: "PROTOCOL BETA // CẤP ĐỘ: VẶN VẸO",
+    title: "🔐 BỘ ĐỀ 2: NGHỊCH LÝ SỔ SÁCH, THANG CUỐN & BỨC TƯỜNG",
+    passcode: "49326",
+    riddles: [
+      "<strong>Chữ số 1 (Bẫy khoảng cách):</strong> Đồng hồ quả lắc ở Sảnh Chờ 00 gõ hết <b>4 tiếng chuông</b> lúc 4 giờ mất đúng <b>6 giây</b> (tính từ tiếng đầu đến tiếng cuối). Hỏi lúc <b>3 giờ</b>, nó mất <b>mấy giây</b> để gõ hết 3 tiếng chuông?",
+      "<strong>Chữ số 2 (Bẫy tờ vs trang):</strong> Cuốn sổ nợ dày 300 trang (đánh số từ trang 1 đến 300; mỗi <b>tờ</b> gồm 2 trang: mặt lẻ trước, mặt chẵn sau). Tiểu Thất lỡ tay xé rách sạch <b>từ trang 98 đến hết trang 113</b>. Hỏi cậu ta đã xé mất tổng cộng <b>bao nhiêu TỜ giấy</b>?",
+      "<strong>Chữ số 3 (Bẫy suy luận im lặng):</strong> Có 4 Con nợ bị đội <b>2 mũ Đen, 2 mũ Trắng</b> (cả 4 đều biết tỷ lệ này). Bức tường dày chắn giữa người số <b>1</b> và <b>2</b>. Số <b>4</b> nhìn thấy mũ của 3 &amp; 2; số <b>3</b> chỉ thấy mũ của 2; số <b>2</b> và <b>1</b> không thấy ai. Thực tế đang đội: <b>1(Đen), 2(Trắng), 3(Đen), 4(Trắng)</b>. Sau 1 phút cả đám im lặng, <b>người số mấy</b> là người đầu tiên chắc chắn 100% đoán đúng màu mũ của mình?",
+      "<strong>Chữ số 4 (Bẫy chia dư):</strong> Tạ Vô Cữu có một số đồng xu nhỏ nhất lớn hơn 1: khi chia cho <b>2, 3, 4</b> đều <b>dư 1</b>, nhưng chia cho <b>5</b> thì <b>chia hết</b>. Lấy <b>chữ số hàng chục</b> của số đồng xu đó.",
+      "<strong>Chữ số 5 (Bẫy thang cuốn):</strong> Một tra nam đi bộ lên thang cuốn <b>đang chạy ngược chiều đi xuống</b>. Nếu hắn bước lên <b>2 bậc/giây</b> thì mất <b>60 giây</b> mới tới đỉnh; nếu chạy lên <b>3 bậc/giây</b> thì mất <b>30 giây</b> tới đỉnh. Hỏi khi thang cuốn tắt điện đứng yên, nó có tổng cộng bao nhiêu bậc? (Lấy <b>tổng số bậc chia cho 10</b>)"
+    ],
+    hint1: "💡 Tiểu Thất gợi ý: (1) 4 tiếng chuông chỉ có 3 khoảng nghỉ ở giữa; (2) Trang 98 nằm chung tờ với trang 97, còn trang 113 nằm chung tờ với trang 114!; (3) Nếu số 2 và 3 đội cùng màu thì số 4 đã hét lên ngay rồi — vì 4 im lặng nên 3 biết mình khác màu 2; (4) Số đó trừ 1 chia hết cho 12; (5) Gọi N là số bậc, v là tốc độ thang chạy xuống: N = 60(2-v) = 30(3-v).",
+    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Beta là <b>49326</b> (4 giây • 9 tờ • Người số 3 • 25 xu -> hàng chục là 2 • 60 bậc / 10 = 6)."
+  },
+  {
+    badge: "PROTOCOL GAMMA // CẤP ĐỘ: ĐỘC ÁC (TỰ THAM CHIẾU)",
+    title: "🔐 BỘ ĐỀ 3: CẮT SẮT, ĐẤU LOẠI & NGHỊCH LÝ TỰ THAM CHIẾU",
+    passcode: "17083",
+    riddles: [
+      "<strong>Chữ số 1 (Bẫy nhát cắt):</strong> Thanh huyền thiết dài <b>5 mét</b> cần cắt thành các đoạn bằng nhau dài <b>1 mét</b>. Mỗi lần cắt mất <b>12 phút</b>, sau mỗi lần cắt phải nghỉ làm mát cưa <b>4 phút</b> (cắt xong đoạn cuối thì nghỉ luôn không tính). Hỏi cắt xong cả thanh mất <b>mấy giờ</b>?",
+      "<strong>Chữ số 2 (Bẫy bắt tay):</strong> Tại sảnh tiệc hào môn, mọi người bắt tay nhau đôi một (ai cũng bắt tay tất cả những người còn lại, không lặp lại). Đếm được tổng cộng <b>21 cái bắt tay</b>. Hỏi trong sảnh có <b>tất cả bao nhiêu người</b>?",
+      "<strong>Chữ số 3 (Bẫy kinh điển):</strong> Nếu Tiểu Thất mất 2 giờ để đào xong 1 cái hố lập phương 1m × 1m × 1m, hỏi trong <b>nửa cái hố</b> như vậy chứa <b>bao nhiêu mét khối đất</b>?",
+      "<strong>Chữ số 4 (Bẫy giải đấu):</strong> Giải E-Sports Điện 9 có <b>259 tuyển thủ</b> thi đấu loại trực tiếp 1v1 (thua 1 trận loại ngay, không hòa) để tìm ra 1 nhà vô địch. Cần tổ chức <b>tổng cộng bao nhiêu trận đấu</b>? (Lấy <b>chữ số hàng đơn vị</b> của tổng số trận)",
+      "<strong>Chữ số 5 (Nghịch lý Tự Tham Chiếu — Siêu khó):</strong> Cho 4 chữ số đầu bạn vừa giải là <b>[A]-[B]-[C]-[D]</b>. Chữ số thứ 5 (<b>E</b>) phải thỏa mãn đúng câu khẳng định sau: <em>“Tổng số lượng chữ số <b>nhỏ hơn hoặc bằng 5</b> xuất hiện trong <b>CẢ 5 CHỮ SỐ [A-B-C-D-E]</b> của mật mã này đúng bằng <b>E</b>.”</em> Tìm <b>E</b>?"
+    ],
+    hint1: "💡 Tiểu Thất gợi ý: (1) Thanh 5m cắt 1m chỉ có 4 nhát cắt và 3 lần nghỉ; (2) Công thức n(n-1)/2 = 21; (3) Đã gọi là CÁI HỐ thì bên trong rỗng làm gì có đất!; (4) Để 1 người vô địch thì phải loại đúng 258 người thua (mỗi trận loại 1 người); (5) Đừng quên số 0 cũng <= 5! Và nếu điền E=2 thì đếm lại cả 5 số sẽ thành 3 số <= 5 mất rồi!",
+    hint2: "🆘 Tiểu Thất bấm máy Casio lén hộ bạn: Đáp án bộ Gamma là <b>17083</b> (1 giờ • 7 người • 0 đất • 258 trận -> 8 • E=3 vì 1,0,3 có đúng 3 số <= 5)."
+  }
+];
+
+let activeProtocolIdx = 0;
+let vaultAttempts = 0;
+
+const vaultLockScreen = document.getElementById("vault-lock-screen");
+const vaultCardsStage = document.getElementById("vault-cards-stage");
+const vaultCardsGrid = document.getElementById("vault-cards-grid");
+const vaultErrMsg = document.getElementById("vault-error-msg");
+const vaultHintBox = document.getElementById("vault-hint-box");
+const intrusionOverlay = document.getElementById("intrusion-overlay");
+const intrusionTimerEl = document.getElementById("intrusion-timer");
+const intrusionBarEl = document.getElementById("intrusion-progress-bar");
+
+let intrusionInterval = null;
+let intrusionTimeout = null;
+let savedThemeBeforeAlarm = null;
+
+function renderVaultRiddles() {
+  const proto = VAULT_PROTOCOLS[activeProtocolIdx];
+  const badgeEl = document.getElementById("vault-protocol-badge");
+  const titleEl = document.getElementById("vault-protocol-title");
+  const listEl = document.getElementById("vault-riddle-list");
+  if (badgeEl) badgeEl.textContent = proto.badge;
+  if (titleEl) titleEl.textContent = proto.title;
+  if (listEl) {
+    listEl.innerHTML = proto.riddles.map((r) => `<li>${r}</li>`).join("");
+  }
+  state.vaultHintStep = 0;
+  vaultAttempts = 0;
+  if (vaultErrMsg) vaultErrMsg.textContent = "";
+  vaultHintBox?.classList.add("hidden");
+  const inp = document.getElementById("vault-pass-input");
+  if (inp) inp.value = "";
 }
 
-// 12. MÁY IN HÓA ĐƠN NHIỆT & LỆNH NHANH CÁNH PHẢI
+document.getElementById("btn-switch-protocol")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  activeProtocolIdx = (activeProtocolIdx + 1) % VAULT_PROTOCOLS.length;
+  renderVaultRiddles();
+  pushReceipt(`【KÉT BẢO MẬT】: Đã chuyển sang ${VAULT_PROTOCOLS[activeProtocolIdx].badge}.`);
+});
+
+function stopSdIntrusionAlert() {
+  clearInterval(intrusionInterval);
+  clearTimeout(intrusionTimeout);
+  radio.stopWarningSiren();
+  intrusionOverlay?.classList.add("hidden");
+  if (savedThemeBeforeAlarm) {
+    htmlEl.setAttribute("data-theme", savedThemeBeforeAlarm);
+    savedThemeBeforeAlarm = null;
+  }
+  document.querySelector(".dossier-flip-card.is-sd-card")?.classList.remove("is-sd-glitch");
+}
+
+function triggerSdIntrusionAlert(cardEl) {
+  stopSdIntrusionAlert();
+  cardEl.classList.add("is-sd-glitch");
+
+  const statusTag = cardEl.querySelector(".sd-err-tag");
+  if (statusTag) statusTag.textContent = "ERROR 403 // KHÔNG CÓ QUYỀN TRUY CẬP";
+
+  savedThemeBeforeAlarm = state.theme;
+  htmlEl.setAttribute("data-theme", "crimson-karma");
+
+  const DURATION_MS = 4200;
+  const startedAt = Date.now();
+  intrusionOverlay?.classList.remove("hidden");
+  if (intrusionBarEl) intrusionBarEl.style.width = "100%";
+
+  radio.playWarningSiren(4.2);
+  pushReceipt("🚨 【ERROR 403 — XÂM NHẬP HỒ SƠ Sd.】: Không có quyền truy cập! Kích hoạt báo động toàn hệ thống 4.2s.");
+
+  intrusionInterval = setInterval(() => {
+    const elapsed = Date.now() - startedAt;
+    const rem = Math.max(0, DURATION_MS - elapsed);
+    if (intrusionTimerEl) intrusionTimerEl.textContent = `${(rem / 1000).toFixed(1)}s`;
+    if (intrusionBarEl) intrusionBarEl.style.width = `${(rem / DURATION_MS) * 100}%`;
+    if (rem <= 0) stopSdIntrusionAlert();
+  }, 60);
+
+  intrusionTimeout = setTimeout(() => stopSdIntrusionAlert(), DURATION_MS + 40);
+}
+
+document.getElementById("btn-dismiss-intrusion")?.addEventListener("click", () => {
+  stopSdIntrusionAlert();
+  pushReceipt("> Đã ngắt tín hiệu báo động thủ công.");
+});
+
+function renderVaultCards() {
+  if (!vaultCardsGrid) return;
+  vaultCardsGrid.innerHTML = "";
+
+  VAULT_NPCS.forEach((npc) => {
+    const card = document.createElement("div");
+    card.className = `dossier-flip-card ${npc.isSd ? "is-sd-card" : ""}`;
+
+    const frontHint = npc.isSd
+      ? `<span class="sd-err-tag">[TRUY CẬP BỊ CẤM // KHÔNG CÓ QUYỀN]</span>`
+      : `[ NHẤN ĐỂ LẬT HỒ SƠ 3D ]`;
+
+    card.innerHTML = `
+      <div class="dossier-card-inner">
+        <div class="dossier-face dossier-face-front">
+          <div class="dossier-top-tag"><span>${npc.code}</span><span>${npc.clearance}</span></div>
+          <div class="dossier-emblem">${npc.emblem}</div>
+          <div class="dossier-front-title">
+            <strong>${npc.name}</strong>
+            <small>${npc.role}</small>
+          </div>
+          <div class="dossier-flip-hint">${frontHint}</div>
+        </div>
+        <div class="dossier-face dossier-face-back">
+          <h5>${npc.name}</h5>
+          <p><b>Biểu tượng:</b> ${npc.artifact || "Không rõ"}</p>
+          <p><b>Mùi hương:</b> ${npc.scent || "Không rõ"}</p>
+          <p>${npc.bio}</p>
+          <div class="dossier-quote">${npc.quote}</div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      if (npc.isSd) {
+        triggerSdIntrusionAlert(card);
+        return;
+      }
+      if (state.sfx) radio.playFlipChime();
+      card.classList.toggle("is-flipped");
+    });
+
+    vaultCardsGrid.appendChild(card);
+  });
+}
+
+function setVaultState(unlocked) {
+  state.vaultUnlocked = unlocked;
+  vaultLockScreen?.classList.toggle("hidden", unlocked);
+  vaultCardsStage?.classList.toggle("hidden", !unlocked);
+  const vaultTabNode = document.querySelector('.holo-tab-card[data-tab="tab-vault"] .card-top-meta em');
+  if (vaultTabNode) vaultTabNode.textContent = unlocked ? "UNLOCKED" : "LOCKED";
+  if (unlocked) renderVaultCards();
+}
+
+document.getElementById("vault-riddle-form")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const proto = VAULT_PROTOCOLS[activeProtocolIdx];
+  const passInput = document.getElementById("vault-pass-input");
+  const val = (passInput?.value || "").trim();
+
+  if (val === proto.passcode) {
+    if (state.sfx) radio.playClickChime();
+    if (vaultErrMsg) vaultErrMsg.textContent = "";
+    setVaultState(true);
+    pushReceipt(`🔓 【HỒ SƠ MẬT】: Giải mã thành công ${proto.badge} (${proto.passcode}). Đã mở quyền xem 6 thẻ Nhân sự.`);
+  } else {
+    vaultAttempts += 1;
+    if (state.sfx) radio.playFlipChime();
+    if (passInput) {
+      passInput.classList.remove("is-wrong");
+      void passInput.offsetWidth;
+      passInput.classList.add("is-wrong");
+    }
+    const snark = vaultAttempts >= 3
+      ? "Hệ Thống 00 ghi nhận chỉ số đọc hiểu đang báo động đỏ. Thử bấm Gợi ý của Tiểu Thất hoặc đọc kỹ từng chữ bẫy!"
+      : "Bạn đã rơi vào bẫy đọc lướt! Kiểm tra lại từng chữ số một.";
+    if (vaultErrMsg) vaultErrMsg.textContent = `❌ Sai mật mã [${val || "trống"}] (Lần ${vaultAttempts}): ${snark}`;
+    pushReceipt(`【KÉT BẢO MẬT】: Nhập sai mật mã [${val}] (Lần ${vaultAttempts}).`);
+  }
+});
+
+document.getElementById("btn-vault-hint")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  const proto = VAULT_PROTOCOLS[activeProtocolIdx];
+  state.vaultHintStep = (state.vaultHintStep + 1) % 3;
+  if (!vaultHintBox) return;
+
+  if (state.vaultHintStep === 1) {
+    vaultHintBox.classList.remove("hidden");
+    vaultHintBox.innerHTML = proto.hint1;
+  } else if (state.vaultHintStep === 2) {
+    vaultHintBox.classList.remove("hidden");
+    vaultHintBox.innerHTML = proto.hint2;
+  } else {
+    vaultHintBox.classList.add("hidden");
+  }
+});
+
+document.getElementById("btn-vault-lock")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  activeProtocolIdx = (activeProtocolIdx + 1) % VAULT_PROTOCOLS.length; // Khóa lại tự đổi sang bộ đề mới
+  renderVaultRiddles();
+  setVaultState(false);
+  pushReceipt("🔒 【KÉT BẢO MẬT】: Đã khóa két và xoay vòng sang Bộ Đề Bảo Mật kế tiếp.");
+});
+
+renderVaultRiddles();
+
+// 13. MÁY IN HÓA ĐƠN NHIỆT & LỆNH NHANH CÁNH PHẢI
 document.getElementById("btn-print-receipt")?.addEventListener("click", async () => {
   if (state.sfx) radio.playClickChime();
   const fee = state.contractLocked ? -1 : 0;
@@ -1140,7 +1449,7 @@ document.querySelectorAll("[data-cmd]").forEach((btn) => {
   });
 });
 
-// 13. MODAL TÀI KHOẢN & AVATAR
+// 14. MODAL TÀI KHOẢN & AVATAR
 const openModal = (id) => document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) =>
@@ -1160,7 +1469,7 @@ function applyProfileUI(profile) {
     state.contractLocked = false;
     state.pb = null;
     state.debtorCode = "CHƯA CẤP";
-    state.forumPostMode = "anon"; // Khách chưa đăng nhập mặc định ẩn danh
+    state.forumPostMode = "anon";
     document.getElementById("user-dot").classList.remove("online");
     topAvatar.classList.add("hidden");
     document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
@@ -1173,7 +1482,7 @@ function applyProfileUI(profile) {
 
   state.username = profile.username;
   state.currentProfile = profile;
-  state.forumPostMode = "account"; // Đã đăng nhập -> mặc định đăng bằng tài khoản login
+  state.forumPostMode = "account";
   state.contractLocked = Boolean(profile.contractLocked);
   state.debtorCode = profile.contractLocked ? (profile.debtorCode || "#000") : "CHƯA CẤP";
   state.pb = profile.contractLocked && typeof profile.meritBalance === "number" ? profile.meritBalance : null;
@@ -1262,7 +1571,7 @@ document.getElementById("btn-register-simple").addEventListener("click", async (
 });
 document.getElementById("btn-logout").addEventListener("click", () => { logoutSimpleAccount(); applyProfileUI(null); });
 
-// 14. DỮ LIỆU CHẠY VIỀN & ĐỒNG HỒ SINH TRẮC HỌC
+// 15. DỮ LIỆU CHẠY VIỀN & ĐỒNG HỒ SINH TRẮC HỌC
 const railL = document.getElementById("stream-rail-left");
 const railR = document.getElementById("stream-rail-right");
 

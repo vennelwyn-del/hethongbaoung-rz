@@ -1263,3 +1263,341 @@
 .forum-post.is-user {
   border-left: 3px solid var(--c-secondary);
 }
+/* ==========================================================================
+   TAB 07: KÉT ĐỐ MẸO, THẺ LẬT 3D & MÀN HÌNH CẢNH BÁO XÂM NHẬP HỆ THỐNG Sd.
+   ========================================================================== */
+.vault-teaser-bar {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(var(--rgb-secondary), 0.5);
+  background: rgba(var(--rgb-secondary), 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+}
+
+.vault-lock-screen {
+  padding: 18px;
+  border: 1px solid rgba(var(--rgb-primary), 0.5);
+  background: linear-gradient(165deg, rgba(var(--rgb-primary), 0.1), rgba(2, 6, 18, 0.92));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vault-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--c-secondary);
+  border: 1px solid var(--c-secondary);
+  margin-bottom: 6px;
+}
+
+.vault-lock-header h4 { font-size: 0.96rem; color: var(--c-primary); margin-bottom: 4px; }
+.vault-lock-header p { font-family: "Space Grotesk", sans-serif; font-size: 0.84rem; color: var(--text-muted); }
+
+.riddle-list {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.83rem;
+  line-height: 1.48;
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid rgba(var(--rgb-primary), 0.28);
+  padding: 14px 16px 14px 32px;
+}
+.riddle-list strong { color: var(--c-primary); }
+.riddle-list b { color: var(--c-secondary); }
+
+.vault-pass-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.vault-pass-form input {
+  flex: 1;
+  min-width: 170px;
+  padding: 10px 13px;
+  border: 1px solid var(--c-primary);
+  background: rgba(0, 0, 0, 0.56);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+}
+.vault-msg { font-size: 0.74rem; color: #ff5c77; min-height: 18px; }
+.vault-hint-box {
+  padding: 11px 13px;
+  border-left: 3px solid var(--c-secondary);
+  background: rgba(var(--rgb-secondary), 0.12);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.48;
+  color: var(--text-main);
+}
+
+/* LƯỚI 6 THẺ LẬT 3D */
+.vault-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dossier-flip-card {
+  height: 295px;
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.dossier-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.22, 1.15, 0.36, 1);
+}
+
+.dossier-flip-card.is-flipped .dossier-card-inner {
+  transform: rotateY(180deg);
+}
+
+.dossier-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: 14px;
+  border: 1.5px solid rgba(var(--rgb-primary), 0.62);
+  background:
+    linear-gradient(rgba(var(--rgb-primary), 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--rgb-primary), 0.06) 1px, transparent 1px),
+    linear-gradient(168deg, rgba(var(--rgb-primary), 0.18), rgba(3, 8, 22, 0.94) 74%);
+  background-size: 16px 16px, 16px 16px, 100% 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.58), inset 0 0 18px rgba(var(--rgb-primary), 0.14);
+}
+
+.dossier-face-back {
+  transform: rotateY(180deg);
+  border-color: var(--c-secondary);
+  background: linear-gradient(160deg, rgba(var(--rgb-secondary), 0.18), rgba(3, 7, 20, 0.96) 72%);
+  justify-content: flex-start;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.dossier-top-tag {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  color: var(--c-primary);
+  border-bottom: 1px solid rgba(var(--rgb-primary), 0.25);
+  padding-bottom: 5px;
+}
+
+.dossier-emblem {
+  font-size: 2.6rem;
+  text-align: center;
+  filter: drop-shadow(0 0 12px var(--glow-primary));
+  margin: 10px 0;
+}
+
+.dossier-front-title strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+.dossier-front-title small {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--c-secondary);
+}
+
+.dossier-flip-hint {
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 5px;
+  border: 1px dashed rgba(var(--rgb-primary), 0.4);
+  color: var(--c-primary);
+}
+
+.dossier-face-back h5 { font-size: 0.84rem; color: var(--c-secondary); border-bottom: 1px solid rgba(var(--rgb-secondary), 0.35); padding-bottom: 4px; }
+.dossier-face-back p { font-family: "Space Grotesk", sans-serif; font-size: 0.78rem; line-height: 1.42; color: var(--text-main); }
+.dossier-quote {
+  margin-top: auto;
+  padding: 7px 9px;
+  border-left: 2px solid var(--c-primary);
+  background: rgba(0, 0, 0, 0.45);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.74rem;
+  font-style: italic;
+  color: var(--c-ember);
+}
+
+/* THẺ RIÊNG CỦA QUÝ CÔ Sd. (BỊ NIÊM PHONG + RUNG LẮC BÁO LỖI) */
+.dossier-flip-card.is-sd-card .dossier-face-front {
+  border-color: rgba(255, 58, 92, 0.72);
+  background: linear-gradient(168deg, rgba(255, 40, 75, 0.16), rgba(14, 4, 10, 0.94) 74%);
+  box-shadow: 0 0 26px rgba(255, 46, 84, 0.25), inset 0 0 22px rgba(255, 46, 84, 0.15);
+}
+.dossier-flip-card.is-sd-card .dossier-top-tag,
+.dossier-flip-card.is-sd-card .dossier-flip-hint {
+  color: #ff4d6d;
+  border-color: rgba(255, 77, 109, 0.45);
+}
+.dossier-flip-card.is-sd-glitch {
+  animation: sdGlitchShake 0.45s infinite;
+}
+@keyframes sdGlitchShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 2px) skewX(-2deg); }
+  40% { transform: translate(4px, -2px) skewX(2deg); }
+  60% { transform: translate(-3px, -1px); }
+  80% { transform: translate(3px, 2px); }
+}
+
+/* ==========================================================================
+   MÀN HÌNH CẢNH BÁO XÂM NHẬP TOÀN MÀN HÌNH (4.2 GIÂY)
+   ========================================================================== */
+.intrusion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 50%, rgba(75, 4, 16, 0.86), rgba(12, 1, 4, 0.96) 78%);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  animation: redAlertPulse 0.48s ease-in-out infinite alternate;
+}
+
+@keyframes redAlertPulse {
+  from { box-shadow: inset 0 0 90px rgba(255, 24, 58, 0.55); }
+  to { box-shadow: inset 0 0 180px rgba(255, 24, 58, 0.95); }
+}
+
+.hazard-tape {
+  width: 100%;
+  padding: 10px 14px;
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fff;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 28, 66, 0.92),
+    rgba(255, 28, 66, 0.92) 16px,
+    rgba(20, 4, 8, 0.95) 16px,
+    rgba(20, 4, 8, 0.95) 32px
+  );
+  border-top: 2px solid #ff3355;
+  border-bottom: 2px solid #ff3355;
+  text-shadow: 0 2px 6px #000;
+}
+
+.intrusion-alert-box {
+  width: min(620px, 92vw);
+  padding: 28px 26px;
+  border: 2px solid #ff2e54;
+  background: rgba(18, 3, 8, 0.94);
+  box-shadow: 0 0 60px rgba(255, 30, 68, 0.68), inset 0 0 34px rgba(255, 30, 68, 0.25);
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px);
+}
+
+.intrusion-icon {
+  font-size: 3.4rem;
+  color: #ff2e54;
+  text-shadow: 0 0 24px #ff2e54;
+  animation: sdGlitchShake 0.28s infinite;
+}
+
+.intrusion-code {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: #ffb3c1;
+  margin-bottom: 8px;
+}
+
+.intrusion-title {
+  font-size: 1.5rem;
+  letter-spacing: 0.08em;
+  color: #ff3b5c;
+  text-shadow: 0 0 18px rgba(255, 46, 84, 0.85);
+  margin-bottom: 12px;
+}
+
+.intrusion-desc {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #ffe3e8;
+  margin-bottom: 16px;
+}
+
+.intrusion-trace {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #ff8fa3;
+  margin-bottom: 6px;
+}
+
+.intrusion-progress {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  border: 1px solid rgba(255, 46, 84, 0.6);
+}
+.intrusion-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff2e54, #ff99ac);
+  transition: width 0.1s linear;
+}
+
+@media (max-width: 960px) {
+  .vault-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .vault-cards-grid { grid-template-columns: 1fr; }
+  .intrusion-title { font-size: 1.15rem; }
+}
+.vault-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.vault-pass-form input.is-wrong {
+  border-color: #ff2e54;
+  animation: inputShake 0.36s ease;
+}
+
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  50% { transform: translateX(7px); }
+  75% { transform: translateX(-5px); }
+}
