@@ -1612,3 +1612,328 @@
 .vault-countdown-pill strong {
   color: var(--c-primary);
 }
+.hint-destruct-bar {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed rgba(var(--rgb-secondary), 0.45);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  color: var(--c-secondary);
+}
+.hint-cd-track {
+  margin-top: 5px;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+.hint-cd-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-primary), #ff2e54);
+  transition: width 0.06s linear;
+}
+/* ==========================================================================
+   LOADING TRONG THẺ LẬT + BẢNG SETTING NPC + MODAL SINH TRẮC HỌC PHÓNG TO
+   ========================================================================== */
+.vault-stage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.npc-editor-panel {
+  margin-bottom: 14px;
+  padding: 13px 14px;
+  border: 1px dashed var(--c-primary);
+  background: rgba(2, 8, 22, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.npc-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.npc-editor-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* MÀN LOADING DỮ LIỆU CHẠY TRONG MẶT SAU THẺ KHI LẬT */
+.dossier-loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  font-family: "JetBrains Mono", monospace;
+}
+.loading-title {
+  font-size: 0.72rem;
+  color: var(--c-secondary);
+  letter-spacing: 0.08em;
+}
+.loading-bar-track {
+  width: 100%;
+  height: 8px;
+  border: 1px solid rgba(var(--rgb-primary), 0.6);
+  background: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-secondary));
+  box-shadow: 0 0 12px var(--glow-primary);
+  transition: width 0.08s linear;
+}
+.loading-stream-lines {
+  font-size: 0.58rem;
+  line-height: 1.45;
+  color: var(--c-primary);
+  opacity: 0.88;
+  height: 92px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 6px;
+  border-left: 2px solid var(--c-secondary);
+}
+
+/* MODAL PHÓNG TO SINH TRẮC HỌC (KIỂU LONGEVITY LAB 01) */
+.bio-lab-shell {
+  width: min(1040px, 95vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 20px 22px;
+  animation: labZoomIn 0.34s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+@keyframes labZoomIn {
+  from { opacity: 0; transform: scale(0.84) translateY(18px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.bio-lab-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(var(--rgb-primary), 0.38);
+}
+.bio-lab-kicker {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--c-primary);
+}
+.bio-lab-title-group h2 {
+  font-size: 1.65rem;
+  letter-spacing: 0.08em;
+  color: var(--text-main);
+  text-shadow: 0 0 16px var(--glow-primary);
+  margin: 2px 0;
+}
+.bio-lab-title-group small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--c-secondary);
+}
+.bio-lab-status-right { display: flex; align-items: center; gap: 12px; }
+.lab-online-dot {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  color: var(--c-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lab-online-dot i {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--c-secondary);
+  box-shadow: 0 0 10px var(--glow-secondary);
+}
+
+.bio-lab-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.bio-lab-col-left,
+.bio-lab-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* KHUNG ẢNH GÓC TRÁI */
+.bio-portrait-frame {
+  position: relative;
+  height: 290px;
+  border: 1.5px solid rgba(var(--rgb-primary), 0.62);
+  background: radial-gradient(circle at 50% 42%, rgba(var(--rgb-primary), 0.2), rgba(2, 6, 18, 0.94));
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.bio-portrait-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.06);
+}
+.portrait-empty-holo {
+  text-align: center;
+  padding: 16px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.portrait-empty-holo span {
+  display: block;
+  font-size: 3.4rem;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 14px var(--glow-primary));
+}
+.portrait-scan-beam {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--c-primary), #fff, var(--c-primary), transparent);
+  box-shadow: 0 0 14px var(--glow-primary);
+  animation: podScan 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes podScan {
+  0%, 100% { top: 4%; opacity: 0.35; }
+  50% { top: 94%; opacity: 0.95; }
+}
+
+.bio-subpanel {
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background: rgba(3, 8, 22, 0.78);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.subpanel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(var(--rgb-primary), 0.25);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  color: var(--c-primary);
+  font-weight: 700;
+}
+.subpanel-head small { color: var(--c-secondary); font-size: 0.58rem; }
+
+/* VITAL MATRIX BÊN TRÁI */
+.vital-matrix-list { display: flex; flex-direction: column; gap: 7px; }
+.vital-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  background: rgba(0, 0, 0, 0.42);
+  border-left: 2px solid var(--c-primary);
+  font-family: "JetBrains Mono", monospace;
+}
+.vital-row span { font-size: 0.62rem; color: var(--text-muted); }
+.vital-row strong { font-size: 0.74rem; color: var(--c-secondary); }
+
+/* DÁNG NGƯỜI & BẢNG CHỈ SỐ BÊN PHẢI */
+.morph-and-bars-row {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 12px;
+}
+.morph-pod-viewport {
+  position: relative;
+  height: 240px;
+  border: 1px solid rgba(var(--rgb-primary), 0.38);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at center, rgba(var(--rgb-primary), 0.22), rgba(2, 6, 18, 0.94) 72%),
+    linear-gradient(rgba(var(--rgb-primary), 0.08) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 18px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.morph-pod-viewport svg { width: 100%; height: 100%; }
+.morph-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  font-family: "JetBrains Mono", monospace;
+}
+.morph-stats-bar div {
+  padding: 5px 7px;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid rgba(var(--rgb-primary), 0.22);
+}
+.morph-stats-bar small { display: block; font-size: 0.52rem; color: var(--text-muted); }
+.morph-stats-bar strong { font-size: 0.68rem; color: var(--c-primary); }
+
+/* THANH CHỈ SỐ LED PHÂN ĐOẠN (GIỐNG SYSTEMS ONLINE) */
+.seg-bars-list { display: flex; flex-direction: column; gap: 9px; }
+.seg-bar-item { display: flex; flex-direction: column; gap: 4px; }
+.seg-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  color: var(--text-main);
+}
+.seg-bar-label span:last-child { color: var(--c-secondary); }
+.seg-cells {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+}
+.seg-cells i {
+  height: 8px;
+  background: rgba(var(--rgb-primary), 0.14);
+  border: 1px solid rgba(var(--rgb-primary), 0.25);
+}
+.seg-cells i.on {
+  background: linear-gradient(180deg, var(--c-primary), var(--c-secondary));
+  border-color: var(--c-primary);
+  box-shadow: 0 0 8px var(--glow-primary);
+}
+
+.lab-artifact-box {
+  margin-top: auto;
+  padding: 8px 10px;
+  border-left: 3px solid var(--c-secondary);
+  background: rgba(0, 0, 0, 0.42);
+}
+.lab-artifact-box small { display: block; font-family: "JetBrains Mono", monospace; font-size: 0.58rem; color: var(--c-secondary); margin-bottom: 2px; }
+.lab-artifact-box p { font-size: 0.84rem; color: var(--text-main); }
+
+.lab-bio-text {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.94rem;
+  line-height: 1.58;
+  color: var(--text-main);
+}
+.lab-quote-box {
+  padding: 10px 14px;
+  border-left: 3px solid var(--c-primary);
+  background: rgba(var(--rgb-primary), 0.08);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--c-ember);
+}
+
+@media (max-width: 860px) {
+  .bio-lab-grid, .morph-and-bars-row, .npc-editor-grid { grid-template-columns: 1fr; }
+  .bio-portrait-frame { height: 240px; }
+}

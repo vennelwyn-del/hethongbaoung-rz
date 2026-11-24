@@ -1181,7 +1181,7 @@ document.getElementById("btn-goto-vault")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   switchTab("tab-vault", true);
 });
-// 12. TAB 07: KHO HỒ SƠ MẬT (5 BỘ ĐỀ ẨN XOAY VÒNG 24H GMT+7 + GỢI Ý ẨN 7 LẦN + BÁO ĐỘNG Sd.)
+// 12. TAB 07: KHO HỒ SƠ MẬT (ĐỐ 24H + LẬT THẺ LOADING -> PHÓNG TO BIO-LAB + BÁO ĐỘNG Sd.)
 const VAULT_PROTOCOLS = [
   {
     passcode: "57223",
@@ -1255,6 +1255,17 @@ const VAULT_PROTOCOLS = [
   }
 ];
 
+const NPC_OVERRIDE_KEY = "bao_ung_npc_overrides";
+function getNpcOverrides() {
+  try { return JSON.parse(localStorage.getItem(NPC_OVERRIDE_KEY) || "{}"); }
+  catch { return {}; }
+}
+function getMergedNpcStats(npcId) {
+  const base = SITE_CONFIG.npcProfiles?.[npcId] || {};
+  const ov = getNpcOverrides()[npcId] || {};
+  return { ...base, ...ov };
+}
+
 function getDailyVaultProtocolIndex() {
   const { dateKey } = getGMT7Info();
   return hashSeed(`vault_daily:${dateKey}`) % VAULT_PROTOCOLS.length;
@@ -1263,6 +1274,7 @@ function getDailyVaultProtocolIndex() {
 let activeProtocolIdx = getDailyVaultProtocolIndex();
 let lastVaultDateKey = getGMT7Info().dateKey;
 let vaultAttempts = 0;
+let cardLoadTimer = null;
 
 const vaultLockScreen = document.getElementById("vault-lock-screen");
 const vaultCardsStage = document.getElementById("vault-cards-stage");
@@ -1273,6 +1285,7 @@ const vaultHintBtn = document.getElementById("btn-vault-hint");
 const intrusionOverlay = document.getElementById("intrusion-overlay");
 const intrusionTimerEl = document.getElementById("intrusion-timer");
 const intrusionBarEl = document.getElementById("intrusion-progress-bar");
+const npcDossierModal = document.getElementById("npc-dossier-modal");
 
 let intrusionInterval = null;
 let intrusionTimeout = null;
@@ -1343,23 +1356,231 @@ document.getElementById("btn-dismiss-intrusion")?.addEventListener("click", () =
   pushReceipt("> Đã ngắt tín hiệu báo động thủ công.");
 });
 
+// DỰNG DÁNG NGƯỜI HOLOGRAM SVG THEO GIỚI TÍNH, CHIỀU CAO (CM) VÀ CÂN NẶNG (KG)
+function renderBodyMorphologySVG(stats) {
+  const gender = stats.gender || "Nam";
+  const h = Math.max(140, Math.min(220, Number(stats.heightCm) || 175));
+  const w = Number(stats.weightKg);
+  const bmi = w > 0 ? w / Math.pow(h / 100, 2) : 20.5;
+
+  const scaleY = Math.max(0.84, Math.min(1.12, h / 180));
+  const wFactor = Math.max(0.8, Math.min(1.28, bmi / 21));
+
+  // Biến thiên vai, eo, hông theo Giới tính
+  let shoulder = 24 * wFactor;
+  let waist = 13 * wFactor;
+  let hip = 15 * wFactor;
+  if (gender === "Nữ") {
+    shoulder = 19 * wFactor;
+    waist = 10.5 * wFactor;
+    hip = 19.5 * wFactor;
+  } else if (gender === "Phi giới tính") {
+    shoulder = 20.5 * wFactor;
+    waist = 11.5 * wFactor;
+    hip = 15.5 * wFactor;
+  } else if (gender === "AI / Vô tính") {
+    shoulder = 22;
+    waist = 14;
+    hip = 14;
+  }
+
+  const cx = 80;
+  const topY = 195 - 156 * scaleY;
+  const neckY = topY + 22 * scaleY;
+  const shY = neckY + 10 * scaleY;
+  const waistY = shY + 42 * scaleY;
+  const hipY = waistY + 24 * scaleY;
+  const kneeY = hipY + 34 * scaleY;
+  const footY = 202;
+
+  const torsoPath = `
+    M ${cx - shoulder} ${shY}
+    Q ${cx} ${shY - 6} ${cx + shoulder} ${shY}
+    L ${cx + waist} ${waistY}
+    L ${cx + hip} ${hipY}
+    L ${cx + hip * 0.72} ${kneeY}
+    L ${cx + hip * 0.45} ${footY}
+    L ${cx + 4} ${footY}
+    L ${cx + 3} ${hipY + 6}
+    L ${cx - 3} ${hipY + 6}
+    L ${cx - 4} ${footY}
+    L ${cx - hip * 0.45} ${footY}
+    L ${cx - hip * 0.72} ${kneeY}
+    L ${cx - hip} ${hipY}
+    L ${cx - waist} ${waistY}
+    Z
+  `;
+
+  const leftArm = `M ${cx - shoulder} ${shY + 3} L ${cx - shoulder - 9 * wFactor} ${waistY + 6} L ${cx - shoulder - 11 * wFactor} ${hipY + 14}`;
+  const rightArm = `M ${cx + shoulder} ${shY + 3} L ${cx + shoulder + 9 * wFactor} ${waistY + 6} L ${cx + shoulder + 11 * wFactor} ${hipY + 14}`;
+
+  return `
+    <svg viewBox="0 0 160 220" aria-hidden="true">
+      <defs>
+        <radialGradient id="corePulse" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="45%" stop-color="var(--c-primary)" />
+          <stop offset="100%" stop-color="transparent" />
+        </radialGradient>
+      </defs>
+      <!-- Thước đo laser chiều cao bên trái -->
+      <line x1="18" y1="${topY}" x2="18" y2="${footY}" stroke="var(--c-secondary)" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="14" y1="${topY}" x2="28" y2="${topY}" stroke="var(--c-secondary)" stroke-width="1.4" />
+      <line x1="14" y1="${footY}" x2="28" y2="${footY}" stroke="var(--c-secondary)" stroke-width="1.4" />
+      <text x="22" y="${topY - 5}" fill="var(--c-secondary)" font-size="7.5" font-family="JetBrains Mono">${h} CM</text>
+
+      <!-- Vòng chân đế -->
+      <ellipse cx="${cx}" cy="${footY + 4}" rx="42" ry="7" fill="rgba(var(--rgb-primary), 0.18)" stroke="var(--c-primary)" stroke-width="1" />
+
+      <!-- Đầu & Khung cơ thể -->
+      <circle cx="${cx}" cy="${topY + 10 * scaleY}" r="${10 * Math.min(1.08, wFactor)}" fill="rgba(var(--rgb-primary), 0.18)" stroke="var(--c-primary)" stroke-width="1.5" />
+      <line x1="${cx}" y1="${topY + 20 * scaleY}" x2="${cx}" y2="${hipY}" stroke="rgba(var(--rgb-secondary), 0.6)" stroke-width="1" stroke-dasharray="2 2" />
+      <path d="${torsoPath}" fill="rgba(var(--rgb-primary), 0.22)" stroke="var(--c-primary)" stroke-width="1.6" />
+      <path d="${leftArm}" fill="none" stroke="var(--c-primary)" stroke-width="${3.2 * wFactor}" stroke-linecap="round" />
+      <path d="${rightArm}" fill="none" stroke="var(--c-primary)" stroke-width="${3.2 * wFactor}" stroke-linecap="round" />
+
+      <!-- Lõi tim / Linh hồn phát sáng -->
+      <circle cx="${cx}" cy="${shY + 15 * scaleY}" r="11" fill="url(#corePulse)" opacity="0.85" />
+      <circle cx="${cx}" cy="${shY + 15 * scaleY}" r="2.6" fill="#fff" />
+    </svg>
+    <div class="portrait-scan-beam"></div>
+  `;
+}
+
+function openNpcBioLabModal(npc) {
+  const stats = getMergedNpcStats(npc.id);
+  const h = Number(stats.heightCm) || 175;
+  const w = Number(stats.weightKg) || 0;
+  const bmiText = w > 0 ? (w / Math.pow(h / 100, 2)).toFixed(1) : "N/A";
+
+  document.getElementById("lab-subject-id").textContent = `>> BUREAU BIO-VAULT // ${npc.code}`;
+  document.getElementById("lab-npc-name").textContent = npc.name;
+  document.getElementById("lab-npc-role").textContent = `${npc.role} • ${stats.build || ""}`;
+
+  // Góc trái: Ảnh NPC hoặc khung Holo trống
+  const portraitBox = document.getElementById("lab-portrait-box");
+  if (portraitBox) {
+    if ((stats.avatarUrl || "").trim()) {
+      portraitBox.innerHTML = `<img src="${stats.avatarUrl.trim()}" alt="${npc.name}" /><div class="portrait-scan-beam"></div>`;
+    } else {
+      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Thêm link vào config.js hoặc bấm ⚙️ Setting ảnh)</small></div><div class="portrait-scan-beam"></div>`;
+    }
+  }
+
+  // Vital Matrix bên trái
+  const vitalList = document.getElementById("lab-vital-list");
+  if (vitalList) {
+    const vitals = [
+      ["HEART RATE", stats.heartRate || "68 BPM"],
+      ["KARMIC PRESSURE", stats.pressure || "115/75"],
+      ["BODY TEMP", stats.bodyTemp || "36.6 °C"],
+      ["SOUL SYNC", stats.soulSat || "98%"],
+      ["SCENT ID", npc.scent || "Không rõ"]
+    ];
+    vitalList.innerHTML = vitals.map(([k, v]) => `<div class="vital-row"><span>${k}</span><strong>${v}</strong></div>`).join("");
+  }
+
+  // Bên phải: Dáng người theo setting Giới tính / Chiều cao / Cân nặng
+  document.getElementById("lab-morph-tag").textContent = `${(stats.gender || "Nam").toUpperCase()} • ${h} CM`;
+  document.getElementById("lab-morph-pod").innerHTML = renderBodyMorphologySVG(stats);
+  document.getElementById("lab-morph-stats").innerHTML = `
+    <div><small>GIỚI TÍNH</small><strong>${stats.gender || "Nam"}</strong></div>
+    <div><small>TUỔI</small><strong>${stats.age || "??"}</strong></div>
+    <div><small>CHIỀU CAO</small><strong>${h} CM</strong></div>
+    <div><small>CÂN NẶNG / BMI</small><strong>${w > 0 ? `${w} KG (${bmiText})` : "PHI VẬT CHẤT"}</strong></div>
+  `;
+
+  // Thanh LED phân đoạn (giống Systems Online)
+  const segList = document.getElementById("lab-seg-bars");
+  if (segList) {
+    const bars = stats.bars || [
+      { label: "SYNC LEVEL", val: 92 },
+      { label: "THREAT RATING", val: 85 }
+    ];
+    segList.innerHTML = bars.map((b) => {
+      const litCount = Math.round((b.val / 100) * 12);
+      const cells = Array.from({ length: 12 }, (_, idx) => `<i class="${idx < litCount ? "on" : ""}"></i>`).join("");
+      return `<div class="seg-bar-item"><div class="seg-bar-label"><span>${b.label}</span><span>${b.val}%</span></div><div class="seg-cells">${cells}</div></div>`;
+    }).join("");
+  }
+
+  document.getElementById("lab-artifact").textContent = npc.artifact || "Không rõ";
+  document.getElementById("lab-bio").textContent = npc.bio;
+  document.getElementById("lab-quote").textContent = npc.quote;
+
+  npcDossierModal?.classList.remove("hidden");
+  if (state.sfx) radio.playClickChime();
+}
+
+function closeNpcBioLabModal() {
+  npcDossierModal?.classList.add("hidden");
+  document.querySelectorAll(".dossier-flip-card.is-flipped").forEach((c) => c.classList.remove("is-flipped"));
+}
+document.getElementById("btn-close-npc-modal")?.addEventListener("click", closeNpcBioLabModal);
+
+function runCardLoadingThenOpenModal(cardEl, npc) {
+  clearInterval(cardLoadTimer);
+  document.querySelectorAll(".dossier-flip-card.is-flipped").forEach((c) => {
+    if (c !== cardEl) c.classList.remove("is-flipped");
+  });
+
+  if (state.sfx) radio.playFlipChime();
+  cardEl.classList.add("is-flipped");
+
+  const fillEl = cardEl.querySelector(".loading-bar-fill");
+  const pctEl = cardEl.querySelector(".loading-pct");
+  const streamEl = cardEl.querySelector(".loading-stream-lines");
+  if (fillEl) fillEl.style.width = "0%";
+  if (streamEl) streamEl.innerHTML = "";
+
+  const packets = [
+    `> ACCESSING BUREAU_NODE: ${npc.code}...`,
+    `> DECRYPTING BIOMETRIC STREAM [AES-512]...`,
+    `> PARSING ANATOMY & SCENT TELEMETRY...`,
+    `> COMPILING VITAL MATRIX & KARMIC LEDS...`,
+    `> DATA READY. EXPANDING DISPLAY!`
+  ];
+
+  let pct = 0;
+  let pktIdx = 0;
+  cardLoadTimer = setInterval(() => {
+    pct = Math.min(100, pct + 14);
+    if (fillEl) fillEl.style.width = `${pct}%`;
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    if (streamEl && pktIdx < packets.length && pct >= pktIdx * 20) {
+      const line = document.createElement("div");
+      line.textContent = packets[pktIdx++];
+      streamEl.appendChild(line);
+    }
+    if (pct >= 100) {
+      clearInterval(cardLoadTimer);
+      setTimeout(() => openNpcBioLabModal(npc), 160);
+    }
+  }, 85);
+}
+
 function renderVaultCards() {
   if (!vaultCardsGrid) return;
   vaultCardsGrid.innerHTML = "";
 
   VAULT_NPCS.forEach((npc) => {
+    const stats = getMergedNpcStats(npc.id);
     const card = document.createElement("div");
     card.className = `dossier-flip-card ${npc.isSd ? "is-sd-card" : ""}`;
 
     const frontHint = npc.isSd
       ? `<span class="sd-err-tag">[TRUY CẬP BỊ CẤM // KHÔNG CÓ QUYỀN]</span>`
-      : `[ NHẤN ĐỂ LẬT HỒ SƠ 3D ]`;
+      : `[ BẤM LẬT THẺ &amp; QUÉT DỮ LIỆU ]`;
+
+    const thumbHtml = (stats.avatarUrl || "").trim()
+      ? `<img src="${stats.avatarUrl.trim()}" alt="" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:1.5px solid var(--c-primary);" />`
+      : npc.emblem;
 
     card.innerHTML = `
       <div class="dossier-card-inner">
         <div class="dossier-face dossier-face-front">
           <div class="dossier-top-tag"><span>${npc.code}</span><span>${npc.clearance}</span></div>
-          <div class="dossier-emblem">${npc.emblem}</div>
+          <div class="dossier-emblem">${thumbHtml}</div>
           <div class="dossier-front-title">
             <strong>${npc.name}</strong>
             <small>${npc.role}</small>
@@ -1367,11 +1588,11 @@ function renderVaultCards() {
           <div class="dossier-flip-hint">${frontHint}</div>
         </div>
         <div class="dossier-face dossier-face-back">
-          <h5>${npc.name}</h5>
-          <p><b>Biểu tượng:</b> ${npc.artifact || "Không rõ"}</p>
-          <p><b>Mùi hương:</b> ${npc.scent || "Không rõ"}</p>
-          <p>${npc.bio}</p>
-          <div class="dossier-quote">${npc.quote}</div>
+          <div class="dossier-loading-screen">
+            <div class="loading-title">LOADING TELEMETRY... <span class="loading-pct">0%</span></div>
+            <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+            <div class="loading-stream-lines"></div>
+          </div>
         </div>
       </div>
     `;
@@ -1381,13 +1602,89 @@ function renderVaultCards() {
         triggerSdIntrusionAlert(card);
         return;
       }
-      if (state.sfx) radio.playFlipChime();
-      card.classList.toggle("is-flipped");
+      runCardLoadingThenOpenModal(card, npc);
     });
 
     vaultCardsGrid.appendChild(card);
   });
 }
+
+// BẢNG SETTING ẢNH & DÁNG NPC
+const npcEditorPanel = document.getElementById("npc-editor-panel");
+const npcEditSelect = document.getElementById("npc-edit-select");
+function syncNpcEditorFields() {
+  if (!npcEditSelect) return;
+  const st = getMergedNpcStats(npcEditSelect.value);
+  document.getElementById("npc-edit-gender").value = st.gender || "Nam";
+  document.getElementById("npc-edit-height").value = st.heightCm || 175;
+  document.getElementById("npc-edit-weight").value = st.weightKg ?? 65;
+  document.getElementById("npc-edit-avatar").value = st.avatarUrl?.startsWith("data:") ? "" : (st.avatarUrl || "");
+}
+document.getElementById("btn-toggle-npc-editor")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  npcEditorPanel?.classList.toggle("hidden");
+  syncNpcEditorFields();
+});
+npcEditSelect?.addEventListener("change", syncNpcEditorFields);
+
+document.getElementById("npc-edit-file")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file || !npcEditSelect) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = 360; c.height = 440;
+      const ctx = c.getContext("2d");
+      const ratio = Math.max(c.width / img.width, c.height / img.height);
+      const nw = img.width * ratio, nh = img.height * ratio;
+      ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
+      const ov = getNpcOverrides();
+      const id = npcEditSelect.value;
+      ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
+      localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
+      renderVaultCards();
+      pushReceipt(`> Đã tải ảnh test cho NPC [${id}] (bấm thẻ để xem trong Bio-Lab!).`);
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+npcEditorPanel?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (state.sfx) radio.playClickChime();
+  const id = npcEditSelect.value;
+  const ov = getNpcOverrides();
+  const urlVal = document.getElementById("npc-edit-avatar").value.trim();
+  ov[id] = {
+    ...(ov[id] || {}),
+    gender: document.getElementById("npc-edit-gender").value,
+    heightCm: Number(document.getElementById("npc-edit-height").value) || 175,
+    weightKg: Number(document.getElementById("npc-edit-weight").value) || 0
+  };
+  if (urlVal) ov[id].avatarUrl = urlVal;
+  localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
+  renderVaultCards();
+  pushReceipt(`> Đã lưu cấu hình ảnh & thể hình cho [${id}]. Bấm thẻ để xem bảng chỉ số phóng to.`);
+});
+
+document.getElementById("btn-npc-copy-cfg")?.addEventListener("click", () => {
+  const id = npcEditSelect.value;
+  const st = getMergedNpcStats(id);
+  const snippet = `${id}: {\n  avatarUrl: "${st.avatarUrl || ""}",\n  gender: "${st.gender}",\n  heightCm: ${st.heightCm},\n  weightKg: ${st.weightKg}\n}`;
+  navigator.clipboard?.writeText(snippet);
+  if (state.sfx) radio.playClickChime();
+  pushReceipt(`> Đã copy cấu hình [${id}] vào Clipboard để dán vào js/config.js.`);
+});
+
+document.getElementById("btn-npc-reset")?.addEventListener("click", () => {
+  localStorage.removeItem(NPC_OVERRIDE_KEY);
+  syncNpcEditorFields();
+  renderVaultCards();
+  pushReceipt("> Đã đặt lại ảnh & dáng NPC về mặc định của config.js.");
+});
 
 function setVaultState(unlocked) {
   state.vaultUnlocked = unlocked;

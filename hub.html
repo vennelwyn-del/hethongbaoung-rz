@@ -540,12 +540,61 @@
           <!-- KHO 6 THẺ LẬT 3D (SAU KHI MỞ PASS) -->
           <div class="vault-cards-stage hidden" id="vault-cards-stage">
             <div class="pane-bar">
-              <span>[ ĐÃ XÁC THỰC — BẤM VÀO TỪNG THẺ ĐỂ LẬT XEM HỒ SƠ MẬT ]</span>
-              <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
+              <span>[ BẤM THẺ ĐỂ QUÉT DỮ LIỆU &amp; PHÓNG TO BẢNG CHỈ SỐ ]</span>
+              <div class="vault-stage-actions">
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-toggle-npc-editor" type="button">⚙️ SETTING ẢNH &amp; DÁNG NPC</button>
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
+              </div>
             </div>
+
+            <!-- BẢNG SETTING ẢNH + GIỚI TÍNH + CHIỀU CAO + CÂN NẶNG CHO NPC -->
+            <form class="npc-editor-panel hidden" id="npc-editor-panel">
+              <div class="npc-editor-grid">
+                <label class="field">
+                  <span>Chọn NPC cần Setting</span>
+                  <select id="npc-edit-select">
+                    <option value="tavocuu">Tạ Vô Cữu (Thanh Tra Trưởng)</option>
+                    <option value="lucnha">Lục Nha (Trùm Chợ Đen)</option>
+                    <option value="nguhongdiep">Ngu Hồng Diệp (Giám Ngục)</option>
+                    <option value="tieuthat">Tiểu Thất #707 (Thực Tập Sinh)</option>
+                    <option value="sys00">Hệ Thống 00 (Kế Toán Viên)</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Giới tính (Đổi form dáng người)</span>
+                  <select id="npc-edit-gender">
+                    <option value="Nam">Nam (Vai rộng, thân chữ V)</option>
+                    <option value="Nữ">Nữ (Eo thon, đường cong)</option>
+                    <option value="Phi giới tính">Phi giới tính (Thanh mảnh)</option>
+                    <option value="AI / Vô tính">AI / Vô tính (Khung lượng tử)</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Chiều cao (cm)</span>
+                  <input type="number" id="npc-edit-height" min="140" max="220" value="188" />
+                </label>
+                <label class="field">
+                  <span>Cân nặng (kg)</span>
+                  <input type="number" id="npc-edit-weight" min="0" max="150" value="76" />
+                </label>
+                <label class="field span-2">
+                  <span>Link Ảnh Chân Dung NPC (hoặc chọn file từ máy bên dưới)</span>
+                  <input type="url" id="npc-edit-avatar" placeholder="https://... hoặc ./assets/..." />
+                </label>
+              </div>
+              <div class="npc-editor-actions">
+                <label class="file-upload-btn holo-tactile">
+                  📁 Chọn ảnh từ máy
+                  <input type="file" id="npc-edit-file" accept="image/*" hidden />
+                </label>
+                <button class="btn-primary holo-tactile mini-btn" type="submit">💾 LƯU XEM THỬ</button>
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-npc-copy-cfg" type="button">📋 COPY CODE CHO config.js</button>
+                <button class="btn-ghost mini-btn" id="btn-npc-reset" type="button">↺ MẶC ĐỊNH</button>
+              </div>
+            </form>
+
             <div class="vault-cards-grid" id="vault-cards-grid"></div>
           </div>
-        </div>
 
         <!-- BIÊN LAI TRỰC TIẾP -->
         <div class="terminal-footer-log">
@@ -645,6 +694,62 @@
             <button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button>
           </div>
           <p class="auth-msg" id="auth-sync-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL PHÓNG TO HỒ SƠ SINH TRẮC HỌC NPC (PHONG CÁCH LONGEVITY LAB) -->
+  <div class="modal-backdrop hidden" id="npc-dossier-modal">
+    <div class="hoyo-frame bio-lab-shell">
+      <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
+
+      <div class="bio-lab-topbar">
+        <div class="bio-lab-title-group">
+          <span class="bio-lab-kicker" id="lab-subject-id">&gt;&gt; BUREAU BIO-VAULT // SUBJECT 01</span>
+          <h2 id="lab-npc-name">TẠ VÔ CỮU</h2>
+          <small id="lab-npc-role">TỔNG KIỂM TOÁN TRƯỞNG // THẬP ĐIỆN BÁO ỨNG</small>
+        </div>
+        <div class="bio-lab-status-right">
+          <span class="lab-online-dot">SYSTEMS ONLINE <i></i></span>
+          <button class="btn-secondary holo-tactile mini-btn" id="btn-close-npc-modal" type="button">✕ ĐÓNG</button>
+        </div>
+      </div>
+
+      <div class="bio-lab-grid">
+        <!-- GÓC TRÁI: ẢNH NPC + VITAL MATRIX -->
+        <div class="bio-lab-col-left">
+          <div class="bio-portrait-frame" id="lab-portrait-box"></div>
+
+          <div class="bio-subpanel">
+            <div class="subpanel-head"><span>VITAL MATRIX</span><small>REAL-TIME</small></div>
+            <div class="vital-matrix-list" id="lab-vital-list"></div>
+          </div>
+        </div>
+
+        <!-- BÊN PHẢI: DÁNG NGƯỜI THEO GIỚI TÍNH/CHIỀU CAO/CÂN NẶNG + BẢNG CHỈ SỐ + TIỂU SỬ -->
+        <div class="bio-lab-col-right">
+          <div class="morph-and-bars-row">
+            <div class="bio-subpanel morph-pod-panel">
+              <div class="subpanel-head"><span>ANATOMY RIG</span><small id="lab-morph-tag">NAM • 188 CM</small></div>
+              <div class="morph-pod-viewport" id="lab-morph-pod"></div>
+              <div class="morph-stats-bar" id="lab-morph-stats"></div>
+            </div>
+
+            <div class="bio-subpanel seg-bars-panel">
+              <div class="subpanel-head"><span>BIOMETRIC &amp; KARMIC INDEX</span><small>OPTIMAL</small></div>
+              <div class="seg-bars-list" id="lab-seg-bars"></div>
+              <div class="lab-artifact-box">
+                <small>BIỂU TƯỢNG ĐỊNH DANH</small>
+                <p id="lab-artifact"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bio-subpanel lab-dossier-detail">
+            <div class="subpanel-head"><span>CLASSIFIED BIOGRAPHY &amp; BEHAVIOR PROTOCOL</span><small>DECRYPTED</small></div>
+            <p class="lab-bio-text" id="lab-bio"></p>
+            <blockquote class="lab-quote-box" id="lab-quote"></blockquote>
+          </div>
         </div>
       </div>
     </div>
