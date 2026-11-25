@@ -2180,7 +2180,6 @@ function applyProfileUI(profile) {
   state.inventory = remoteBag || loadLocalInventory();
   renderBag();
 }
-
 function compressImageToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
