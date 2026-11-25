@@ -1,9 +1,41 @@
-// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (ĐÃ ĐIỀN ĐỦ 6 NPC KỂ CẢ Sd.)
+// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (MỖI NPC 1 ĐỘNG VẬT 3D THẬT)
+
+export const ANIMAL_PRESETS = {
+  stork: {
+    label: "Hắc Hạc Đưa Tin (Stork)",
+    type: "bird",
+    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Stork.glb"
+  },
+  horse: {
+    label: "Chiến Mã Phán Quyết (Horse)",
+    type: "quad",
+    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Horse.glb"
+  },
+  fox: {
+    label: "Xích Hồ Ly Chợ Đen (Fox)",
+    type: "quad",
+    url: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb"
+  },
+  flamingo: {
+    label: "Hồng Hạc Huyết Đỏ (Flamingo)",
+    type: "bird",
+    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Flamingo.glb"
+  },
+  parrot: {
+    label: "Vẹt Báo Tin Hậu Đậu (Parrot)",
+    type: "bird",
+    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Parrot.glb"
+  },
+  shark: {
+    label: "Bạch Sa Vũ Trụ (Shark)",
+    type: "swim",
+    url: "https://cdn.jsdelivr.net/gh/BabylonJS/MeshesLibrary@master/shark.glb"
+  }
+};
 
 export const SITE_CONFIG = {
-  // 1. LINK ẢNH BACKGROUND
   backgroundImage: {
-    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png", // Dán lại link ảnh nền của bạn nếu cần (vd: "./assets/.../canvas_bg.png")
+    defaultUrl: "", // Link ảnh nền tùy chọn
     byTheme: {
       "orbital-cyan": "",
       "cyber-violet": "",
@@ -13,30 +45,27 @@ export const SITE_CONFIG = {
     opacity: 0.55
   },
 
-  // 2. LINK NHẠC CHO RADIO
   musicPlaylist: [
     { title: "CH.01 // VOID DRONE", url: "" },
     { title: "CH.02 // CYBER PULSE", url: "" },
     { title: "CH.03 // TINH THỂ Sd.", url: "" }
   ],
 
-  // 3. CÀI ĐẶT HIỆU ỨNG
   effects: {
     scanlines: true,
     parallax3D: true,
     sfx: true
   },
 
-  // 4. HỒ SƠ CHỈ SỐ & ẢNH CỐ ĐỊNH CHO CẢ 6 NPC (BAO GỒM CẢ Sd.)
+  // MỖI NPC CHỈ 1 ĐỘNG VẬT 3D + CHỈ SỐ SINH HỌC
   npcProfiles: {
     sys00: {
       avatarUrl: "",
-      gender: "AI / Vô tính",
-      age: "∞",
-      species: "Thú (Chim Quạ) — Hoặc 'Người' trong lore cổ đại Hệ Thống 00 hóa thân thành Quạ Đen đeo thẻ đồng",
-      heightCm: 175,
-      weightKg: 0,
-      build: "Chương trình kiểm toán tự động • Phi vật chất",
+      animalKey: "stork",
+      modelUrl: "",
+      animalTitle: "HẮC HẠC KIỂM TOÁN",
+      wingspanOrLen: "215 CM",
+      weightKg: "4.8 KG",
       heartRate: "00 BPM",
       pressure: "80% PHÍ",
       bodyTemp: "18.4 °C",
@@ -45,17 +74,16 @@ export const SITE_CONFIG = {
         { label: "TƯ BẢN BÓC LỘT", val: 100 },
         { label: "HÀNH CHÍNH HÓA BI KỊCH", val: 98 },
         { label: "TỐC ĐỘ IN HÓA ĐƠN", val: 99 },
-        { label: "LÒNG TỪ BI MIỄN PHÍ", val: 0 }
+        { label: "LÒNG TRẮC ẨN MIỄN PHÍ", val: 0 }
       ]
     },
     tavocuu: {
       avatarUrl: "",
-      gender: "Nam",
-      age: "~30",
-      species: "Người",
-      heightCm: 188,
-      weightKg: 76,
-      build: "Cao gầy rắn rỏi • Vai rộng phẳng phiu",
+      animalKey: "horse",
+      modelUrl: "",
+      animalTitle: "CHIẾN MÃ PHÁN QUYẾT",
+      wingspanOrLen: "242 CM",
+      weightKg: "510 KG",
       heartRate: "52 BPM",
       pressure: "110/70",
       bodyTemp: "35.4 °C",
@@ -69,12 +97,11 @@ export const SITE_CONFIG = {
     },
     lucnha: {
       avatarUrl: "",
-      gender: "Nam",
-      age: "27",
-      species: "Người",
-      heightCm: 185,
-      weightKg: 79,
-      build: "Săn chắc hoang dã • Cơ bắp đầy sẹo",
+      animalKey: "fox",
+      modelUrl: "",
+      animalTitle: "XÍCH HỒ LY CHỢ ĐEN",
+      wingspanOrLen: "112 CM",
+      weightKg: "8.4 KG",
       heartRate: "76 BPM",
       pressure: "126/78",
       bodyTemp: "37.2 °C",
@@ -88,12 +115,11 @@ export const SITE_CONFIG = {
     },
     nguhongdiep: {
       avatarUrl: "",
-      gender: "Nữ",
-      age: "28",
-      species: "Người",
-      heightCm: 171,
-      weightKg: 53,
-      build: "Đồng hồ cát quyến rũ • Sắc sảo",
+      animalKey: "flamingo",
+      modelUrl: "",
+      animalTitle: "HỒNG HẠC HUYẾT ĐỎ",
+      wingspanOrLen: "165 CM",
+      weightKg: "3.9 KG",
       heartRate: "64 BPM",
       pressure: "114/72",
       bodyTemp: "36.5 °C",
@@ -107,12 +133,11 @@ export const SITE_CONFIG = {
     },
     tieuthat: {
       avatarUrl: "",
-      gender: "Nam",
-      age: "~19",
-      species: "Thú nhân (hoặc Người / Thú Cáo) — nhập vào mèo/thú gầy trơ xương trong lore",
-      heightCm: 168,
-      weightKg: 51,
-      build: "Gầy trơ xương • Băng gạc quấn người",
+      animalKey: "parrot",
+      modelUrl: "",
+      animalTitle: "VẸT BÁO TIN HẬU ĐẬU",
+      wingspanOrLen: "68 CM",
+      weightKg: "1.2 KG",
       heartRate: "126 BPM",
       pressure: "102/68",
       bodyTemp: "36.9 °C",
@@ -126,12 +151,11 @@ export const SITE_CONFIG = {
     },
     sd: {
       avatarUrl: "",
-      gender: "Nữ (Phi giới tính)",
-      age: "???",
-      species: "Người",
-      heightCm: 178,
-      weightKg: 58,
-      build: "Thanh mảnh cao ráo • Quý tộc phi giới tính",
+      animalKey: "shark",
+      modelUrl: "",
+      animalTitle: "BẠCH SA TỐI THƯỢNG",
+      wingspanOrLen: "460 CM",
+      weightKg: "890 KG",
       heartRate: "44 BPM",
       pressure: "SOVEREIGN",
       bodyTemp: "33.8 °C",

@@ -6,19 +6,18 @@
   <title>HỆ THỐNG BÁO ỨNG // TRẠM QUỸ ĐẠO VR &amp; SƠ ĐỒ THẬP ĐIỆN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+    }
+  }
+  </script>
   <link rel="stylesheet" href="./css/themes.css" />
   <link rel="stylesheet" href="./css/gate.css" />
   <link rel="stylesheet" href="./css/hub.css" />
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
-      }
-    }
-  </script>
-</head>
 </head>
 <body class="hub-body">
   <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
@@ -89,12 +88,10 @@
       <div class="ribbon-item"><small>ĐỒNG HỒ GMT+7</small><strong id="clock-utc">00:00:00</strong></div>
     </section>
 
-    <!-- =================================================================
-         KHU VỰC 1: SÂN KHẤU THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO (ẢNH 2 & ẢNH 3)
-         ================================================================= -->
+    <!-- KHU VỰC 1: SÂN KHẤU THẺ CHỮ NHẬT DỌC CÔNG NGHỆ CAO -->
     <section class="holo-gallery-stage">
       <div class="gallery-rings ring-top" aria-hidden="true"><span></span><span></span></div>
-      <h2 class="gallery-heading">SẢNH CHỜ CON NỢ 00 // MODULE CHỮ NHẬT DỌC 3D</h2>
+      <h2 class="gallery-heading">SẢNH CHỜ CON NỢ 00 // MODULE KHÔNG GIAN 3D</h2>
       <p class="gallery-subhint">[ Kéo thả chuột / Vuốt tay qua lại 2 bên hoặc lăn chuột để xoay vòng các Thẻ Holo ]</p>
 
       <div class="gallery-carousel-row">
@@ -120,7 +117,7 @@
                 <svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="4"/><circle cx="23" cy="30" r="6"/><line x1="34" y1="26" x2="48" y2="26"/><line x1="34" y1="34" x2="46" y2="34"/><line x1="16" y1="42" x2="48" y2="42"/></svg>
               </div>
               <div class="card-mid-telemetry"><span>AUTH: CONTRACT</span><span>1/1 SEAL</span></div>
-              <div class="tab-caption"><strong>01 // HỢP ĐỒNG &amp; PROMPT</strong><small>Ký nháp • Xuất Prompt AI Mục XIV</small></div>
+              <div class="tab-caption"><strong>01 // HỢP ĐỒNG &amp; PROMPT</strong><small>Gõ đâu hiện đó • Copy sang GG AI</small></div>
             </button>
 
             <!-- THẺ 02 -->
@@ -219,10 +216,11 @@
                 <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><circle cx="32" cy="18" r="5"/><circle cx="16" cy="44" r="5"/><circle cx="48" cy="44" r="5"/><line x1="32" y1="23" x2="18" y2="40"/><line x1="32" y1="23" x2="46" y2="40"/><line x1="21" y1="44" x2="43" y2="44"/></svg>
               </div>
-              <div class="card-mid-telemetry"><span>NET v4.0</span><span>SIG: Sd.</span></div>
-              <div class="tab-caption"><strong>06 // BÁO ỨNG NET</strong><small>Diễn đàn nội bộ • Nhân sự Cục</small></div>
+              <div class="card-mid-telemetry"><span>NET v4.0</span><span>ANON / ID</span></div>
+              <div class="tab-caption"><strong>06 // BÁO ỨNG NET</strong><small>Bình luận ẩn danh • Tài khoản</small></div>
             </button>
-            <!-- THẺ 07: HỒ SƠ MẬT NHÂN SỰ CỤC (CÓ KHÓA PASS + CẢNH BÁO Sd.) -->
+
+            <!-- THẺ 07 -->
             <button class="holo-tab-card" data-tab="tab-vault" type="button">
               <svg class="card-tech-frame" viewBox="0 0 220 330" preserveAspectRatio="none" aria-hidden="true">
                 <path class="frame-outer" d="M18,4 H84 L92,9 H128 L136,4 H202 L216,18 V92 L211,102 V228 L216,238 V312 L202,326 H136 L128,321 H92 L84,326 H18 L4,312 V238 L9,228 V102 L4,92 V18 Z" />
@@ -238,8 +236,8 @@
                 <div class="circuit-arms" aria-hidden="true"></div>
                 <svg viewBox="0 0 64 64"><rect x="16" y="28" width="32" height="24" rx="4"/><path d="M22 28 V20 A10 10 0 0 1 42 20 V28"/><circle cx="32" cy="40" r="3.5"/><line x1="32" y1="43.5" x2="32" y2="47"/></svg>
               </div>
-              <div class="card-mid-telemetry"><span>CLEARANCE: LV.5</span><span>ENCRYPTED</span></div>
-              <div class="tab-caption"><strong>07 // HỒ SƠ MẬT CỤC</strong><small>Giải đố mở khóa • Thẻ lật NPC &amp; Sd.</small></div>
+              <div class="card-mid-telemetry"><span>3D FAUNA LAB</span><span>ENCRYPTED</span></div>
+              <div class="tab-caption"><strong>07 // HỒ SƠ MẬT CỤC</strong><small>Giải đố 24h • Linh thú 3D NPC</small></div>
             </button>
           </div>
         </div>
@@ -250,30 +248,18 @@
       <div class="gallery-rings ring-bottom" aria-hidden="true"><span></span><span></span></div>
     </section>
 
-    <!-- =================================================================
-         KHU VỰC 2: BUỒNG LÁI VR 3 CÁNH (CÁNH TRÁI BIO 3D + SYSTEM GIỮA + CÁNH PHẢI TERMINAL 00)
-         ================================================================= -->
+    <!-- KHU VỰC 2: BUỒNG LÁI VR 3 CÁNH -->
     <section class="cockpit-3d-grid">
-      <!-- CÁNH TRÁI: QUÉT SINH TRẮC HỌC LINH HỒN 3D (bio-holo.js) -->
       <aside class="cockpit-wing wing-l hoyo-frame bio-holo-box">
         <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
-        <div class="wing-head">
-          <span>BIO-HOLO // SOUL SCANNER</span>
-          <small>THREE.JS</small>
-        </div>
+        <div class="wing-head"><span>BIO-HOLO // SOUL SCANNER</span><small>THREE.JS</small></div>
         <div class="bio-canvas-wrap">
           <canvas id="bio-canvas"></canvas>
           <div class="bio-overlay-tag" id="bio-bpm-readout">SOUL_BPM: 72 • SYNC: 98.4%</div>
         </div>
         <div class="bio-sub-row">
-          <div class="iris-box">
-            <canvas id="iris-canvas" width="58" height="58"></canvas>
-            <small>IRIS_ID</small>
-          </div>
-          <div class="ecg-box">
-            <canvas id="ecg-canvas" width="142" height="50"></canvas>
-            <small>ECG_PULSE</small>
-          </div>
+          <div class="iris-box"><canvas id="iris-canvas" width="58" height="58"></canvas><small>IRIS_ID</small></div>
+          <div class="ecg-box"><canvas id="ecg-canvas" width="142" height="50"></canvas><small>ECG_PULSE</small></div>
         </div>
         <div class="bio-metrics-grid">
           <div><small>SYNAPSE SYNC</small><strong id="m-synapse">98.4%</strong></div>
@@ -283,7 +269,6 @@
         </div>
       </aside>
 
-      <!-- MÀN HÌNH TRUNG TÂM HOYO SYSTEM -->
       <section class="hoyo-frame system-quest-shell" id="system-quest-shell">
         <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
         <div class="quest-crest" aria-hidden="true"><span></span></div>
@@ -296,30 +281,20 @@
           <span class="hex-mini" id="hex-matrix">0x00 E5 FF</span>
         </div>
 
-        <!-- TAB 1: HỒ SƠ KÝ CHỦ LIVE PREVIEW + 2 CHỖ KÝ + COPY SANG GG AI -->
+        <!-- TAB 1: HỒ SƠ LIVE PREVIEW -->
         <div class="hub-panel" id="tab-profile">
           <div class="pane-bar">
             <span>[ TRẠNG THÁI HỒ SƠ: <em id="contract-status-badge">CHƯA KÝ CHÍNH THỨC</em> ]</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-fill-sample" type="button">⚡ ĐIỀN THỬ MẪU</button>
           </div>
           <div class="lock-banner hidden" id="contract-lock-banner">
-            🔒 TÀI KHOẢN NÀY ĐÃ KÝ HỢP ĐỒNG CHÍNH THỨC — Hồ sơ đã niêm phong vĩnh viễn và đồng bộ lên Bảng Xếp Hạng. Bạn vẫn có thể bấm Copy bảng mẫu bên dưới bất cứ lúc nào.
+            🔒 TÀI KHOẢN NÀY ĐÃ KÝ HỢP ĐỒNG CHÍNH THỨC — Hồ sơ đã niêm phong vĩnh viễn và đồng bộ lên Bảng Xếp Hạng.
           </div>
 
           <form id="contract-form" class="contract-grid">
             <label class="field"><span>Họ và tên Ký chủ</span><input type="text" id="f-name" placeholder="vd: Thẩm Mặc" required /></label>
             <label class="field"><span>Mã số / Biệt danh</span><input type="text" id="f-codename" placeholder="vd: Kẻ Đòi Nợ Máu" /></label>
             <label class="field"><span>Tuổi (18+)</span><input type="number" id="f-age" min="18" max="99" value="24" required /></label>
-            <label class="field">
-                  <span>Chủng tộc / Hình thái 3D</span>
-                  <select id="npc-edit-species">
-                    <option value="Người">Người thật (Nhân loại)</option>
-                    <option value="Thú nhân">Thú nhân (Người + Tai &amp; Đuôi)</option>
-                    <option value="Thú (Cáo)">Thú 3D: Cáo Linh (Fox)</option>
-                    <option value="Thú (Chim Quạ)">Thú 3D: Chim Quạ Đen</option>
-                    <option value="Thú (Ngựa)">Thú 3D: Chiến Mã</option>
-                  </select>
-                </label>
             <label class="field"><span>Giới tính &amp; Đại từ xưng hô</span><input type="text" id="f-gender" placeholder="vd: Nữ / Cô - Tôi" required /></label>
             <label class="field">
               <span>Xu hướng tính dục</span>
@@ -351,33 +326,31 @@
                 <option value="avenger">5. Kẻ Điên Báo Thù Bất Cần Đời (Random nợ: -3,800 đến -5,500 PB)</option>
               </select>
             </label>
-            <label class="field"><span>Đặc điểm nhận diện &amp; Ánh mắt gốc</span><input type="text" id="f-appearance" placeholder="vd: Mắt hổ phách sắc lạnh, đuôi mắt có nốt ruồi..." /></label>
-            <label class="field"><span>Mùi hương linh hồn đặc trưng (2–3 mùi)</span><input type="text" id="f-scent" placeholder="vd: Cà phê cháy, thuốc sát trùng, tuyết lạnh" /></label>
-            <label class="field"><span>Tính cách &amp; Phong cách Vả Mặt</span><input type="text" id="f-personality" placeholder="vd: Tỉnh bơ cà khịa, lấy luật pháp nghiền ép" /></label>
+            <label class="field"><span>Đặc điểm nhận diện &amp; Ánh mắt gốc</span><input type="text" id="f-appearance" placeholder="vd: Mắt hổ phách sắc lạnh..." /></label>
+            <label class="field"><span>Mùi hương linh hồn đặc trưng</span><input type="text" id="f-scent" placeholder="vd: Cà phê cháy, tuyết lạnh" /></label>
+            <label class="field"><span>Tính cách &amp; Phong cách Vả Mặt</span><input type="text" id="f-personality" placeholder="vd: Tỉnh bơ cà khịa, lấy luật nghiền ép" /></label>
             <label class="field"><span>Thói xấu / Nghiệp chướng kiếp trước</span><input type="text" id="f-sin" placeholder="vd: Thức đêm, khẩu nghiệp chửi sếp..." required /></label>
-            <label class="field span-2"><span>Kỹ năng sinh tồn thực tế mang theo (Không bàn tay vàng)</span><input type="text" id="f-skill" placeholder="vd: Kiểm toán tài chính, luật pháp, phẫu thuật ngoại khoa..." required /></label>
-            <label class="field span-2"><span>Mối quan hệ khởi điểm với Nhân vật Cục (Sd / Tạ Vô Cữu / Lục Nha / Ngu Hồng Diệp / Tiểu Thất)</span><input type="text" id="f-relations" placeholder="vd: Sòng phẳng với Lục Nha, cảnh giác với ánh nhìn của Quý Cô Sd." /></label>
-            <label class="field span-2"><span>Yêu cầu Kịch bản Thế giới 1 (Tùy chọn)</span><input type="text" id="f-world-req" value="Random Độc Bản" placeholder="Ghi Random Độc Bản hoặc mô tả bối cảnh muốn chơi..." /></label>
-            <label class="field span-2"><span>Câu thoại cửa miệng khi đi đòi nợ báo ứng</span><input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." /></label>
+            <label class="field span-2"><span>Kỹ năng sinh tồn thực tế mang theo</span><input type="text" id="f-skill" placeholder="vd: Kiểm toán tài chính, luật pháp, phẫu thuật..." required /></label>
+            <label class="field span-2"><span>Mối quan hệ khởi điểm với Nhân vật Cục</span><input type="text" id="f-relations" placeholder="vd: Sòng phẳng với Lục Nha, cảnh giác Quý Cô Sd." /></label>
+            <label class="field span-2"><span>Yêu cầu Kịch bản Thế giới 1</span><input type="text" id="f-world-req" value="Random Độc Bản" /></label>
+            <label class="field span-2"><span>Câu thoại cửa miệng</span><input type="text" id="f-quote" placeholder="vd: Nợ có thể trả chậm, nhưng cái tát này thì trả đứt." /></label>
 
             <div class="span-2 dual-sign-box">
               <div class="sign-slot">
-                <small>CHỖ 1 // BẢN NHÁP RANDOM (Bấm để tự random số nợ vào bảng mẫu)</small>
+                <small>CHỖ 1 // BẢN NHÁP RANDOM</small>
                 <button class="btn-secondary holo-tactile" id="btn-sign-draft" type="button">🎲 KÝ THỬ &amp; RANDOM NỢ</button>
               </div>
               <div class="sign-slot">
-                <small>CHỖ 2 // CHÍNH THỨC (Khóa 1 lần • Lên BXH Firebase)</small>
+                <small>CHỖ 2 // CHÍNH THỨC (1 LẦN / KHÓA VĨNH VIỄN)</small>
                 <button class="btn-primary holo-tactile" id="btn-sign-official" type="submit">⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC</button>
               </div>
             </div>
           </form>
 
-          <!-- BIÊN LAI PHẠT CHI TIẾT KHI BẤM RANDOM / KÝ -->
           <div class="audit-result hidden" id="audit-result">
             <div class="audit-receipt" id="audit-receipt-box"></div>
           </div>
 
-          <!-- BẢNG MẪU LIVE: GÕ ĐẾN ĐÂU HIỆN TỚI ĐÓ -> COPY THẲNG SANG GG AI -->
           <div class="live-dossier-box" id="live-dossier-box">
             <div class="live-dossier-head">
               <div>
@@ -394,18 +367,14 @@
           </div>
         </div>
 
-        <!-- TAB 2: MÔ HÌNH 3D TAM GIÁC NGƯỢC THẬT -->
+        <!-- TAB 2: THÁP 3D -->
         <div class="hub-panel hidden" id="tab-pyramid">
-          <p class="pyramid-guide">
-            [ Kéo để xoay tháp 3D • Chạm trực tiếp lên tầng kính trên khối Tam Giác Ngược để bắn tia chỉ điểm &amp; lật mở dữ liệu ]
-          </p>
-
+          <p class="pyramid-guide">[ Kéo để xoay tháp 3D • Chạm trực tiếp lên tầng kính trên khối Tam Giác Ngược ]</p>
           <div class="pyramid-layout" id="pyramid-layout">
             <div class="pyramid-3d-viewport" id="pyramid-3d-viewport">
               <canvas id="pyramid-3d-canvas"></canvas>
               <div class="pyramid-hud-tag">MODEL // INVERTED_TOWER_10.OBJ • DRAG TO ORBIT</div>
             </div>
-
             <svg class="pyramid-arrow-svg" id="pyramid-arrow-svg" aria-hidden="true">
               <defs>
                 <marker id="laser-arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
@@ -415,7 +384,6 @@
               <path id="pyramid-pointer-path" d="" marker-end="url(#laser-arrowhead)" />
               <circle id="pyramid-pointer-origin" cx="0" cy="0" r="5" />
             </svg>
-
             <div class="tier-flip-card" id="tier-flip-card">
               <div class="tier-flip-inner" id="tier-flip-inner">
                 <div class="tier-badge-row">
@@ -432,7 +400,7 @@
           </div>
         </div>
 
-        <!-- TAB 3: BẢNG XẾP HẠNG 24H GMT+7 -->
+        <!-- TAB 3: BXH -->
         <div class="hub-panel hidden" id="tab-ranking">
           <div class="pane-bar">
             <span>[ CHU KỲ RANDOM 24H — MÚI GIỜ GMT+7 ]</span>
@@ -446,7 +414,7 @@
           <div class="rank-scroll-list" id="rank-track"></div>
         </div>
 
-        <!-- TAB 4: KHO TRỌNG ÁN & MÔ PHỎNG !NHIEMVU -->
+        <!-- TAB 4: KHO ÁN & !NHIEMVU -->
         <div class="hub-panel hidden" id="tab-sectors">
           <div class="pane-bar">
             <span>[ DANH MỤC 10 KHU VỰC THẬP ĐIỆN ]</span>
@@ -455,10 +423,9 @@
           <div class="sectors-grid" id="sectors-grid"></div>
           <div class="sector-detail-box">
             <strong id="sd-title">Chọn một Điện để xem chi tiết</strong>
-            <p id="sd-desc">Mọi Kẻ Cướp Phước tại 10 Điện đều mua Hào quang lậu từ mạng lưới ngầm.</p>
+            <p id="sd-desc">Mọi Kẻ Cướp Phước tại 10 Điện đều mua Hào quang lậu.</p>
             <button class="btn-primary holo-tactile" id="btn-lock-sector" type="button">KHÓA MỤC TIÊU ĐIỆN NÀY</button>
           </div>
-
           <div class="pane-bar" style="margin-top: 18px;">
             <span>[ MÔ PHỎNG LỆNH !NHIEMVU — ĐỀ CỬ HỢP ĐỒNG &amp; TRỌNG ÁN ĐỘC BẢN ]</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-gen-contracts" type="button">⚡ SINH 3 TRỌNG ÁN ĐỘC BẢN</button>
@@ -467,33 +434,26 @@
           <div class="unique-cases-list" id="unique-cases-list"></div>
         </div>
 
-        <!-- TAB 5: CHỢ ĐEN LỤC NHA & MÔ PHỎNG !HETHONG -->
+        <!-- TAB 5: CHỢ ĐEN & !HETHONG -->
         <div class="hub-panel hidden" id="tab-market">
-          <div class="pane-bar">
-            <span>[ LỆNH !HETHONG — HÌNH THÁI VẬT LÝ CỦA KẾ TOÁN VIÊN 00 ]</span>
-          </div>
+          <div class="pane-bar"><span>[ LỆNH !HETHONG — HÌNH THÁI VẬT LÝ CỦA KẾ TOÁN VIÊN 00 ]</span></div>
           <div class="manifest-switch-group" id="manifest-switch-group">
             <button class="manifest-btn holo-tactile is-active" data-manifest="pos" type="button">💳 MÁY POS ĐEN (HIỆN ĐẠI)</button>
             <button class="manifest-btn holo-tactile" data-manifest="abacus" type="button">🐦 BÀN TÍNH &amp; QUẠ ĐEN (CỔ ĐẠI)</button>
             <button class="manifest-btn holo-tactile" data-manifest="radio" type="button">📻 RADIO RỈ SÉT (MẠT THẾ / VÔ GIAN)</button>
           </div>
           <div class="manifest-preview-box" id="manifest-preview-box"></div>
-
-          <div class="pane-bar">
-            <span>[ BẢNG GIÁ HỆ THỐNG 00 VS. CHỢ ĐEN LỤC NHA (KHÔNG BÀN TAY VÀNG) ]</span>
-          </div>
-          <p class="market-note">Mọi giao dịch trừ PB yêu cầu tài khoản đã ký Hợp đồng chính thức. Chi phí in biên lai vật lý (!hethong): -1.00 PB.</p>
+          <div class="pane-bar"><span>[ BẢNG GIÁ HỆ THỐNG 00 VS. CHỢ ĐEN LỤC NHA ]</span></div>
+          <p class="market-note">Mọi giao dịch trừ PB yêu cầu tài khoản đã ký Hợp đồng chính thức.</p>
           <div class="market-list" id="market-list"></div>
         </div>
 
-        <!-- TAB 6: MẠNG NỘI BỘ BÁO ỨNG NET (!diendan) + COMMENT USER & ẨN DANH -->
+        <!-- TAB 6: BÁO ỨNG NET -->
         <div class="hub-panel hidden" id="tab-forum">
           <div class="pane-bar">
             <span>[ MẠNG NỘI BỘ BÁO ỨNG NET v4.0 — !DIENDAN ]</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-refresh-forum" type="button">Quét tin mới (-0.50 PB)</button>
           </div>
-
-          <!-- KHUNG SETTING ĐĂNG BÌNH LUẬN (MẶC ĐỊNH TÀI KHOẢN LOGIN / CHUYỂN ẨN DANH) -->
           <form class="forum-composer" id="forum-composer">
             <div class="composer-identity-row">
               <span class="composer-label">CHẾ ĐỘ ĐĂNG TIN:</span>
@@ -501,20 +461,10 @@
                 <button type="button" class="identity-mode-btn holo-tactile is-active" id="btn-mode-account" data-post-mode="account">
                   👤 <span id="forum-account-preview">Tài khoản đăng nhập</span>
                 </button>
-                <button type="button" class="identity-mode-btn holo-tactile" id="btn-mode-anon" data-post-mode="anon">
-                  🎭 Đăng Ẩn Danh
-                </button>
+                <button type="button" class="identity-mode-btn holo-tactile" id="btn-mode-anon" data-post-mode="anon">🎭 Đăng Ẩn Danh</button>
               </div>
             </div>
-
-            <textarea
-              id="forum-comment-input"
-              rows="3"
-              maxlength="500"
-              placeholder="Bóc phốt Kẻ Cướp Phước, chia sẻ mẹo vả mặt hoặc than thở vận đen lên Báo Ứng Net..."
-              required
-            ></textarea>
-
+            <textarea id="forum-comment-input" rows="3" maxlength="500" placeholder="Bóc phốt Kẻ Cướp Phước hoặc than thở vận đen..." required></textarea>
             <div class="composer-footer">
               <small id="forum-post-hint">Đang chọn: Mặc định theo tài khoản đăng nhập</small>
               <div class="composer-actions">
@@ -523,18 +473,15 @@
               </div>
             </div>
           </form>
-
           <div class="forum-feed" id="forum-feed"></div>
-         <div class="vault-teaser-bar">
-            <span>🔐 Hồ sơ chi tiết các Nhân sự Cấp Cao Cục Báo Ứng đã được chuyển vào Kho Lưu Trữ Mật (Yêu cầu giải mã).</span>
+          <div class="vault-teaser-bar">
+            <span>🔐 Hồ sơ Sinh trắc học &amp; Linh thú 3D Nhân sự Cục được lưu trong Kho Mật.</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-goto-vault" type="button">MỞ TAB 07: HỒ SƠ MẬT →</button>
           </div>
         </div>
 
-        <!-- TAB 7: KHO HỒ SƠ MẬT NHÂN SỰ CỤC (GIẢI ĐỐ PASS + LẬT THẺ 3D + LỖI XÂM NHẬP Sd.) -->
+        <!-- TAB 7: KHO HỒ SƠ MẬT + SETTING 1 ĐỘNG VẬT 3D / NPC -->
         <div class="hub-panel hidden" id="tab-vault">
-          <!-- MÀN KHÓA GIẢI ĐỐ MẸO -->
-          <!-- MÀN KHÓA GIẢI ĐỐ MẸO & LOGIC CĂNG NÃO (3 BỘ ĐỀ XOAY VÒNG) -->
           <div class="vault-lock-screen" id="vault-lock-screen">
             <div class="vault-lock-header">
               <div class="vault-header-top">
@@ -544,9 +491,7 @@
               <h4 id="vault-protocol-title">🔐 KÉT LƯU TRỮ HỒ SƠ MẬT — XÁC THỰC TRÍ TUỆ</h4>
               <p>Giải đúng <strong>5 câu đố vặn vẹo</strong> bên dưới (cẩn thận bẫy đọc lướt), ghép 5 chữ số theo đúng thứ tự để mở Kho Thẻ:</p>
             </div>
-
             <ol class="riddle-list" id="vault-riddle-list"></ol>
-
             <form class="vault-pass-form" id="vault-riddle-form">
               <input type="text" id="vault-pass-input" maxlength="8" placeholder="Nhập mật mã 5 số..." autocomplete="off" required />
               <button class="btn-primary holo-tactile" type="submit">🔓 GIẢI MÃ TRUY CẬP</button>
@@ -556,49 +501,46 @@
             <div class="vault-hint-box hidden" id="vault-hint-box"></div>
           </div>
 
-          <!-- KHO 6 THẺ LẬT 3D (SAU KHI MỞ PASS) -->
           <div class="vault-cards-stage hidden" id="vault-cards-stage">
             <div class="pane-bar">
-              <span>[ BẤM THẺ ĐỂ QUÉT DỮ LIỆU &amp; PHÓNG TO BẢNG CHỈ SỐ ]</span>
+              <span>[ BẤM THẺ ĐỂ GIẢI MÃ &amp; XEM ĐỘNG VẬT 3D BIỂU TƯỢNG ]</span>
               <div class="vault-stage-actions">
-                <button class="btn-secondary holo-tactile mini-btn" id="btn-toggle-npc-editor" type="button">⚙️ SETTING ẢNH &amp; DÁNG NPC</button>
+                <button class="btn-secondary holo-tactile mini-btn" id="btn-toggle-npc-editor" type="button">⚙️ SETTING ẢNH &amp; LINH THÚ 3D</button>
                 <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
               </div>
             </div>
 
-            <!-- BẢNG SETTING ẢNH + GIỚI TÍNH + CHIỀU CAO + CÂN NẶNG CHO NPC -->
+            <!-- SETTING MỖI NPC 1 ĐỘNG VẬT 3D THẬT + ẢNH CHÂN DUNG -->
             <form class="npc-editor-panel hidden" id="npc-editor-panel">
               <div class="npc-editor-grid">
                 <label class="field">
                   <span>Chọn NPC cần Setting</span>
                   <select id="npc-edit-select">
+                    <option value="sys00">Hệ Thống 00 (Kế Toán Viên)</option>
                     <option value="tavocuu">Tạ Vô Cữu (Thanh Tra Trưởng)</option>
                     <option value="lucnha">Lục Nha (Trùm Chợ Đen)</option>
                     <option value="nguhongdiep">Ngu Hồng Diệp (Giám Ngục)</option>
                     <option value="tieuthat">Tiểu Thất #707 (Thực Tập Sinh)</option>
-                    <option value="sys00">Hệ Thống 00 (Kế Toán Viên)</option>
-                    <option value="sd">Quý Cô 'Sd.' (Trùm Cuối — Ground Truth)</option>
+                    <option value="sd">Quý Cô 'Sd.' (Trùm Cuối)</option>
                   </select>
                 </label>
                 <label class="field">
-                  <span>Giới tính (Đổi form dáng người)</span>
-                  <select id="npc-edit-gender">
-                    <option value="Nam">Nam (Vai rộng, thân chữ V)</option>
-                    <option value="Nữ">Nữ (Eo thon, đường cong)</option>
-                    <option value="Phi giới tính">Phi giới tính (Thanh mảnh)</option>
-                    <option value="AI / Vô tính">AI / Vô tính (Khung lượng tử)</option>
+                  <span>1 Loài Động Vật 3D Biểu Tượng</span>
+                  <select id="npc-edit-animal">
+                    <option value="stork">Hắc Hạc Đưa Tin (Stork.glb — Bay)</option>
+                    <option value="horse">Chiến Mã Phán Quyết (Horse.glb — Phi)</option>
+                    <option value="fox">Xích Hồ Ly Chợ Đen (Fox.glb — Cáo)</option>
+                    <option value="flamingo">Hồng Hạc Huyết Đỏ (Flamingo.glb — Bay)</option>
+                    <option value="parrot">Vẹt Báo Tin Hậu Đậu (Parrot.glb — Bay)</option>
+                    <option value="shark">Bạch Sa Vũ Trụ (shark.glb — Bơi)</option>
                   </select>
-                </label>
-                <label class="field">
-                  <span>Chiều cao (cm)</span>
-                  <input type="number" id="npc-edit-height" min="140" max="220" value="188" />
-                </label>
-                <label class="field">
-                  <span>Cân nặng (kg)</span>
-                  <input type="number" id="npc-edit-weight" min="0" max="150" value="76" />
                 </label>
                 <label class="field span-2">
-                  <span>Link Ảnh Chân Dung NPC (hoặc chọn file từ máy bên dưới)</span>
+                  <span>Link Model 3D .GLB riêng (Để trống sẽ tự dùng model động vật 3D thật mặc định)</span>
+                  <input type="url" id="npc-edit-model" placeholder="https://.../animal.glb hoặc ./assets/models/..." />
+                </label>
+                <label class="field span-2">
+                  <span>Link Ảnh Chân Dung NPC (Góc trái khung hồ sơ)</span>
                   <input type="url" id="npc-edit-avatar" placeholder="https://... hoặc ./assets/..." />
                 </label>
               </div>
@@ -616,22 +558,17 @@
 
             <div class="vault-cards-grid" id="vault-cards-grid"></div>
           </div>
+        </div>
 
-        <!-- BIÊN LAI TRỰC TIẾP -->
         <div class="terminal-footer-log">
           <span>RECEIPT.LOG:</span>
-          <div class="inline-log" id="receipt-feed"><p class="muted">&gt; Trạm quỹ đạo VR sẵn sàng. Chạm hoặc trượt để thao tác.</p></div>
+          <div class="inline-log" id="receipt-feed"><p class="muted">&gt; Trạm quỹ đạo VR sẵn sàng.</p></div>
         </div>
       </section>
 
-      <!-- CÁNH PHẢI: RADAR + MÁY IN HÓA ĐƠN NHIỆT + BẢNG LỆNH NHANH -->
       <aside class="cockpit-wing wing-r hoyo-frame bio-holo-box">
         <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
-        <div class="wing-head">
-          <span>TERMINAL 00 // AUDIT FEED</span>
-          <small>LIVE</small>
-        </div>
-
+        <div class="wing-head"><span>TERMINAL 00 // AUDIT FEED</span><small>LIVE</small></div>
         <div class="radar-center-wrap">
           <svg class="mini-radar" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="44" />
@@ -644,30 +581,25 @@
             <circle class="blip alt" cx="32" cy="64" r="2.5" />
           </svg>
         </div>
-
         <div class="thermal-printer-slot">
           <div class="printer-head">
             <span>🧾 HÓA ĐƠN NHIỆT 00</span>
             <button class="btn-secondary holo-tactile mini-btn" id="btn-print-receipt" type="button">IN (-1 PB)</button>
           </div>
-          <div class="thermal-paper" id="thermal-paper">
-            <p>【HỆ THỐNG 00】: Máy in hóa đơn nhiệt đang chờ giao dịch.</p>
-          </div>
+          <div class="thermal-paper" id="thermal-paper"><p>【HỆ THỐNG 00】: Máy in hóa đơn nhiệt đang chờ giao dịch.</p></div>
         </div>
-
         <div class="quick-cmd-grid">
           <button class="cmd-chip holo-tactile" data-cmd="!hethong" type="button">!hethong</button>
           <button class="cmd-chip holo-tactile" data-cmd="!nhiemvu" type="button">!nhiemvu</button>
           <button class="cmd-chip holo-tactile" data-cmd="!diendan" type="button">!diendan</button>
           <button class="cmd-chip holo-tactile" data-cmd="!kiemtoan" type="button">!kiemtoan</button>
         </div>
-
         <div class="live-number-ticker" id="live-number-ticker">00.00 | 0x00 | 98.4%</div>
       </aside>
     </section>
   </main>
 
-  <!-- MODAL TÀI KHOẢN & ĐỔI AVATAR -->
+  <!-- MODAL TÀI KHOẢN FIREBASE -->
   <div class="modal-backdrop hidden" id="modal-auth">
     <div class="hoyo-frame sys-modal">
       <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
@@ -688,7 +620,6 @@
           </form>
           <p class="auth-msg" id="auth-msg"></p>
         </div>
-
         <div id="auth-logged-in" class="hidden">
           <div class="profile-box">
             <img id="profile-avatar" class="profile-avatar-lg" src="" alt="Avatar" />
@@ -698,28 +629,22 @@
               <p class="pb-tag">Phước Báu: <span id="profile-pb">Chưa ký hợp đồng (-- PB)</span></p>
             </div>
           </div>
-
           <div class="avatar-editor">
             <label>ĐỔI AVATAR CON NỢ (Link ảnh hoặc tải từ máy)</label>
             <div class="avatar-row">
               <input type="url" id="avatar-url-input" placeholder="Dán link ảnh Avatar..." />
               <button class="btn-secondary holo-tactile" id="btn-save-avatar-url" type="button">Lưu</button>
             </div>
-            <label class="file-upload-btn holo-tactile">
-              📁 Chọn ảnh từ máy
-              <input type="file" id="avatar-file-input" accept="image/*" hidden />
-            </label>
+            <label class="file-upload-btn holo-tactile">📁 Chọn ảnh từ máy<input type="file" id="avatar-file-input" accept="image/*" hidden /></label>
           </div>
-
-          <div class="auth-actions">
-            <button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button>
-          </div>
+          <div class="auth-actions"><button class="btn-danger holo-tactile" id="btn-logout" type="button">Đăng xuất</button></div>
           <p class="auth-msg" id="auth-sync-msg"></p>
         </div>
       </div>
     </div>
   </div>
-  <!-- MODAL BIO-TELEMETRY 3D TINH TẾ TƯƠNG LAI (3 CỘT CHUẨN ẢNH CONCEPT) -->
+
+  <!-- MODAL BIO-TELEMETRY 3D ĐỘNG VẬT THẬT + CHỈ ĐIỂM CHI TIẾT ĐỘNG VẬT -->
   <div class="modal-backdrop hidden" id="npc-dossier-modal">
     <div class="hoyo-frame bio-lab-shell bio-lab-wide">
       <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
@@ -731,50 +656,44 @@
           <small id="lab-npc-role">TỔNG KIỂM TOÁN TRƯỞNG</small>
         </div>
         <div class="bio-lab-status-right">
-          <span class="lab-online-dot">AI DIAGNOSTICS LIVE <i></i></span>
+          <button class="btn-secondary holo-tactile mini-btn" id="btn-morph-mode" type="button">💠 CHẾ ĐỘ: THỰC TẾ 3D</button>
+          <span class="lab-online-dot">AI TELEMETRY LIVE <i></i></span>
           <button class="btn-secondary holo-tactile mini-btn" id="btn-close-npc-modal" type="button">✕ ĐÓNG</button>
         </div>
       </div>
 
       <div class="bio-lab-3col">
-        <!-- CỘT 1 (TRÁI): ẢNH CHÂN DUNG + VITAL MATRIX + SÓNG ECG CHẠY -->
+        <!-- CỘT 1: ẢNH NPC GÓC TRÁI + VITAL MATRIX + ECG + AI NEURAL STREAM -->
         <div class="bio-lab-col">
           <div class="bio-portrait-frame" id="lab-portrait-box"></div>
-
           <div class="bio-subpanel">
             <div class="subpanel-head"><span>VITAL MATRIX</span><small>LIVE ECG</small></div>
             <canvas id="lab-ecg-canvas" width="260" height="44"></canvas>
             <div class="vital-matrix-list" id="lab-vital-list"></div>
           </div>
-
           <div class="bio-subpanel">
             <div class="subpanel-head"><span>AI NEURAL STREAM</span><small>RUNNING</small></div>
             <div class="lab-ai-stream" id="lab-ai-stream"></div>
           </div>
         </div>
 
-        <!-- CỘT 2 (GIỮA): MÔ HÌNH NGƯỜI 3D XOAY 360 + ZOOM + TIA CHỈ ĐIỂM VÙNG -->
+        <!-- CỘT 2: ĐỘNG VẬT 3D THẬT XOAY 360 + CHỈ ĐIỂM CHI TIẾT ĐỘNG VẬT -->
         <div class="bio-lab-col">
           <div class="bio-subpanel morph-stage-card">
-          <div class="subpanel-head">
-              <span>3D MORPHOLOGY VIEWER</span>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <small id="lab-morph-tag">NAM • 188 CM</small>
-                <button class="btn-secondary holo-tactile" id="btn-lab-random-morph" type="button" style="padding:2px 7px; font-size:0.56rem;">🎲 RANDOM</button>
-                <button class="btn-secondary holo-tactile" id="btn-lab-toggle-shader" type="button" style="padding:2px 7px; font-size:0.56rem;">💎 HOLO</button>
-              </div>
+            <div class="subpanel-head">
+              <span id="lab-animal-header">LINH THÚ 3D BIỂU TƯỢNG (KÉO XOAY • LĂN ZOOM)</span>
+              <small id="lab-morph-tag">HORSE.GLB</small>
             </div>
 
             <div class="morph-pod-viewport morph-pod-tall" id="lab-morph-pod">
               <canvas id="lab-morph-canvas"></canvas>
-              <div class="morph-loading-hud hidden" id="lab-morph-loading">ĐANG TẢI MODEL 3D... 0%</div>
-              <div class="morph-live-hud" id="lab-morph-live-hud">RIG: XBOT_BIO // DRAG 360°</div>
+              <div class="morph-loader-badge hidden" id="lab-model-loading">ĐANG NẠP MODEL 3D...</div>
               <svg class="morph-callout-svg" id="lab-callout-svg" aria-hidden="true"></svg>
 
-              <button type="button" class="zone-pin-btn pin-head is-active" data-zone="head">ĐẦU / MẮT</button>
-              <button type="button" class="zone-pin-btn pin-chest" data-zone="chest">CỔ / NGỰC</button>
-              <button type="button" class="zone-pin-btn pin-hand" data-zone="hand">TAY / ĐẠO CỤ</button>
-              <button type="button" class="zone-pin-btn pin-stance" data-zone="stance">DÁNG / BÍ MẬT</button>
+              <button type="button" class="zone-pin-btn pin-head is-active" data-zone="head">ĐẦU &amp; GIÁC QUAN</button>
+              <button type="button" class="zone-pin-btn pin-chest" data-zone="chest">THÂN &amp; LÕI TIM</button>
+              <button type="button" class="zone-pin-btn pin-limb" data-zone="limb">CÁNH / CHI / VUỐT</button>
+              <button type="button" class="zone-pin-btn pin-tail" data-zone="tail">ĐUÔI &amp; ĐỘNG LỰC</button>
             </div>
 
             <div class="lab-zone-detail" id="lab-zone-detail"></div>
@@ -782,25 +701,20 @@
           </div>
         </div>
 
-        <!-- CỘT 3 (PHẢI): BIỂU ĐỒ AI CHẠY + ĐỒNG HỒ TRÒN + LED INDEX + TIỂU SỬ -->
+        <!-- CỘT 3: BIỂU ĐỒ AI + RADIAL GAUGE + LED INDEX + HỒ SƠ -->
         <div class="bio-lab-col">
           <div class="bio-subpanel">
             <div class="subpanel-head"><span>AI-DRIVEN DIAGNOSTICS</span><small>TELEMETRY</small></div>
             <canvas id="lab-ai-chart" width="380" height="88"></canvas>
             <div class="lab-radial-gauges" id="lab-radial-gauges"></div>
           </div>
-
           <div class="bio-subpanel">
             <div class="subpanel-head"><span>KARMIC TELEMETRY INDEX</span><small>OPTIMAL</small></div>
             <div class="seg-bars-list" id="lab-seg-bars"></div>
-            <div class="lab-artifact-box">
-              <small>BIỂU TƯỢNG NHÂN QUẢ</small>
-              <p id="lab-artifact"></p>
-            </div>
+            <div class="lab-artifact-box"><small>BIỂU TƯỢNG NHÂN QUẢ</small><p id="lab-artifact"></p></div>
           </div>
-
           <div class="bio-subpanel lab-dossier-detail">
-            <div class="subpanel-head"><span>CLASSIFIED PROFILE</span><small>DECRYPTED</small></div>
+            <div class="subpanel-head"><span>HỒ SƠ ĐỊNH DANH</span><small>DECRYPTED</small></div>
             <p class="lab-bio-text" id="lab-bio"></p>
             <blockquote class="lab-quote-box" id="lab-quote"></blockquote>
           </div>
@@ -808,19 +722,19 @@
       </div>
     </div>
   </div>
-  <!-- MÀN HÌNH CẢNH BÁO XÂM NHẬP HỆ THỐNG (KHI BẤM THẺ Sd.) -->
+
+  <!-- MÀN HÌNH CẢNH BÁO XÂM NHẬP HỆ THỐNG -->
   <div class="intrusion-overlay hidden" id="intrusion-overlay" role="alertdialog" aria-modal="true">
     <div class="hazard-tape tape-top">
       <span>⚠ WARNING // UNAUTHORIZED BREACH DETECTED // PHÁT HIỆN KẺ XÂM NHẬP HỆ THỐNG // ERROR 403 ⚠</span>
     </div>
-
     <div class="intrusion-alert-box">
       <div class="intrusion-icon">⚠</div>
       <div class="intrusion-code">SYSTEM ERROR 403 // CLEARANCE OMEGA VIOLATION</div>
       <h2 class="intrusion-title">CẢNH BÁO: KẺ XÂM NHẬP HỆ THỐNG!</h2>
       <p class="intrusion-desc">
         <strong>KHÔNG CÓ QUYỀN TRUY CẬP HỒ SƠ [Sd.]</strong><br />
-        Hệ thống Kiểm toán Trung tâm đã khóa luồng dữ liệu, ghi nhận dấu vết linh hồn và phát lệnh truy vết khẩn cấp tới Thanh Tra Trưởng Tạ Vô Cữu.
+        Hệ thống Kiểm toán Trung tâm đã khóa luồng dữ liệu và phát lệnh truy vết khẩn cấp tới Thanh Tra Trưởng Tạ Vô Cữu.
       </p>
       <div class="intrusion-trace">
         <span id="intrusion-status-line">TRACING SOUL SIGNATURE... LOCKDOWN IN PROGRESS</span>
@@ -829,11 +743,11 @@
       <div class="intrusion-progress"><span id="intrusion-progress-bar"></span></div>
       <button class="btn-ghost mini-btn" id="btn-dismiss-intrusion" type="button" style="margin-top:10px; border-color:rgba(255,80,100,0.45); color:#ffb3be;">Ngắt tín hiệu khẩn cấp</button>
     </div>
-
     <div class="hazard-tape tape-bottom">
       <span>⚠ ACCESS DENIED // TRUY CẬP BỊ TỪ CHỐI // SYSTEM LOCKDOWN // DO NOT ATTEMPT AGAIN ⚠</span>
     </div>
   </div>
+
   <script type="module" src="./js/hub.js"></script>
 </body>
 </html>

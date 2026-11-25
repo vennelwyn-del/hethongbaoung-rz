@@ -1,4 +1,4 @@
-// js/canvas-bg.js — Three.js Cosmic Orbital Space Station, Wireframe Holo-City (Ảnh 3) & Parallax 3D
+// js/canvas-bg.js — Đường hầm Dữ liệu AI Nhị phân 0/1 + Điểm Sáng Chân Trời (Theo ảnh concept)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
 
@@ -11,150 +11,179 @@ export function initVRCanvas() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x020612, 0.017);
+  scene.fog = new THREE.FogExp2(0x020612, 0.015);
 
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 180);
-  camera.position.set(0, 2.2, 18);
+  const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 180);
+  camera.position.set(0, 1.4, 18);
 
   function getHexColors() {
     const s = getComputedStyle(document.documentElement);
-    const p = s.getPropertyValue("--c-primary").trim() || "#00E5FF";
-    const sec = s.getPropertyValue("--c-secondary").trim() || "#5EA8FF";
-    const bg = s.getPropertyValue("--bg-void").trim() || "#020612";
     return {
-      primary: new THREE.Color(p),
-      secondary: new THREE.Color(sec),
-      voidBg: new THREE.Color(bg)
+      primaryStr: s.getPropertyValue("--c-primary").trim() || "#00E5FF",
+      secondaryStr: s.getPropertyValue("--c-secondary").trim() || "#5EA8FF",
+      primary: new THREE.Color(s.getPropertyValue("--c-primary").trim() || "#00E5FF"),
+      secondary: new THREE.Color(s.getPropertyValue("--c-secondary").trim() || "#5EA8FF"),
+      voidBg: new THREE.Color(s.getPropertyValue("--bg-void").trim() || "#020612")
     };
   }
 
   let colors = getHexColors();
   scene.fog.color.copy(colors.voidBg);
 
-  // 1. TRƯỜNG SAO VŨ TRỤ SÂU ĐA TẦNG (COSMIC STARFIELD)
-  const starCount = 1200;
+  // TẠO TEXTURE DẢI SỐ NHỊ PHÂN 0 / 1 PHÁT SÁNG SẮC NÉT
+  function makeBinaryStreamTexture(colorHex, seed = 1) {
+    const c = document.createElement("canvas");
+    c.width = 128;
+    c.height = 512;
+    const ctx = c.getContext("2d");
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, "transparent");
+    grad.addColorStop(0.18, colorHex);
+    grad.addColorStop(0.5, "#ffffff");
+    grad.addColorStop(0.82, colorHex);
+    grad.addColorStop(1, "transparent");
+
+    ctx.font = "bold 36px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.shadowColor = colorHex;
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = grad;
+
+    for (let y = 36; y < 490; y += 44) {
+      const bit = ((Math.sin(y * 1.37 + seed * 7.1) + 1) * 0.5) > 0.48 ? "1" : "0";
+      ctx.globalAlpha = 0.45 + 0.55 * Math.abs(Math.sin(y * 0.2 + seed));
+      ctx.fillText(bit, 64, y);
+    }
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+
+  // TẠO TEXTURE HÀO QUANG ĐIỂM CHÂN TRỜI
+  function makeHorizonFlareTexture(colorHex) {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 512;
+    const ctx = c.getContext("2d");
+    const g = ctx.createRadialGradient(256, 256, 8, 256, 256, 250);
+    g.addColorStop(0, "#ffffff");
+    g.addColorStop(0.16, colorHex);
+    g.addColorStop(0.45, "rgba(0, 140, 255, 0.22)");
+    g.addColorStop(1, "transparent");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 512, 512);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const binTex1 = makeBinaryStreamTexture(colors.primaryStr, 1);
+  const binTex2 = makeBinaryStreamTexture(colors.secondaryStr, 2);
+  const flareTex = makeHorizonFlareTexture(colors.primaryStr);
+
+  // 1. ĐIỂM KỲ DỊ ÁNH SÁNG CHÂN TRỜI (SINGULARITY FLARE)
+  const flareMat = new THREE.SpriteMaterial({
+    map: flareTex,
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.95,
+    blending: THREE.AdditiveBlending
+  });
+  const horizonFlare = new THREE.Sprite(flareMat);
+  horizonFlare.position.set(0, -1.6, -54);
+  horizonFlare.scale.set(42, 32, 1);
+  scene.add(horizonFlare);
+
+  // CÁC TIA SÁNG XUYÊN TÂM TỎA RA TỪ CHÂN TRỜI
+  const rayMat = new THREE.MeshBasicMaterial({
+    color: colors.primary,
+    transparent: true,
+    opacity: 0.12,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  const rayPlanes = [];
+  for (let i = 0; i < 6; i++) {
+    const ray = new THREE.Mesh(new THREE.PlaneGeometry(58, 0.55), rayMat);
+    ray.position.set(0, -1.6, -53.5);
+    ray.rotation.z = (i / 6) * Math.PI;
+    scene.add(ray);
+    rayPlanes.push(ray);
+  }
+
+  // 2. MẶT SÀN DỮ LIỆU PHỐI CẢNH LAO VỀ PHÍA TRƯỚC
+  const floorGrid = new THREE.GridHelper(180, 72, colors.primary, colors.primary);
+  floorGrid.position.y = -7.2;
+  floorGrid.material.transparent = true;
+  floorGrid.material.opacity = 0.26;
+  scene.add(floorGrid);
+
+  // CÁC DẢI TIA SÁNG CHẠY DỌC MẶT SÀN HƯỚNG TỚI CHÂN TRỜI
+  const trackLines = [];
+  for (let i = -8; i <= 8; i++) {
+    if (i === 0) continue;
+    const pts = [new THREE.Vector3(i * 3.8, -7.15, 22), new THREE.Vector3(i * 0.45, -2.0, -54)];
+    const mat = new THREE.LineBasicMaterial({
+      color: i % 2 === 0 ? colors.primary : colors.secondary,
+      transparent: true,
+      opacity: 0.28,
+      blending: THREE.AdditiveBlending
+    });
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
+    l.userData = { isSec: i % 2 !== 0 };
+    scene.add(l);
+    trackLines.push(l);
+  }
+
+  // 3. CÁC CỘT THÁC SỐ 0/1 DỌC HAI BÊN HÀNH LANG VŨ TRỤ
+  const rainPillars = [];
+  const pillarGeo = new THREE.PlaneGeometry(1.35, 16);
+  for (let i = 0; i < 38; i++) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const x = side * (3.6 + Math.random() * 24);
+    const y = (Math.random() - 0.15) * 10;
+    const z = -52 + Math.random() * 62;
+    const useSec = i % 3 === 0;
+    const mat = new THREE.MeshBasicMaterial({
+      map: useSec ? binTex2 : binTex1,
+      transparent: true,
+      opacity: 0.35 + Math.random() * 0.45,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const mesh = new THREE.Mesh(pillarGeo, mat);
+    mesh.position.set(x, y, z);
+    mesh.userData = {
+      speedZ: 0.08 + Math.random() * 0.12,
+      speedScroll: 0.004 + Math.random() * 0.008,
+      baseX: x
+    };
+    scene.add(mesh);
+    rainPillars.push(mesh);
+  }
+
+  // 4. BỤI HẠT NĂNG LƯỢNG CHÂN TRỜI
+  const starCount = 950;
   const starPositions = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
-    starPositions[i * 3] = (Math.random() - 0.5) * 140;
-    starPositions[i * 3 + 1] = (Math.random() - 0.25) * 75;
-    starPositions[i * 3 + 2] = -95 + Math.random() * 110;
+    starPositions[i * 3] = (Math.random() - 0.5) * 90;
+    starPositions[i * 3 + 1] = -7.0 + Math.random() * 34;
+    starPositions[i * 3 + 2] = -60 + Math.random() * 75;
   }
   const starGeo = new THREE.BufferGeometry();
   starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
   const starMat = new THREE.PointsMaterial({
     color: colors.primary,
-    size: 0.17,
+    size: 0.16,
     transparent: true,
     opacity: 0.85,
     blending: THREE.AdditiveBlending
   });
-  const starField = new THREE.Points(starGeo, starMat);
-  scene.add(starField);
+  scene.add(new THREE.Points(starGeo, starMat));
 
-  // 2. SÀN & TRẦN LƯỚI KHÔNG GIAN QUỸ ĐẠO
-  const gridBottom = new THREE.GridHelper(160, 56, colors.primary, colors.primary);
-  gridBottom.position.y = -8.2;
-  gridBottom.material.transparent = true;
-  gridBottom.material.opacity = 0.24;
-  scene.add(gridBottom);
-
-  const gridTop = new THREE.GridHelper(160, 48, colors.secondary, colors.secondary);
-  gridTop.position.y = 14.5;
-  gridTop.material.transparent = true;
-  gridTop.material.opacity = 0.11;
-  scene.add(gridTop);
-
-  // 3. THÀNH PHỐ HOLOGRAM WIREFRAME ĐƯỜNG CHÂN TRỜI (CẢM HỨNG ẢNH 3)
-  const cityGroup = new THREE.Group();
-  const cityTowers = [];
-  const towerBoxGeo = new THREE.BoxGeometry(1, 1, 1);
-  const towerEdgesGeo = new THREE.EdgesGeometry(towerBoxGeo);
-
-  for (let i = 0; i < 42; i++) {
-    const colKey = i % 4 === 0 ? "secondary" : "primary";
-    const w = 1.1 + Math.random() * 2.2;
-    const h = 3.2 + Math.random() * 12.5;
-    const d = 1.1 + Math.random() * 2.2;
-    const x = (Math.random() - 0.5) * 86;
-    const z = -22 - Math.random() * 52;
-
-    // Tránh che kín giữa tầm nhìn gần quá
-    if (Math.abs(x) < 7 && z > -30) continue;
-
-    const wireMat = new THREE.LineBasicMaterial({ color: colors[colKey], transparent: true, opacity: 0.42 });
-    const glassMat = new THREE.MeshBasicMaterial({ color: colors[colKey], transparent: true, opacity: 0.05, depthWrite: false });
-
-    const tower = new THREE.Group();
-    const wire = new THREE.LineSegments(towerEdgesGeo, wireMat);
-    const glass = new THREE.Mesh(towerBoxGeo, glassMat);
-    tower.add(wire, glass);
-    tower.scale.set(w, h, d);
-    tower.position.set(x, -8.2 + h * 0.5, z);
-    tower.userData = { colKey, wireMat, glassMat, baseOpacity: 0.34 + Math.random() * 0.24, phase: Math.random() * 6.28 };
-    cityGroup.add(tower);
-    cityTowers.push(tower);
-  }
-  scene.add(cityGroup);
-
-  // 4. VÒNG QUỸ ĐẠO TRẠM KHÔNG GIAN KHỔNG LỒ (ORBITAL RINGS - ẢNH 1 & 2)
-  const gyroGroup = new THREE.Group();
-  const ringSpecs = [
-    { r: 10.5, tube: 0.045, col: "primary", rx: 0.42, ry: 0.24, sx: 0.002, sy: 0.004 },
-    { r: 13.8, tube: 0.035, col: "secondary", rx: -0.62, ry: 0.5, sx: -0.003, sy: 0.0025 },
-    { r: 17.5, tube: 0.028, col: "primary", rx: 1.05, ry: -0.34, sx: 0.0018, sy: -0.0035 },
-    { r: 22.0, tube: 0.022, col: "secondary", rx: 1.38, ry: 0.15, sx: -0.001, sy: 0.002 }
-  ];
-  const gyroMeshes = ringSpecs.map((sp) => {
-    const geo = new THREE.TorusGeometry(sp.r, sp.tube, 8, 112);
-    const mat = new THREE.MeshBasicMaterial({ color: colors[sp.col], transparent: true, opacity: 0.38 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.rotation.set(sp.rx, sp.ry, 0);
-    mesh.userData = { colKey: sp.col, speedX: sp.sx, speedY: sp.sy };
-    gyroGroup.add(mesh);
-    return mesh;
-  });
-  gyroGroup.position.set(0, 2.2, -16);
-  scene.add(gyroGroup);
-
-  // 5. KHỐI LẬP PHƯƠNG DỮ LIỆU BAY TRÔI KHÔNG TRỌNG LỰC
-  const cubes = [];
-  for (let i = 0; i < 24; i++) {
-    const colKey = i % 3 === 0 ? "secondary" : "primary";
-    const group = new THREE.Group();
-    const wireMat = new THREE.LineBasicMaterial({ color: colors[colKey], transparent: true, opacity: 0.65 });
-    const glassMat = new THREE.MeshBasicMaterial({ color: colors[colKey], transparent: true, opacity: 0.07, depthWrite: false });
-    group.add(new THREE.LineSegments(towerEdgesGeo, wireMat), new THREE.Mesh(towerBoxGeo, glassMat));
-
-    const scale = 0.55 + Math.random() * 1.65;
-    group.scale.setScalar(scale);
-    group.position.set((Math.random() - 0.5) * 48, (Math.random() - 0.35) * 20, -60 + Math.random() * 68);
-    group.userData = {
-      colKey,
-      wireMat,
-      glassMat,
-      rx: (Math.random() - 0.5) * 0.012,
-      ry: (Math.random() - 0.5) * 0.014,
-      vz: 0.035 + Math.random() * 0.055
-    };
-    scene.add(group);
-    cubes.push(group);
-  }
-
-  // 6. DẢI SÓNG TÍN HIỆU LƯỢNG TỬ
-  const waveLines = [];
-  for (let w = 0; w < 3; w++) {
-    const pts = [];
-    for (let i = 0; i <= 76; i++) pts.push(new THREE.Vector3(-38 + i, 0, -16 - w * 6));
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    const colKey = w % 2 === 0 ? "primary" : "secondary";
-    const mat = new THREE.LineBasicMaterial({ color: colors[colKey], transparent: true, opacity: 0.36 });
-    const line = new THREE.Line(geo, mat);
-    line.userData = { colKey, offset: w * 1.6, baseY: -2.4 + w * 2.5 };
-    scene.add(line);
-    waveLines.push(line);
-  }
-
-  // 7. SÓNG NỔ HOLOGRAM KHI CHẠM / CLICK
+  // 5. SÓNG NỔ HOLOGRAM KHI CHẠM
   const shockwaves = [];
   function spawnTouchRipple(screenX, screenY) {
     const ndcX = (screenX / window.innerWidth) * 2 - 1;
@@ -163,92 +192,71 @@ export function initVRCanvas() {
     const dir = vec.sub(camera.position).normalize();
     const pos = camera.position.clone().add(dir.multiplyScalar(14));
 
-    const ringGeo = new THREE.RingGeometry(0.16, 0.27, 36);
     const ringMat = new THREE.MeshBasicMaterial({
       color: colors.secondary,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending
     });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.27, 36), ringMat);
     ring.position.copy(pos);
     ring.lookAt(camera.position);
     scene.add(ring);
     shockwaves.push({ mesh: ring, mat: ringMat, scale: 1 });
   }
 
-  // 8. CAMERA PARALLAX MƯỢT THEO CHUỘT & CẢM ỨNG
-  let targetCamX = 0;
-  let targetCamY = 2.2;
+  let targetCamX = 0, targetCamY = 1.4;
   window.addEventListener("pointermove", (e) => {
-    targetCamX = (e.clientX / window.innerWidth - 0.5) * 4.8;
-    targetCamY = 2.2 - (e.clientY / window.innerHeight - 0.5) * 2.8;
+    targetCamX = (e.clientX / window.innerWidth - 0.5) * 4.5;
+    targetCamY = 1.4 - (e.clientY / window.innerHeight - 0.5) * 2.4;
   });
 
-  // ĐỒNG BỘ MÀU KHI ĐỔI THEME
   const observer = new MutationObserver(() => {
     colors = getHexColors();
     scene.fog.color.copy(colors.voidBg);
+    floorGrid.material.color.copy(colors.primary);
+    rayMat.color.copy(colors.primary);
     starMat.color.copy(colors.primary);
-    gridBottom.material.color.copy(colors.primary);
-    gridTop.material.color.copy(colors.secondary);
-    gyroMeshes.forEach((m) => m.material.color.copy(colors[m.userData.colKey]));
-    cityTowers.forEach((t) => {
-      t.userData.wireMat.color.copy(colors[t.userData.colKey]);
-      t.userData.glassMat.color.copy(colors[t.userData.colKey]);
-    });
-    cubes.forEach((c) => {
-      c.userData.wireMat.color.copy(colors[c.userData.colKey]);
-      c.userData.glassMat.color.copy(colors[c.userData.colKey]);
-    });
-    waveLines.forEach((l) => l.material.color.copy(colors[l.userData.colKey]));
+    trackLines.forEach((l) => l.material.color.copy(l.userData.isSec ? colors.secondary : colors.primary));
+    binTex1.image = makeBinaryStreamTexture(colors.primaryStr, 1).image;
+    binTex1.needsUpdate = true;
+    binTex2.image = makeBinaryStreamTexture(colors.secondaryStr, 2).image;
+    binTex2.needsUpdate = true;
+    flareTex.image = makeHorizonFlareTexture(colors.primaryStr).image;
+    flareTex.needsUpdate = true;
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   let time = 0;
   function animate() {
     requestAnimationFrame(animate);
-    time += 0.022;
+    time += 0.025;
 
     camera.position.x += (targetCamX - camera.position.x) * 0.055;
     camera.position.y += (targetCamY - camera.position.y) * 0.055;
-    camera.lookAt(0, 0.2, -18);
+    camera.lookAt(0, -1.2, -54);
 
-    gridBottom.position.z = (time * 2.2) % 2.85;
-    gridTop.position.z = (time * 2.2) % 2.85;
+    floorGrid.position.z = (time * 3.5) % 2.5;
+    binTex1.offset.y -= 0.004;
+    binTex2.offset.y -= 0.0065;
 
-    gyroMeshes.forEach((m) => {
-      m.rotation.x += m.userData.speedX;
-      m.rotation.y += m.userData.speedY;
-      m.rotation.z += 0.0018;
+    const pulse = 1 + Math.sin(time * 2.2) * 0.08;
+    horizonFlare.scale.set(42 * pulse, 32 * pulse, 1);
+
+    rayPlanes.forEach((r, idx) => {
+      r.rotation.z += (idx % 2 === 0 ? 0.0015 : -0.0015);
     });
 
-    cityTowers.forEach((t) => {
-      t.userData.wireMat.opacity = t.userData.baseOpacity + Math.sin(time * 1.4 + t.userData.phase) * 0.08;
-    });
-
-    cubes.forEach((c) => {
-      c.rotation.x += c.userData.rx;
-      c.rotation.y += c.userData.ry;
-      c.position.z += c.userData.vz;
-      if (c.position.z > 14) c.position.z = -60;
-    });
-
-    waveLines.forEach((line) => {
-      const posAttr = line.geometry.attributes.position;
-      for (let i = 0; i < posAttr.count; i++) {
-        const x = posAttr.getX(i);
-        const y = line.userData.baseY + Math.sin(x * 0.22 + time * 1.5 + line.userData.offset) * 1.35 + Math.cos(x * 0.48 - time * 1.9) * 0.48;
-        posAttr.setY(i, y);
-      }
-      posAttr.needsUpdate = true;
+    rainPillars.forEach((p) => {
+      p.position.z += p.userData.speedZ;
+      if (p.position.z > 14) p.position.z = -52;
     });
 
     const sArr = starGeo.attributes.position.array;
     for (let i = 0; i < starCount; i++) {
-      sArr[i * 3 + 2] += 0.075;
-      if (sArr[i * 3 + 2] > 16) sArr[i * 3 + 2] = -95;
+      sArr[i * 3 + 2] += 0.14;
+      if (sArr[i * 3 + 2] > 16) sArr[i * 3 + 2] = -60;
     }
     starGeo.attributes.position.needsUpdate = true;
 
