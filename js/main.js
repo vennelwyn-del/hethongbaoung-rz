@@ -1,4 +1,4 @@
-// js/main.js — Logic Cổng Quỹ Đạo VR (index.html -> chuyển sang hub.html)
+// js/main.js — Logic Cổng Quỹ Đạo VR (index.html -> chuyển sang hub.html, tối ưu Android & iOS)
 
 import { SITE_CONFIG } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
@@ -36,6 +36,7 @@ const portalGate = document.getElementById("portal-gate");
 const gateTouchCore = document.querySelector(".gate-touch-core");
 const coreProgressBar = document.querySelector("#core-progress span");
 const gateActionText = document.getElementById("gate-action-text");
+const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 
 document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
@@ -45,35 +46,38 @@ function updateMatrixBlockTexture() {
   const p = s.getPropertyValue("--c-primary").trim() || "#00E5FF";
   const sec = s.getPropertyValue("--c-secondary").trim() || "#5EA8FF";
   const c = document.createElement("canvas");
-  c.width = 480;
-  c.height = 320;
+  c.width = isCoarsePointer ? 320 : 480;
+  c.height = isCoarsePointer ? 220 : 320;
   const ctx = c.getContext("2d");
+  const w = c.width;
+  const h = c.height;
+  const cy = Math.round(h * 0.54);
 
   ctx.fillStyle = "#020612";
-  ctx.fillRect(0, 0, 480, 320);
+  ctx.fillRect(0, 0, w, h);
 
-  const flare = ctx.createRadialGradient(240, 172, 4, 240, 172, 220);
+  const flare = ctx.createRadialGradient(w / 2, cy, 4, w / 2, cy, w * 0.46);
   flare.addColorStop(0, "#ffffff");
   flare.addColorStop(0.14, p);
   flare.addColorStop(0.45, "rgba(0,110,255,0.18)");
   flare.addColorStop(1, "transparent");
   ctx.fillStyle = flare;
-  ctx.fillRect(0, 0, 480, 320);
+  ctx.fillRect(0, 0, w, h);
 
   ctx.strokeStyle = p;
   ctx.globalAlpha = 0.22;
   for (let i = -6; i <= 6; i++) {
     ctx.beginPath();
-    ctx.moveTo(240 + i * 52, 320);
-    ctx.lineTo(240, 172);
+    ctx.moveTo(w / 2 + i * (w * 0.11), h);
+    ctx.lineTo(w / 2, cy);
     ctx.stroke();
   }
 
-  ctx.font = "bold 15px 'JetBrains Mono', monospace";
+  ctx.font = `bold ${isCoarsePointer ? 12 : 15}px 'JetBrains Mono', monospace`;
   ctx.textAlign = "center";
-  for (let x = 22; x < 470; x += 34) {
-    for (let y = 18; y < 310; y += 22) {
-      if (Math.hypot(x - 240, y - 172) < 42) continue;
+  for (let x = 22; x < w - 10; x += 34) {
+    for (let y = 18; y < h - 10; y += 22) {
+      if (Math.hypot(x - w / 2, y - cy) < 38) continue;
       ctx.fillStyle = (x + y) % 3 === 0 ? sec : p;
       ctx.globalAlpha = 0.16 + Math.random() * 0.34;
       ctx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
@@ -119,8 +123,9 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) => {
   });
 });
 
-// 2. CON TRỎ TỌA ĐỘ, PARALLAX 3D & SÓNG CHẠM
+// 2. CON TRỎ TỌA ĐỘ (CHỈ CHUỘT), PARALLAX 3D & SÓNG CHẠM
 window.addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "mouse" || isCoarsePointer) return;
   if (touchCursor && cursorCoords) {
     touchCursor.style.left = `${e.clientX}px`;
     touchCursor.style.top = `${e.clientY}px`;
@@ -131,44 +136,69 @@ window.addEventListener("pointermove", (e) => {
     const ry = (e.clientX / window.innerWidth - 0.5) * 7.5;
     gateStage.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
   }
-});
+}, { passive: true });
 
 window.addEventListener("pointerdown", (e) => {
   vrBg.spawnTouchRipple(e.clientX, e.clientY);
-});
+}, { passive: true });
 
-// 3. RADIO + OSCILLOSCOPE
+// 3. RADIO + OSCILLOSCOPE (CHỈ VẼ ĐỘNG KHI ĐANG PHÁT NHẠC)
 const radioToggle = document.getElementById("radio-toggle");
 const radioTrackName = document.getElementById("radio-track-name");
 const rScope = document.getElementById("radio-scope");
 const rCtx = rScope ? rScope.getContext("2d") : null;
 let wavePhase = 0;
+let radioScopeRaf = null;
 
-function drawRadioScope() {
-  if (rCtx) {
-    const styles = getComputedStyle(htmlEl);
-    const p = styles.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
-    const s = styles.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
-    wavePhase += 0.1;
-    rCtx.clearRect(0, 0, rScope.width, rScope.height);
-    rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
-    for (let i = 0; i < 9; i++) {
-      const barH = radio.isPlaying ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12 : 3;
-      rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
-    }
+function renderRadioScopeFrame() {
+  if (!rCtx || !rScope) return;
+  const styles = getComputedStyle(htmlEl);
+  const p = styles.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
+  const s = styles.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
+  rCtx.clearRect(0, 0, rScope.width, rScope.height);
+  rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
+  for (let i = 0; i < 9; i++) {
+    const barH = radio.isPlaying ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12 : 3;
+    rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
   }
-  requestAnimationFrame(drawRadioScope);
 }
-drawRadioScope();
+
+function drawRadioScopeLoop() {
+  radioScopeRaf = null;
+  if (!radio.isPlaying || document.hidden) {
+    renderRadioScopeFrame();
+    return;
+  }
+  wavePhase += 0.1;
+  renderRadioScopeFrame();
+  radioScopeRaf = requestAnimationFrame(drawRadioScopeLoop);
+}
+
+function syncRadioScopeState() {
+  if (radio.isPlaying && !document.hidden) {
+    if (!radioScopeRaf) radioScopeRaf = requestAnimationFrame(drawRadioScopeLoop);
+  } else {
+    if (radioScopeRaf) {
+      cancelAnimationFrame(radioScopeRaf);
+      radioScopeRaf = null;
+    }
+    renderRadioScopeFrame();
+  }
+}
+
+document.addEventListener("visibilitychange", syncRadioScopeState);
+renderRadioScopeFrame();
 
 if (radioTrackName) radioTrackName.textContent = radio.currentTrackName;
 radioToggle?.addEventListener("click", () => {
   const playing = radio.toggle();
   const icon = radioToggle.querySelector(".radio-icon");
   if (icon) icon.textContent = playing ? "❚❚" : "▶";
+  syncRadioScopeState();
 });
 document.getElementById("radio-next")?.addEventListener("click", () => {
   if (radioTrackName) radioTrackName.textContent = radio.nextTrack();
+  syncRadioScopeState();
 });
 document.getElementById("radio-vol")?.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
@@ -251,7 +281,7 @@ function compressImageToDataUrl(file) {
     reader.onerror = () => reject(new Error("Không đọc được ảnh."));
     reader.onload = () => {
       const img = new Image();
-      img.onerror = () => reject(new Error("File không phải ảnh hợp lệ."));
+      img.onerror = () => reject(new Error("File không phải ảnh hợp lệ (iPhone nên chọn JPG/PNG hoặc ảnh thư viện)."));
       img.onload = () => {
         const c = document.createElement("canvas");
         c.width = 128;
@@ -259,7 +289,8 @@ function compressImageToDataUrl(file) {
         const ctx = c.getContext("2d");
         const minSide = Math.min(img.width, img.height);
         ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, 128, 128);
-        resolve(c.toDataURL("image/webp", 0.8));
+        // Dùng JPEG thay cho WebP để tương thích 100% Safari iOS & Android
+        resolve(c.toDataURL("image/jpeg", 0.82));
       };
       img.src = reader.result;
     };
@@ -277,8 +308,10 @@ document.getElementById("btn-save-avatar-url")?.addEventListener("click", async 
 
 document.getElementById("avatar-file-input")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
+  e.target.value = "";
   if (!file || !state.username) return;
   try {
+    document.getElementById("auth-sync-msg").textContent = "Đang xử lý ảnh...";
     const dataUrl = await compressImageToDataUrl(file);
     await saveDebtorState(state.username, { avatarUrl: dataUrl });
     applyProfileUI(await fetchDebtorByUsername(state.username));

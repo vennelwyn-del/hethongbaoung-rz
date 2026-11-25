@@ -1,14 +1,20 @@
-// js/pyramid-3d.js — Tháp Tam Giác Ngược 10 Tầng (Three.js + GLSL Holo Shader + Quán tính xoay)
+// js/pyramid-3d.js — Tháp Tam Giác Ngược 10 Tầng (Tạm dừng khi ẩn tab + pan-y mobile + auto-frame portrait)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
 import { createHoloMaterial } from "./holo-shader.js";
 
 export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin }) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return { setSelectedTier: () => {}, resize: () => {} };
+  if (!canvas) return { setSelectedTier: () => {}, resize: () => {}, setActive: () => {} };
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const isMobile = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: !isMobile,
+    powerPreference: "default"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.35 : 2));
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
@@ -24,7 +30,6 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
   }
   let colors = getPalette();
 
-  // Sàn lưới chiếu & Vòng phát tia Holo bên dưới (Ảnh 1)
   const baseGrid = new THREE.GridHelper(18, 22, colors.primary, colors.primary);
   baseGrid.position.y = -4.65;
   baseGrid.material.transparent = true;
@@ -79,7 +84,6 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
     const geo = new THREE.CylinderGeometry(topR, botR, height, 4, 1);
     geo.rotateY(Math.PI / 4);
 
-    // Dùng GLSL Hologram Shader từ holo-shader.js
     const fillMat = createHoloMaterial(`#${colors.primary.getHexString()}`, 0.48);
     const fillMesh = new THREE.Mesh(geo, fillMat);
     fillMesh.position.y = yPos;
@@ -109,7 +113,9 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
   let selectedTier = 1;
   let hoveredTier = null;
   let isDragging = false;
+  let activePointerId = null;
   let downX = 0;
+  let downY = 0;
   let prevX = 0;
   let movedDist = 0;
   let userRotY = 0.35;
@@ -127,17 +133,19 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
 
   canvas.addEventListener("pointerdown", (e) => {
     isDragging = true;
-    downX = e.clientX;
-    prevX = e.clientX;
+    activePointerId = e.pointerId;
+    downX = prevX = e.clientX;
+    downY = e.clientY;
     movedDist = 0;
     velRotY = 0;
-    canvas.setPointerCapture?.(e.pointerId);
+    try { canvas.setPointerCapture?.(e.pointerId); } catch (_) {}
   });
 
-  canvas.addEventListener("pointerup", (e) => {
-    if (!isDragging) return;
+  function finishDrag(e, allowTap) {
+    if (!isDragging || (activePointerId !== null && e.pointerId !== activePointerId)) return;
     isDragging = false;
-    if (movedDist < 7) {
+    activePointerId = null;
+    if (allowTap && movedDist < 10) {
       updatePointer(e);
       raycaster.setFromCamera(pointer, camera);
       const hits = raycaster.intersectObjects(hitMeshes, false);
@@ -146,32 +154,50 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
         onSelectTier?.(selectedTier);
       }
     }
-  });
+  }
+
+  canvas.addEventListener("pointerup", (e) => finishDrag(e, true));
+  canvas.addEventListener("pointercancel", (e) => finishDrag(e, false));
 
   canvas.addEventListener("pointermove", (e) => {
-    if (isDragging) {
+    if (isDragging && e.pointerId === activePointerId) {
       const dx = e.clientX - prevX;
-      movedDist += Math.abs(e.clientX - downX);
+      movedDist = Math.max(movedDist, Math.hypot(e.clientX - downX, e.clientY - downY));
       velRotY = dx * 0.011;
       userRotY += velRotY;
       prevX = e.clientX;
     }
-    updatePointer(e);
-    raycaster.setFromCamera(pointer, camera);
-    const hits = raycaster.intersectObjects(hitMeshes, false);
-    hoveredTier = hits.length > 0 ? hits[0].object.userData.tierId : null;
-    canvas.style.cursor = hoveredTier ? "pointer" : isDragging ? "grabbing" : "grab";
+    if (e.pointerType === "mouse") {
+      updatePointer(e);
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(hitMeshes, false);
+      hoveredTier = hits.length > 0 ? hits[0].object.userData.tierId : null;
+      canvas.style.cursor = hoveredTier ? "pointer" : isDragging ? "grabbing" : "grab";
+    }
   });
 
   function resize() {
     const parent = canvas.parentElement;
     if (!parent) return;
-    const w = parent.clientWidth || 320;
-    const h = parent.clientHeight || 450;
-    if (w < 10 || h < 10) return;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    if (w < 20 || h < 20) return;
+    const aspect = w / h;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    camera.aspect = aspect;
+    // Tự lùi camera nhẹ trên màn hình dọc hẹp để không cắt mép 2 bên tháp
+    camera.position.z = aspect < 1 ? Math.min(18.2, 13.6 / Math.max(0.74, aspect)) : 13.6;
+    camera.lookAt(0, -0.35, 0);
     camera.updateProjectionMatrix();
+  }
+
+  let isTabActive = false;
+  let rafId = null;
+
+  function ensureRunning() {
+    if (isTabActive && !document.hidden && !rafId) {
+      rafId = requestAnimationFrame(animate);
+    }
   }
 
   if (window.ResizeObserver && canvas.parentElement) {
@@ -193,9 +219,11 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
   let time = 0;
 
   function animate() {
-    requestAnimationFrame(animate);
-    time += 0.025;
+    rafId = null;
+    if (!isTabActive || document.hidden) return;
+    rafId = requestAnimationFrame(animate);
 
+    time += 0.025;
     if (!isDragging) {
       userRotY += velRotY + 0.0035;
       velRotY *= 0.92;
@@ -204,6 +232,8 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
     pyramidGroup.position.y = Math.sin(time * 0.9) * 0.24;
     orbitRing.rotation.z += 0.006;
     orbitRing2.rotation.z -= 0.0045;
+
+    const showLaser = Boolean(onProjectOrigin) && window.innerWidth > 960;
 
     for (const entry of tierEntries) {
       const isSel = entry.tierId === selectedTier;
@@ -219,7 +249,7 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
       entry.wireMat.color.copy(isSel ? colors.secondary : colors.primary);
       entry.wireMat.opacity = isSel ? 1.0 : isHov ? 0.94 : 0.62;
 
-      if (isSel && onProjectOrigin) {
+      if (isSel && showLaser) {
         entry.mesh.updateWorldMatrix(true, false);
         projVec.set(entry.radius * 0.68, 0, 0).applyMatrix4(entry.mesh.matrixWorld);
         projVec.project(camera);
@@ -235,12 +265,20 @@ export function initInvertedPyramid3D({ canvasId, onSelectTier, onProjectOrigin 
     renderer.render(scene, camera);
   }
 
-  resize();
+  document.addEventListener("visibilitychange", ensureRunning);
+  canvas.addEventListener("webglcontextlost", (e) => e.preventDefault(), false);
   window.addEventListener("resize", resize);
-  animate();
+  resize();
 
   return {
     setSelectedTier(id) { selectedTier = id; },
+    setActive(active) {
+      isTabActive = Boolean(active);
+      if (isTabActive) {
+        resize();
+        ensureRunning();
+      }
+    },
     resize
   };
 }

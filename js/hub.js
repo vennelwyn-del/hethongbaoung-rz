@@ -1,5 +1,3 @@
-// js/hub.js — Bản Full Unified (Chợ Đen 3H + Túi Đồ + Khóa Sd. + Động Vật 3D + Mascot 3D + Thanh Nhiệm Vụ + Quotes 10p)
-
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
 import { initNpcMorph3D } from "./npc-morph-3d.js";
@@ -23,6 +21,8 @@ import {
 initBioHologram();
 const vrBg = initVRCanvas();
 const radio = new SystemRadio();
+
+const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23041634'/><text x='32' y='40' font-size='28' text-anchor='middle' fill='%2300E5FF'>⚖️</text></svg>";
 const ANON_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23081226'/><text x='32' y='41' font-size='28' text-anchor='middle' fill='%235EA8FF'>🎭</text></svg>";
@@ -194,6 +194,7 @@ const VAULT_NPCS = [
 const ARCHETYPE_RANGES = { villain: [2500, 3900], jinx: [900, 1800], scapegoat: [500, 1400], slave: [1100, 2200], avenger: [3800, 5500] };
 
 const htmlEl = document.documentElement;
+const hubUniverse = document.getElementById("hub-universe");
 const bgImageLayer = document.getElementById("bg-image-layer");
 const receiptFeed = document.getElementById("receipt-feed");
 const thermalPaper = document.getElementById("thermal-paper");
@@ -201,37 +202,71 @@ const touchCursor = document.getElementById("touch-cursor");
 const cursorCoords = document.getElementById("cursor-coords");
 document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
+// Helper Copy tương thích cả Android, iOS Safari & WebView (khi Clipboard API bị chặn)
+async function copyTextSafe(text) {
+  if (!text) return false;
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {}
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "-9999px";
+    ta.style.fontSize = "16px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus({ preventScroll: true });
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch (_) {
+    return false;
+  }
+}
+
 // 1. MATRIX BLOCK TEXTURE + THEME + BG
 function updateMatrixBlockTexture() {
   const s = getComputedStyle(htmlEl);
   const p = s.getPropertyValue("--c-primary").trim() || "#00E5FF";
   const sec = s.getPropertyValue("--c-secondary").trim() || "#5EA8FF";
   const c = document.createElement("canvas");
-  c.width = 480; c.height = 320;
+  c.width = isCoarsePointer ? 320 : 480;
+  c.height = isCoarsePointer ? 220 : 320;
   const ctx = c.getContext("2d");
+  const w = c.width;
+  const h = c.height;
+  const cy = Math.round(h * 0.54);
 
   ctx.fillStyle = "#020612";
-  ctx.fillRect(0, 0, 480, 320);
+  ctx.fillRect(0, 0, w, h);
 
-  const flare = ctx.createRadialGradient(240, 172, 4, 240, 172, 220);
+  const flare = ctx.createRadialGradient(w / 2, cy, 4, w / 2, cy, w * 0.46);
   flare.addColorStop(0, "#ffffff");
   flare.addColorStop(0.14, p);
   flare.addColorStop(0.45, "rgba(0,110,255,0.18)");
   flare.addColorStop(1, "transparent");
   ctx.fillStyle = flare;
-  ctx.fillRect(0, 0, 480, 320);
+  ctx.fillRect(0, 0, w, h);
 
   ctx.strokeStyle = p;
   ctx.globalAlpha = 0.22;
   for (let i = -6; i <= 6; i++) {
-    ctx.beginPath(); ctx.moveTo(240 + i * 52, 320); ctx.lineTo(240, 172); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w / 2 + i * (w * 0.11), h); ctx.lineTo(w / 2, cy); ctx.stroke();
   }
 
-  ctx.font = "bold 15px 'JetBrains Mono', monospace";
+  ctx.font = `bold ${isCoarsePointer ? 12 : 15}px 'JetBrains Mono', monospace`;
   ctx.textAlign = "center";
-  for (let x = 22; x < 470; x += 34) {
-    for (let y = 18; y < 310; y += 22) {
-      if (Math.hypot(x - 240, y - 172) < 42) continue;
+  for (let x = 22; x < w - 10; x += 34) {
+    for (let y = 18; y < h - 10; y += 22) {
+      if (Math.hypot(x - w / 2, y - cy) < 38) continue;
       ctx.fillStyle = (x + y) % 3 === 0 ? sec : p;
       ctx.globalAlpha = 0.16 + Math.random() * 0.34;
       ctx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
@@ -267,12 +302,13 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) =>
   btn.addEventListener("click", () => { if (state.sfx) radio.playClickChime(); applyTheme(btn.dataset.setTheme); })
 );
 
-// 2. CON TRỎ, SÓNG NỔ & NGHIÊNG CÁNH BUỒNG LÁI 3D
+// 2. CON TRỎ (CHỈ CHUỘT), SÓNG NỔ & NGHIÊNG CÁNH BUỒNG LÁI 3D
 const wingLeft = document.querySelector(".wing-l");
 const wingRight = document.querySelector(".wing-r");
 const centerShell = document.getElementById("system-quest-shell");
 
 window.addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "mouse" || isCoarsePointer) return;
   if (touchCursor && cursorCoords) {
     touchCursor.style.left = `${e.clientX}px`;
     touchCursor.style.top = `${e.clientY}px`;
@@ -285,29 +321,52 @@ window.addEventListener("pointermove", (e) => {
     if (wingRight) wingRight.style.transform = `rotateY(${(-9 + nx * 2.5).toFixed(2)}deg) rotateX(${(-ny * 2).toFixed(2)}deg)`;
     if (centerShell) centerShell.style.transform = `rotateY(${(nx * 1.1).toFixed(2)}deg) rotateX(${(-ny * 0.9).toFixed(2)}deg)`;
   }
-});
-window.addEventListener("pointerdown", (e) => vrBg.spawnTouchRipple(e.clientX, e.clientY));
+}, { passive: true });
+window.addEventListener("pointerdown", (e) => vrBg.spawnTouchRipple(e.clientX, e.clientY), { passive: true });
 
-// 3. RADIO SCOPE
+// 3. RADIO SCOPE (CHỈ CHẠY VÒNG LẶP KHI ĐANG PHÁT NHẠC)
 const rScope = document.getElementById("radio-scope");
 const rCtx = rScope?.getContext("2d");
 let wavePhase = 0;
-function drawRadioScope() {
-  if (rCtx) {
-    const styles = getComputedStyle(htmlEl);
-    const p = styles.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
-    const s = styles.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
-    wavePhase += 0.1;
-    rCtx.clearRect(0, 0, rScope.width, rScope.height);
-    rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
-    for (let i = 0; i < 9; i++) {
-      const barH = radio.isPlaying ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12 : 3;
-      rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
-    }
+let radioScopeRaf = null;
+
+function renderRadioScopeFrame() {
+  if (!rCtx || !rScope) return;
+  const styles = getComputedStyle(htmlEl);
+  const p = styles.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
+  const s = styles.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
+  rCtx.clearRect(0, 0, rScope.width, rScope.height);
+  rCtx.fillStyle = `rgba(${radio.isPlaying ? s : p}, 0.85)`;
+  for (let i = 0; i < 9; i++) {
+    const barH = radio.isPlaying ? 4 + Math.abs(Math.sin(wavePhase * 1.6 + i * 0.7)) * 12 : 3;
+    rCtx.fillRect(i * 6, 16 - barH, 3.5, barH);
   }
-  requestAnimationFrame(drawRadioScope);
 }
-drawRadioScope();
+
+function drawRadioScopeLoop() {
+  radioScopeRaf = null;
+  if (!radio.isPlaying || document.hidden) {
+    renderRadioScopeFrame();
+    return;
+  }
+  wavePhase += 0.1;
+  renderRadioScopeFrame();
+  radioScopeRaf = requestAnimationFrame(drawRadioScopeLoop);
+}
+
+function syncRadioScopeState() {
+  if (radio.isPlaying && !document.hidden) {
+    if (!radioScopeRaf) radioScopeRaf = requestAnimationFrame(drawRadioScopeLoop);
+  } else {
+    if (radioScopeRaf) {
+      cancelAnimationFrame(radioScopeRaf);
+      radioScopeRaf = null;
+    }
+    renderRadioScopeFrame();
+  }
+}
+document.addEventListener("visibilitychange", syncRadioScopeState);
+renderRadioScopeFrame();
 
 const radioToggle = document.getElementById("radio-toggle");
 const radioTrackName = document.getElementById("radio-track-name");
@@ -316,17 +375,29 @@ radioToggle?.addEventListener("click", () => {
   const playing = radio.toggle();
   const icon = radioToggle.querySelector(".radio-icon");
   if (icon) icon.textContent = playing ? "❚❚" : "▶";
+  syncRadioScopeState();
 });
-document.getElementById("radio-next")?.addEventListener("click", () => { if (radioTrackName) radioTrackName.textContent = radio.nextTrack(); });
+document.getElementById("radio-next")?.addEventListener("click", () => {
+  if (radioTrackName) radioTrackName.textContent = radio.nextTrack();
+  syncRadioScopeState();
+});
 document.getElementById("radio-vol")?.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
-// 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (7 THẺ)
+// 4. VÒNG XOAY THẺ CHỮ NHẬT DỌC 3D KHÉP KÍN (TỐI ƯU CẢM ỨNG ANDROID/IOS + NGỦ KHI ĐỨNG YÊN)
 const galleryViewport = document.getElementById("gallery-viewport");
 const tabCards = Array.from(document.querySelectorAll(".holo-tab-card"));
 const TOTAL_TABS = tabCards.length;
 
-let carouselPos = 0, carouselTarget = 0, isCarouselDragging = false;
-let dragStartX = 0, dragLastX = 0, dragStartPos = 0, dragVelocity = 0, dragMoved = 0;
+let carouselPos = 0, carouselTarget = 0;
+let isCarouselDragging = false, activeCarouselPointerId = null, carouselAxis = null;
+let dragStartX = 0, dragStartY = 0, dragLastX = 0, dragStartPos = 0, dragVelocity = 0, dragMoved = 0;
+let carouselRafId = null;
+
+function getCarouselSpacing() {
+  if (window.innerWidth > 680) return 254;
+  const vpW = galleryViewport?.clientWidth || window.innerWidth;
+  return Math.min(196, Math.max(154, vpW * 0.58));
+}
 
 function getWrappedDelta(index, centerPos) {
   let d = (((index - centerPos) % TOTAL_TABS) + TOTAL_TABS) % TOTAL_TABS;
@@ -338,8 +409,7 @@ function modIndex(val) {
 }
 
 function layoutCoverflowCards() {
-  const isMobile = window.innerWidth <= 680;
-  const spacing = isMobile ? 196 : 254;
+  const spacing = getCarouselSpacing();
   tabCards.forEach((card, i) => {
     const d = getWrappedDelta(i, carouselPos);
     const absD = Math.abs(d);
@@ -356,22 +426,43 @@ function layoutCoverflowCards() {
   });
 }
 
-function animateCarousel() {
-  if (!isCarouselDragging) carouselPos += (carouselTarget - carouselPos) * 0.14;
-  layoutCoverflowCards();
-  requestAnimationFrame(animateCarousel);
+function ensureCarouselLoop() {
+  if (!carouselRafId) carouselRafId = requestAnimationFrame(animateCarousel);
 }
-animateCarousel();
+
+function animateCarousel() {
+  carouselRafId = null;
+  if (!isCarouselDragging) {
+    const diff = carouselTarget - carouselPos;
+    if (Math.abs(diff) < 0.001) {
+      carouselPos = carouselTarget;
+      layoutCoverflowCards();
+      return;
+    }
+    carouselPos += diff * 0.16;
+  }
+  layoutCoverflowCards();
+  if (isCarouselDragging || Math.abs(carouselTarget - carouselPos) >= 0.001) {
+    carouselRafId = requestAnimationFrame(animateCarousel);
+  }
+}
+
+layoutCoverflowCards();
 
 function switchTab(tabId, snapCarousel = true) {
   state.activeTabId = tabId;
   const idx = tabCards.findIndex((c) => c.dataset.tab === tabId);
-  if (snapCarousel && idx >= 0) carouselTarget += getWrappedDelta(idx, carouselTarget);
+  if (snapCarousel && idx >= 0) {
+    carouselTarget += getWrappedDelta(idx, carouselTarget);
+    ensureCarouselLoop();
+  }
 
   tabCards.forEach((c) => c.classList.toggle("is-active", c.dataset.tab === tabId));
   document.querySelectorAll(".hub-panel").forEach((p) => p.classList.toggle("hidden", p.id !== tabId));
   const titleEl = document.getElementById("quest-window-title");
   if (titleEl) titleEl.textContent = TAB_TITLES[tabId] || "SYSTEM INFO";
+
+  pyramid3D.setActive(tabId === "tab-pyramid");
 
   if (tabId === "tab-ranking") loadAndRenderLeaderboard();
   if (tabId === "tab-forum") loadAndRenderForum();
@@ -380,7 +471,7 @@ function switchTab(tabId, snapCarousel = true) {
 
 tabCards.forEach((card) => {
   card.addEventListener("click", () => {
-    if (dragMoved > 8) return;
+    if (dragMoved > 10) return;
     if (state.sfx) radio.playClickChime();
     switchTab(card.dataset.tab, true);
   });
@@ -389,42 +480,72 @@ tabCards.forEach((card) => {
 if (galleryViewport) {
   galleryViewport.addEventListener("pointerdown", (e) => {
     isCarouselDragging = true;
+    activeCarouselPointerId = e.pointerId;
+    carouselAxis = null;
     dragStartX = dragLastX = e.clientX;
-    dragStartPos = carouselPos; dragVelocity = 0; dragMoved = 0;
+    dragStartY = e.clientY;
+    dragStartPos = carouselPos;
+    dragVelocity = 0;
+    dragMoved = 0;
     galleryViewport.classList.add("is-dragging");
+    ensureCarouselLoop();
   });
+
   window.addEventListener("pointermove", (e) => {
-    if (!isCarouselDragging) return;
+    if (!isCarouselDragging || e.pointerId !== activeCarouselPointerId) return;
     const dxTotal = e.clientX - dragStartX;
+    const dyTotal = e.clientY - dragStartY;
+
+    if (!carouselAxis && (Math.abs(dxTotal) > 6 || Math.abs(dyTotal) > 6)) {
+      carouselAxis = Math.abs(dyTotal) > Math.abs(dxTotal) ? "y" : "x";
+    }
+    if (carouselAxis === "y") {
+      isCarouselDragging = false;
+      activeCarouselPointerId = null;
+      galleryViewport.classList.remove("is-dragging");
+      carouselTarget = Math.round(carouselPos);
+      ensureCarouselLoop();
+      return;
+    }
+
     const dxStep = e.clientX - dragLastX;
     dragLastX = e.clientX;
     dragMoved = Math.abs(dxTotal);
-    const stepPx = window.innerWidth <= 680 ? 196 : 254;
+    const stepPx = getCarouselSpacing();
     carouselPos = dragStartPos - dxTotal / stepPx;
     dragVelocity = -dxStep / stepPx;
   });
-  window.addEventListener("pointerup", () => {
-    if (!isCarouselDragging) return;
+
+  function finishCarouselDrag(e) {
+    if (!isCarouselDragging || (activeCarouselPointerId !== null && e.pointerId !== activeCarouselPointerId)) return;
     isCarouselDragging = false;
+    activeCarouselPointerId = null;
     galleryViewport.classList.remove("is-dragging");
-    if (dragMoved > 8) {
-      carouselTarget = Math.round(carouselPos + dragVelocity * 2.2);
+    if (dragMoved > 10) {
+      carouselTarget = Math.round(carouselPos + dragVelocity * 2.0);
       const snappedIdx = modIndex(carouselTarget);
       if (state.sfx) radio.playClickChime();
       switchTab(tabCards[snappedIdx].dataset.tab, false);
     }
-    setTimeout(() => { dragMoved = 0; }, 40);
-  });
+    ensureCarouselLoop();
+    setTimeout(() => { dragMoved = 0; }, 50);
+  }
+
+  window.addEventListener("pointerup", finishCarouselDrag);
+  window.addEventListener("pointercancel", finishCarouselDrag);
+
   let wheelTimer = null;
   galleryViewport.addEventListener("wheel", (e) => {
     const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
     if (Math.abs(delta) < 2) return;
     e.preventDefault();
     carouselTarget += delta * 0.0038;
+    ensureCarouselLoop();
     clearTimeout(wheelTimer);
     wheelTimer = setTimeout(() => {
       carouselTarget = Math.round(carouselTarget);
       switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
+      ensureCarouselLoop();
     }, 105);
   }, { passive: false });
 }
@@ -433,20 +554,26 @@ document.getElementById("btn-slide-left")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   carouselTarget = Math.round(carouselTarget) - 1;
   switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
+  ensureCarouselLoop();
 });
 document.getElementById("btn-slide-right")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   carouselTarget = Math.round(carouselTarget) + 1;
   switchTab(tabCards[modIndex(carouselTarget)].dataset.tab, false);
+  ensureCarouselLoop();
 });
 window.addEventListener("resize", () => {
   layoutCoverflowCards();
-  if (!document.getElementById("tab-pyramid")?.classList.contains("hidden")) { pyramid3D.resize(); updateLaserPointerFrom3D(); }
+  if (!document.getElementById("tab-pyramid")?.classList.contains("hidden")) {
+    pyramid3D.resize();
+    updateLaserPointerFrom3D();
+  }
 });
 
 // 5. THÁP TAM GIÁC NGƯỢC 3D
 let pyramidOriginScreen = null;
 function updateLaserPointerFrom3D() {
+  if (window.innerWidth <= 960) return;
   const layout = document.getElementById("pyramid-layout");
   const card = document.getElementById("tier-flip-card");
   const path = document.getElementById("pyramid-pointer-path");
@@ -488,6 +615,15 @@ function selectPyramidTier(tierId, playEffect = false) {
   document.getElementById("tier-rule").textContent = sec.rule;
 }
 
+document.getElementById("btn-tier-prev")?.addEventListener("click", () => {
+  const prevId = state.selectedPyramidTier <= 1 ? 10 : state.selectedPyramidTier - 1;
+  selectPyramidTier(prevId, true);
+});
+document.getElementById("btn-tier-next")?.addEventListener("click", () => {
+  const nextId = state.selectedPyramidTier >= 10 ? 1 : state.selectedPyramidTier + 1;
+  selectPyramidTier(nextId, true);
+});
+
 document.getElementById("btn-lock-from-pyramid")?.addEventListener("click", () => {
   if (state.sfx) radio.playClickChime();
   const sec = SECTORS.find((s) => s.id === state.selectedPyramidTier) || SECTORS[0];
@@ -505,9 +641,16 @@ selectPyramidTier(1, false);
 
 // 6. RECEIPT & STATS
 function pushReceipt(text) {
-  if (receiptFeed) { const p = document.createElement("p"); p.textContent = text; receiptFeed.prepend(p); }
+  if (receiptFeed) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    receiptFeed.prepend(p);
+    while (receiptFeed.children.length > 24) receiptFeed.lastChild.remove();
+  }
   if (thermalPaper) {
-    const tp = document.createElement("p"); tp.textContent = text; thermalPaper.prepend(tp);
+    const tp = document.createElement("p");
+    tp.textContent = text;
+    thermalPaper.prepend(tp);
     while (thermalPaper.children.length > 14) thermalPaper.lastChild.remove();
   }
 }
@@ -737,15 +880,15 @@ contractFormEl?.addEventListener("submit", async (e) => {
   } catch (err) { alert(err.message); }
 });
 
-function copyDossierWithFeedback(triggerBtn) {
+async function copyDossierWithFeedback(triggerBtn) {
   updateLiveDossierPreview();
   if (!state.lastDossierText) return;
-  navigator.clipboard?.writeText(state.lastDossierText);
+  const ok = await copyTextSafe(state.lastDossierText);
   if (state.sfx) radio.playClickChime();
   const prevText = triggerBtn.textContent;
-  triggerBtn.textContent = "✓ ĐÃ COPY! DÁN SANG GG AI NGAY";
-  setTimeout(() => { triggerBtn.textContent = prevText; }, 2000);
-  pushReceipt("> Đã copy trọn bộ Hồ Sơ Live vào Clipboard — sẵn sàng dán vào Google AI Studio.");
+  triggerBtn.textContent = ok ? "✓ ĐÃ COPY! DÁN SANG GG AI NGAY" : "⚠️ CHỌN & COPY THỦ CÔNG";
+  setTimeout(() => { triggerBtn.textContent = prevText; }, 2200);
+  if (ok) pushReceipt("> Đã copy trọn bộ Hồ Sơ Live vào Clipboard — sẵn sàng dán vào Google AI Studio.");
 }
 document.getElementById("btn-copy-dossier")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
 document.getElementById("btn-copy-live")?.addEventListener("click", (e) => copyDossierWithFeedback(e.currentTarget));
@@ -1070,10 +1213,10 @@ function renderCart() {
     row.innerHTML = `
       <div class="cart-row-info"><strong></strong><small>-${(entry.item.cost * entry.qty).toFixed(2)} PB (${entry.item.cost.toFixed(2)} × ${entry.qty})</small></div>
       <div class="cart-row-ctrl">
-        <button type="button" class="qty-btn btn-dec">-</button>
-        <span style="font-size:0.72rem;min-width:20px;text-align:center;">${entry.qty}</span>
-        <button type="button" class="qty-btn btn-inc">+</button>
-        <button type="button" class="qty-btn btn-rem" style="color:#ff5c77;">✕</button>
+        <button type="button" class="qty-btn btn-dec" aria-label="Giảm">-</button>
+        <span style="font-size:0.76rem;min-width:22px;text-align:center;">${entry.qty}</span>
+        <button type="button" class="qty-btn btn-inc" aria-label="Tăng">+</button>
+        <button type="button" class="qty-btn btn-rem" style="color:#ff5c77;" aria-label="Xóa">✕</button>
       </div>
     `;
     row.querySelector(".cart-row-info strong").textContent = entry.item.name;
@@ -1152,14 +1295,16 @@ function renderBag() {
 
 document.getElementById("btn-checkout-cart")?.addEventListener("click", () => purchaseItems(state.cart, true));
 document.getElementById("btn-clear-cart")?.addEventListener("click", () => { state.cart = []; renderCart(); showMarketFeedback("🗑️ Đã dọn sạch giỏ hàng tạm.", "success"); });
-document.getElementById("btn-copy-bag")?.addEventListener("click", (e) => {
+document.getElementById("btn-copy-bag")?.addEventListener("click", async (e) => {
   if (!state.inventory.length) { showMarketFeedback("❌ ERROR: Túi đồ đang trống!", "error"); return; }
   const txt = [`🎒 [TÚI ĐỒ CHỢ ĐEN CỦA CON NỢ ${state.debtorCode}]:`, ...state.inventory.map((b) => `- ${b.name} (×${b.qty}) [${b.tag}]: ${b.desc}`)].join("\n");
-  navigator.clipboard?.writeText(txt);
+  const btn = e.currentTarget;
+  const ok = await copyTextSafe(txt);
   if (state.sfx) radio.playClickChime();
-  const btn = e.currentTarget, prev = btn.textContent;
-  btn.textContent = "✓ ĐÃ COPY TÚI ĐỒ!"; setTimeout(() => { btn.textContent = prev; }, 1800);
-  pushReceipt("> Đã copy danh sách Túi Đồ Chợ Đen để dán sang Google AI Studio.");
+  const prev = btn.textContent;
+  btn.textContent = ok ? "✓ ĐÃ COPY TÚI ĐỒ!" : "⚠️ LỖI COPY";
+  setTimeout(() => { btn.textContent = prev; }, 1800);
+  if (ok) pushReceipt("> Đã copy danh sách Túi Đồ Chợ Đen để dán sang Google AI Studio.");
 });
 
 state.inventory = loadLocalInventory();
@@ -1431,6 +1576,7 @@ let currentLabNpc = null, currentLabZone = "head";
 let aiChartTimer = null, aiStreamTimer = null;
 const aiBars = Array.from({ length: 22 }, () => 25 + Math.random() * 65);
 let aiPhase = 0;
+let lastCalloutHtml = "";
 
 function updateMorphCalloutLines(projectedPts) {
   const pod = document.getElementById("lab-morph-pod");
@@ -1452,7 +1598,10 @@ function updateMorphCalloutLines(projectedPts) {
     html += `<path class="${activeCls}" d="M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} L ${midX.toFixed(1)} ${endY.toFixed(1)} L ${endX.toFixed(1)} ${endY.toFixed(1)}" />`;
     html += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${zoneKey === currentLabZone ? 4 : 2.6}" />`;
   });
-  svg.innerHTML = html;
+  if (html !== lastCalloutHtml) {
+    lastCalloutHtml = html;
+    svg.innerHTML = html;
+  }
 }
 
 const npcMorph3D = initNpcMorph3D({
@@ -1471,6 +1620,15 @@ function selectLabZone(zoneKey) {
   if (detailBox && info) detailBox.innerHTML = `<strong>[CHỈ ĐIỂM BỘ PHẬN: ${info.title}]</strong>${info.text}`;
 }
 document.querySelectorAll(".zone-pin-btn").forEach((btn) => btn.addEventListener("click", () => { if (state.sfx) radio.playClickChime(); selectLabZone(btn.dataset.zone); }));
+
+document.getElementById("btn-morph-zoom-in")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  npcMorph3D.zoomBy(-0.75);
+});
+document.getElementById("btn-morph-zoom-out")?.addEventListener("click", () => {
+  if (state.sfx) radio.playClickChime();
+  npcMorph3D.zoomBy(0.75);
+});
 
 document.getElementById("btn-morph-mode")?.addEventListener("click", (e) => {
   if (state.sfx) radio.playClickChime();
@@ -1495,7 +1653,7 @@ function startAiLabTelemetryLoop(npc, stats) {
   let packetCursor = 0;
 
   aiStreamTimer = setInterval(() => {
-    if (!streamBox) return;
+    if (!streamBox || document.hidden || npcDossierModal?.classList.contains("hidden")) return;
     const div = document.createElement("div");
     if (packetCursor % 3 === 0) div.className = "hot";
     div.textContent = aiPackets[packetCursor % aiPackets.length] + ` [${(95 + Math.random() * 4.9).toFixed(1)}%]`;
@@ -1505,6 +1663,10 @@ function startAiLabTelemetryLoop(npc, stats) {
   }, 520);
 
   function renderChart() {
+    if (npcDossierModal?.classList.contains("hidden")) return;
+    aiChartTimer = requestAnimationFrame(renderChart);
+    if (document.hidden) return;
+
     const st = getComputedStyle(htmlEl);
     const pRgb = st.getPropertyValue("--rgb-primary").trim() || "0, 229, 255";
     const sRgb = st.getPropertyValue("--rgb-secondary").trim() || "94, 168, 255";
@@ -1552,15 +1714,20 @@ function startAiLabTelemetryLoop(npc, stats) {
       }
       ecgCtx.stroke();
     }
-    aiChartTimer = requestAnimationFrame(renderChart);
   }
-  renderChart();
+  aiChartTimer = requestAnimationFrame(renderChart);
 }
-function stopAiLabTelemetryLoop() { cancelAnimationFrame(aiChartTimer); clearInterval(aiStreamTimer); }
+function stopAiLabTelemetryLoop() {
+  cancelAnimationFrame(aiChartTimer);
+  aiChartTimer = null;
+  clearInterval(aiStreamTimer);
+  aiStreamTimer = null;
+}
 
 function openNpcBioLabModal(npc) {
   if (!npc || npc.isSd) return;
   currentLabNpc = npc;
+  lastCalloutHtml = "";
   const stats = getMergedNpcStats(npc.id);
   const preset = ANIMAL_PRESETS[stats.animalKey] || ANIMAL_PRESETS.horse;
 
@@ -1617,16 +1784,25 @@ function openNpcBioLabModal(npc) {
   document.getElementById("lab-quote").textContent = npc.quote;
 
   npcDossierModal?.classList.remove("hidden");
-  requestAnimationFrame(() => { npcMorph3D.setSubject(npc, stats); selectLabZone("head"); startAiLabTelemetryLoop(npc, stats); });
+  if (npcDossierModal) npcDossierModal.scrollTop = 0;
+  requestAnimationFrame(() => {
+    npcMorph3D.setSubject(npc, stats);
+    selectLabZone("head");
+    startAiLabTelemetryLoop(npc, stats);
+  });
   if (state.sfx) radio.playClickChime();
 }
 
 function closeNpcBioLabModal() {
   stopAiLabTelemetryLoop();
+  npcMorph3D.setOpen(false);
   npcDossierModal?.classList.add("hidden");
   document.querySelectorAll(".dossier-flip-card.is-flipped").forEach((c) => c.classList.remove("is-flipped"));
 }
 document.getElementById("btn-close-npc-modal")?.addEventListener("click", closeNpcBioLabModal);
+npcDossierModal?.addEventListener("click", (e) => {
+  if (e.target.id === "npc-dossier-modal") closeNpcBioLabModal();
+});
 
 function runCardLoadingThenOpenModal(cardEl, npc) {
   clearInterval(cardLoadTimer);
@@ -1781,8 +1957,8 @@ const bubbleTopicTag = document.getElementById("bubble-topic-tag");
 const bubbleQuoteText = document.getElementById("bubble-quote-text");
 const impactFx = document.getElementById("screen-impact-fx");
 const missionSimBar = document.getElementById("mission-sim-bar");
+const modalAuthEl = document.getElementById("modal-auth");
 
-// Bật nút đóng Thanh Nhiệm Vụ NGAY LẬP TỨC (kèm phím Escape)
 function closeMissionSimBar() {
   clearInterval(missionSimTimer);
   clearInterval(missionTypeTimer);
@@ -1794,9 +1970,10 @@ document.getElementById("btn-close-mission-sim")?.addEventListener("click", (e) 
   closeMissionSimBar();
 });
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && missionSimBar && !missionSimBar.classList.contains("hidden")) {
-    closeMissionSimBar();
-  }
+  if (e.key !== "Escape") return;
+  if (npcDossierModal && !npcDossierModal.classList.contains("hidden")) closeNpcBioLabModal();
+  else if (modalAuthEl && !modalAuthEl.classList.contains("hidden")) closeModal("modal-auth");
+  else if (missionSimBar && !missionSimBar.classList.contains("hidden")) closeMissionSimBar();
 });
 
 function synthesizeSystemQuote(forcedCat = null) {
@@ -1906,7 +2083,6 @@ function showMascotQuote(forcedCat = null, customObj = null) {
   clearTimeout(bubbleHideTimeout);
   bubbleHideTimeout = setTimeout(() => { if (!bubbleHovered) mascotBubble.classList.add("hidden"); }, 14000);
 }
-  mascotBubble.classList.remove("hidden");
 
 mascotBubble?.addEventListener("mouseenter", () => { bubbleHovered = true; });
 mascotBubble?.addEventListener("mouseleave", () => {
@@ -1916,23 +2092,39 @@ mascotBubble?.addEventListener("mouseleave", () => {
 });
 document.getElementById("btn-close-bubble")?.addEventListener("click", () => mascotBubble?.classList.add("hidden"));
 
+function hasAnyBlockingOverlay() {
+  return (
+    (npcDossierModal && !npcDossierModal.classList.contains("hidden")) ||
+    (modalAuthEl && !modalAuthEl.classList.contains("hidden")) ||
+    (intrusionOverlay && !intrusionOverlay.classList.contains("hidden"))
+  );
+}
+
 let sysMascot3D = { triggerStunt: () => {}, setEnabled: () => {}, isEnabled: () => false };
 try {
   sysMascot3D = initSystemMascot3D({
     canvasId: "sys-mascot-canvas",
     onProjectScreen: (sx, sy) => {
-      const inView = Number.isFinite(sx) && Number.isFinite(sy) && sx > -60 && sx < window.innerWidth + 60 && sy > -60 && sy < window.innerHeight + 60;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const pad = vw <= 680 ? 36 : 48;
+      const inView = Number.isFinite(sx) && Number.isFinite(sy) && sx > -60 && sx < vw + 60 && sy > -60 && sy < vh + 60;
       if (mascotHitbox) {
-        mascotHitbox.style.display = inView && sysMascot3D.isEnabled() ? "block" : "none";
-        mascotHitbox.style.left = `${Math.max(48, Math.min(window.innerWidth - 48, sx))}px`;
-        mascotHitbox.style.top = `${Math.max(76, Math.min(window.innerHeight - 48, sy))}px`;
+        const showHitbox = inView && sysMascot3D.isEnabled() && !hasAnyBlockingOverlay();
+        mascotHitbox.style.display = showHitbox ? "block" : "none";
+        if (showHitbox) {
+          mascotHitbox.style.left = `${Math.max(pad, Math.min(vw - pad, sx))}px`;
+          mascotHitbox.style.top = `${Math.max(76, Math.min(vh - pad, sy))}px`;
+        }
       }
     },
     onScreenBonk: (ix, iy) => {
       if (state.sfx) radio.playFlipChime();
-      document.body.classList.remove("screen-bonk-shake");
-      void document.body.offsetWidth;
-      document.body.classList.add("screen-bonk-shake");
+      if (hubUniverse) {
+        hubUniverse.classList.remove("screen-bonk-shake");
+        void hubUniverse.offsetWidth;
+        hubUniverse.classList.add("screen-bonk-shake");
+      }
 
       if (impactFx) {
         impactFx.style.left = `${Math.max(60, Math.min(window.innerWidth - 60, ix))}px`;
@@ -2057,10 +2249,18 @@ document.querySelectorAll("[data-cmd]").forEach((btn) => {
 });
 
 // 15. MODAL TÀI KHOẢN & AVATAR
-const openModal = (id) => document.getElementById(id)?.classList.remove("hidden");
+const openModal = (id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("hidden");
+  el.scrollTop = 0;
+};
 const closeModal = (id) => document.getElementById(id)?.classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) => btn.addEventListener("click", () => closeModal(btn.dataset.closeModal)));
 document.getElementById("btn-auth")?.addEventListener("click", () => openModal("modal-auth"));
+modalAuthEl?.addEventListener("click", (e) => {
+  if (e.target.id === "modal-auth") closeModal("modal-auth");
+});
 
 const authOut = document.getElementById("auth-logged-out");
 const authIn = document.getElementById("auth-logged-in");
@@ -2120,14 +2320,15 @@ function compressImageToDataUrl(file) {
     reader.onerror = () => reject(new Error("Không đọc được ảnh."));
     reader.onload = () => {
       const img = new Image();
-      img.onerror = () => reject(new Error("File không phải ảnh hợp lệ."));
+      img.onerror = () => reject(new Error("File không phải ảnh hợp lệ (iPhone nên chọn JPG/PNG hoặc ảnh thư viện)."));
       img.onload = () => {
         const c = document.createElement("canvas");
         c.width = 128; c.height = 128;
         const ctx = c.getContext("2d");
         const minSide = Math.min(img.width, img.height);
         ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, 128, 128);
-        resolve(c.toDataURL("image/webp", 0.8));
+        // Dùng JPEG thay cho WebP để tương thích 100% Safari iOS & Android
+        resolve(c.toDataURL("image/jpeg", 0.82));
       };
       img.src = reader.result;
     };
@@ -2143,8 +2344,10 @@ document.getElementById("btn-save-avatar-url")?.addEventListener("click", async 
 });
 document.getElementById("avatar-file-input")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
+  e.target.value = "";
   if (!file || !state.username) return;
   try {
+    document.getElementById("auth-sync-msg").textContent = "Đang xử lý ảnh...";
     const dataUrl = await compressImageToDataUrl(file);
     await saveDebtorState(state.username, { avatarUrl: dataUrl });
     applyProfileUI(await fetchDebtorByUsername(state.username));
@@ -2182,6 +2385,7 @@ document.getElementById("btn-logout")?.addEventListener("click", () => { logoutS
 
 // 16. ĐỒNG HỒ TỔNG (BXH + KÉT 24H + CHỢ ĐEN 3H + QUOTES 10 PHÚT) + CHẠY SỐ VIỀN
 setInterval(() => {
+  if (document.hidden) return;
   const { dateKey, countdown, gmt7Time } = getGMT7Info();
   const clockEl = document.getElementById("clock-utc");
   if (clockEl) clockEl.textContent = `${gmt7Time} +7`;
@@ -2231,7 +2435,8 @@ setInterval(() => {
 const railL = document.getElementById("stream-rail-left");
 const railR = document.getElementById("stream-rail-right");
 setInterval(() => {
-  if (!railL || !railR) return;
+  // Bỏ qua cập nhật DOM dải số viền trên màn hình <= 1580px (vì CSS đang ẩn hoàn toàn)
+  if (document.hidden || window.innerWidth <= 1580 || !railL || !railR) return;
   const lineL = document.createElement("span");
   if (Math.random() < 0.18) lineL.className = "hot";
   lineL.textContent = `${Math.floor(1000 + Math.random() * 8999)}.${Math.floor(10 + Math.random() * 89)} // 0x${Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, "0")}`;
@@ -2246,6 +2451,7 @@ setInterval(() => {
 }, 240);
 
 setInterval(() => {
+  if (document.hidden) return;
   const bpm = Math.floor(68 + Math.random() * 14);
   const sync = (96.5 + Math.random() * 3.2).toFixed(1);
   const bpmEl = document.getElementById("bio-bpm-readout");

@@ -1,4 +1,4 @@
-// js/npc-morph-3d.js — Động Vật 3D Thật (.glb + AnimationMixer + Fallback Link + Chế độ Thực Tế / Holo hỗ trợ SkinnedMesh)
+// js/npc-morph-3d.js — Động Vật 3D Thật (.glb + Pinch-to-Zoom + Tạm dừng khi đóng modal)
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -7,10 +7,25 @@ import { ANIMAL_PRESETS } from "./config.js";
 
 export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return { setSubject: () => {}, setActiveZone: () => {}, toggleRenderMode: () => "real", resize: () => {} };
+  if (!canvas) {
+    return {
+      setSubject: () => {},
+      setActiveZone: () => {},
+      toggleRenderMode: () => "real",
+      resize: () => {},
+      setOpen: () => {},
+      zoomBy: () => {}
+    };
+  }
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const isMobile = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: !isMobile,
+    powerPreference: "default"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.35 : 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
@@ -157,9 +172,10 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       };
     }
 
+    const radius = isMobile ? 0.085 : 0.065;
     Object.entries(anchors).forEach(([zoneKey, pos]) => {
       const dot = new THREE.Mesh(
-        new THREE.SphereGeometry(0.065, 14, 14),
+        new THREE.SphereGeometry(radius, 14, 14),
         new THREE.MeshBasicMaterial({ color: colors.secondary, transparent: true, opacity: 0.96 })
       );
       dot.position.copy(pos);
@@ -250,8 +266,10 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
     }
   }
 
+  const activePointers = new Map();
   let isDragging = false;
   let downX = 0, downY = 0, prevX = 0, prevY = 0, movedDist = 0;
+  let pinchStartDist = 0, pinchStartCamZ = 5.2;
   let rotY = 0.58, rotX = 0.06, velY = 0, targetCamZ = 5.2;
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -263,36 +281,75 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
     pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   }
 
+  function getPinchDistance() {
+    const pts = Array.from(activePointers.values());
+    if (pts.length < 2) return 0;
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }
+
   canvas.addEventListener("pointerdown", (e) => {
-    isDragging = true;
-    downX = prevX = e.clientX;
-    downY = prevY = e.clientY;
-    movedDist = 0;
-    velY = 0;
-    canvas.setPointerCapture?.(e.pointerId);
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try { canvas.setPointerCapture?.(e.pointerId); } catch (_) {}
+
+    if (activePointers.size === 1) {
+      isDragging = true;
+      downX = prevX = e.clientX;
+      downY = prevY = e.clientY;
+      movedDist = 0;
+      velY = 0;
+    } else if (activePointers.size === 2) {
+      isDragging = false;
+      movedDist = 999;
+      pinchStartDist = getPinchDistance();
+      pinchStartCamZ = targetCamZ;
+    }
   });
 
   canvas.addEventListener("pointermove", (e) => {
-    if (isDragging) {
+    if (activePointers.has(e.pointerId)) {
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    if (activePointers.size === 2 && pinchStartDist > 0) {
+      const dist = getPinchDistance();
+      if (dist > 10) {
+        const ratio = pinchStartDist / dist;
+        targetCamZ = Math.max(3.2, Math.min(8.4, pinchStartCamZ * ratio));
+      }
+      return;
+    }
+
+    if (isDragging && activePointers.size === 1) {
       const dx = e.clientX - prevX;
       const dy = e.clientY - prevY;
-      movedDist += Math.hypot(e.clientX - downX, e.clientY - downY);
+      movedDist = Math.max(movedDist, Math.hypot(e.clientX - downX, e.clientY - downY));
       velY = dx * 0.013;
       rotY += velY;
       rotX = Math.max(-0.45, Math.min(0.45, rotX + dy * 0.007));
       prevX = e.clientX;
       prevY = e.clientY;
     }
-    updatePointer(e);
-    raycaster.setFromCamera(pointer, camera);
-    const hits = raycaster.intersectObjects(hotspotMeshes, false);
-    canvas.style.cursor = hits.length > 0 ? "pointer" : isDragging ? "grabbing" : "grab";
+
+    if (e.pointerType === "mouse") {
+      updatePointer(e);
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(hotspotMeshes, false);
+      canvas.style.cursor = hits.length > 0 ? "pointer" : isDragging ? "grabbing" : "grab";
+    }
   });
 
-  canvas.addEventListener("pointerup", (e) => {
+  function handlePointerEnd(e, allowTap) {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size === 1) {
+      const [rem] = activePointers.values();
+      isDragging = true;
+      prevX = rem.x;
+      prevY = rem.y;
+      return;
+    }
     if (!isDragging) return;
     isDragging = false;
-    if (movedDist < 7) {
+    if (allowTap && movedDist < 12) {
       updatePointer(e);
       raycaster.setFromCamera(pointer, camera);
       const hits = raycaster.intersectObjects(hotspotMeshes, false);
@@ -301,7 +358,10 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
         onSelectZone?.(activeZone);
       }
     }
-  });
+  }
+
+  canvas.addEventListener("pointerup", (e) => handlePointerEnd(e, true));
+  canvas.addEventListener("pointercancel", (e) => handlePointerEnd(e, false));
 
   canvas.addEventListener("wheel", (e) => {
     e.preventDefault();
@@ -311,11 +371,12 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   function resize() {
     const parent = canvas.parentElement;
     if (!parent) return;
-    const w = parent.clientWidth || 340;
-    const h = parent.clientHeight || 410;
-    if (w < 10 || h < 10) return;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    if (w < 20 || h < 20) return;
+    const aspect = w / h;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    camera.aspect = aspect;
     camera.updateProjectionMatrix();
   }
   if (window.ResizeObserver && canvas.parentElement) {
@@ -337,9 +398,22 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   const projVec = new THREE.Vector3();
   const clock = new THREE.Clock();
   let time = 0;
+  let isModalOpen = false;
+  let rafId = null;
+  let lastCalloutAt = 0;
 
-  function animate() {
-    requestAnimationFrame(animate);
+  function ensureRunning() {
+    if (isModalOpen && !document.hidden && !rafId) {
+      clock.getDelta();
+      rafId = requestAnimationFrame(animate);
+    }
+  }
+
+  function animate(nowTs = 0) {
+    rafId = null;
+    if (!isModalOpen || document.hidden) return;
+    rafId = requestAnimationFrame(animate);
+
     const dt = Math.min(0.05, clock.getDelta());
     time += dt;
 
@@ -361,7 +435,9 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       dot.scale.setScalar(isSel ? 1.55 + Math.sin(time * 6) * 0.25 : 0.92);
     });
 
-    if (onProjectZones && hotspotMeshes.length > 0 && canvas.clientWidth > 0) {
+    // Giảm tần suất chiếu đường dẫn SVG xuống ~20fps để không ép reflow liên tục trên mobile
+    if (onProjectZones && hotspotMeshes.length > 0 && canvas.clientWidth > 0 && nowTs - lastCalloutAt >= 48) {
+      lastCalloutAt = nowTs;
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       const projected = {};
@@ -379,8 +455,9 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
     renderer.render(scene, camera);
   }
 
+  document.addEventListener("visibilitychange", ensureRunning);
+  canvas.addEventListener("webglcontextlost", (e) => e.preventDefault(), false);
   resize();
-  animate();
 
   return {
     setSubject(npc, stats) {
@@ -388,11 +465,26 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       rotY = 0.58;
       rotX = 0.06;
       targetCamZ = 5.2;
+      isModalOpen = true;
       loadAnimalModel(npc, stats);
       resize();
+      ensureRunning();
+    },
+    setOpen(open) {
+      isModalOpen = Boolean(open);
+      if (isModalOpen) {
+        resize();
+        ensureRunning();
+      } else {
+        activePointers.clear();
+        isDragging = false;
+      }
     },
     setActiveZone(zoneKey) {
       activeZone = zoneKey;
+    },
+    zoomBy(delta) {
+      targetCamZ = Math.max(3.2, Math.min(8.4, targetCamZ + delta));
     },
     toggleRenderMode() {
       renderMode = renderMode === "real" ? "holo" : "real";

@@ -1,13 +1,19 @@
 /* ==========================================================================
-   4 TEMPLATE MÀU ĐỒNG BỘ CSS + THREE.JS WEBGL:
-   1. orbital-cyan (Mặc định): Xanh Băng Vũ Trụ chuẩn 4 ảnh concept
-   2. cyber-violet: Tím-Xanh nguyên bản
-   3. acid: Acid-Xanh nguyên bản
-   4. crimson-karma: Đỏ Báo Ứng / Vàng Nhân Quả
+   4 TEMPLATE MÀU ĐỒNG BỘ CSS + THREE.JS WEBGL (TỐI ƯU DARK COLOR-SCHEME & SAFE-AREA):
+   1. orbital-cyan (Mặc định)
+   2. cyber-violet
+   3. acid
+   4. crimson-karma
    ========================================================================== */
 
 :root,
 [data-theme="orbital-cyan"] {
+  color-scheme: dark;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
   --bg-void: #020612;
   --bg-deep: #071936;
   --bg-glass: rgba(6, 24, 58, 0.34);

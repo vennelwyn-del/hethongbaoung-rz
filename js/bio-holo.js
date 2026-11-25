@@ -1,4 +1,4 @@
-// js/bio-holo.js — Holo-Bio Scanner 3D (Three.js DNA + GLSL Soul Core + Retinal Iris & ECG)
+// js/bio-holo.js — Holo-Bio Scanner 3D (Tối ưu iOS/Android: tạm dừng khi cuộn khuất hoặc ẩn tab + fix ECG)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
 import { createHoloMaterial } from "./holo-shader.js";
@@ -7,8 +7,14 @@ export function initBioHologram() {
   const canvas = document.getElementById("bio-canvas");
   if (!canvas) return;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const isMobile = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: !isMobile,
+    powerPreference: "default"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2));
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 50);
@@ -37,11 +43,11 @@ export function initBioHologram() {
 
   // 2. VÒNG QUÉT QUỸ ĐẠO
   const scanRing1 = new THREE.Mesh(
-    new THREE.TorusGeometry(1.88, 0.025, 8, 64),
+    new THREE.TorusGeometry(1.88, 0.025, 8, 56),
     new THREE.MeshBasicMaterial({ color: pal.p, transparent: true, opacity: 0.75 })
   );
   const scanRing2 = new THREE.Mesh(
-    new THREE.TorusGeometry(2.22, 0.02, 8, 64),
+    new THREE.TorusGeometry(2.22, 0.02, 8, 56),
     new THREE.MeshBasicMaterial({ color: pal.sec, transparent: true, opacity: 0.65 })
   );
   scanRing1.rotation.set(1.1, 0.4, 0);
@@ -79,15 +85,34 @@ export function initBioHologram() {
   function resize() {
     const parent = canvas.parentElement;
     if (!parent) return;
-    const w = Math.max(200, parent.clientWidth);
-    const h = parent.clientHeight || 224;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    if (w < 20 || h < 20) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
 
+  let isVisible = true;
+  let rafId = null;
+
+  function ensureRunning() {
+    if (!document.hidden && isVisible && !rafId) {
+      rafId = requestAnimationFrame(animate);
+    }
+  }
+
   if (window.ResizeObserver && canvas.parentElement) {
     new ResizeObserver(() => resize()).observe(canvas.parentElement);
+  }
+  if (window.IntersectionObserver && canvas.parentElement) {
+    new IntersectionObserver(
+      (entries) => {
+        isVisible = entries.some((entry) => entry.isIntersecting);
+        if (isVisible) ensureRunning();
+      },
+      { threshold: 0.05 }
+    ).observe(canvas.parentElement);
   }
 
   const obs = new MutationObserver(() => {
@@ -106,12 +131,15 @@ export function initBioHologram() {
   const irisCtx = irisCanvas?.getContext("2d");
   const ecgCanvas = document.getElementById("ecg-canvas");
   const ecgCtx = ecgCanvas?.getContext("2d");
+  const TWO_PI = Math.PI * 2;
 
   let time = 0;
   function animate() {
-    requestAnimationFrame(animate);
-    time += 0.03;
+    rafId = null;
+    if (document.hidden || !isVisible) return;
+    rafId = requestAnimationFrame(animate);
 
+    time += 0.03;
     coreHoloMat.uniforms.uTime.value = time;
     coreMesh.rotation.y += 0.012;
     coreMesh.rotation.x += 0.006;
@@ -128,7 +156,7 @@ export function initBioHologram() {
       irisCtx.strokeStyle = pal.p;
       irisCtx.lineWidth = 1.2;
       irisCtx.beginPath();
-      irisCtx.arc(w / 2, h / 2, 24, 0, Math.PI * 2);
+      irisCtx.arc(w / 2, h / 2, 24, 0, TWO_PI);
       irisCtx.stroke();
 
       irisCtx.strokeStyle = pal.sec;
@@ -137,7 +165,7 @@ export function initBioHologram() {
       irisCtx.stroke();
 
       for (let a = 0; a < 12; a++) {
-        const ang = (a / 12) * Math.PI * 2 + time * 0.4;
+        const ang = (a / 12) * TWO_PI + time * 0.4;
         irisCtx.beginPath();
         irisCtx.moveTo(w / 2 + Math.cos(ang) * 9, h / 2 + Math.sin(ang) * 9);
         irisCtx.lineTo(w / 2 + Math.cos(ang) * 22, h / 2 + Math.sin(ang) * 22);
@@ -152,7 +180,8 @@ export function initBioHologram() {
       ecgCtx.lineWidth = 1.5;
       ecgCtx.beginPath();
       for (let x = 0; x < w; x++) {
-        const phase = (x * 0.14 - time * 5) % (Math.PI * 2);
+        const rawPh = (x * 0.14 - time * 5) % TWO_PI;
+        const phase = rawPh < 0 ? rawPh + TWO_PI : rawPh;
         let spike = 0;
         if (phase > 2.4 && phase < 2.8) spike = -14;
         else if (phase >= 2.8 && phase < 3.1) spike = 10;
@@ -164,7 +193,9 @@ export function initBioHologram() {
     }
   }
 
+  document.addEventListener("visibilitychange", ensureRunning);
+  canvas.addEventListener("webglcontextlost", (e) => e.preventDefault(), false);
   resize();
   window.addEventListener("resize", resize);
-  animate();
+  ensureRunning();
 }

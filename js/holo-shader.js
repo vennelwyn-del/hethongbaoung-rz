@@ -1,4 +1,4 @@
-// js/holo-shader.js — GLSL Hologram Shader (Fresnel Rim + Volumetric Scanlines + Micro Glitch)
+// js/holo-shader.js — GLSL Hologram Shader (Fresnel Rim + Scanlines + Micro Glitch + iOS Metal NaN Guard)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
 
@@ -41,10 +41,11 @@ export function createHoloMaterial(colorHex, opacity = 0.72) {
         vec3 normal = normalize(vNormal);
         vec3 viewDir = normalize(vViewPosition);
 
-        float fresnel = pow(1.0 - abs(dot(normal, viewDir)), 2.1);
+        float fresnelBase = max(1.0 - abs(dot(normal, viewDir)), 0.0001);
+        float fresnel = pow(fresnelBase, 2.1);
 
-        float stripes = sin(vWorldPos.y * 28.0 - uTime * 5.6) * 0.5 + 0.5;
-        stripes = pow(stripes, 3.2);
+        float stripesBase = max(sin(vWorldPos.y * 28.0 - uTime * 5.6) * 0.5 + 0.5, 0.0001);
+        float stripes = pow(stripesBase, 3.2);
 
         float pulse = 0.92 + 0.08 * sin(uTime * 3.0 + vWorldPos.y * 1.5);
         float alpha = (fresnel * 0.88 + stripes * 0.28 + 0.09) * uOpacity * pulse;
