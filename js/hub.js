@@ -49,7 +49,9 @@ const state = {
   selectedPyramidTier: 1,
   activeTabId: "tab-profile",
   vaultUnlocked: false,
-  vaultHintStep: 0
+  vaultHintStep: 0,
+  cart: [],
+  inventory: []
 };
 
 const SECTORS = [
@@ -97,14 +99,6 @@ const MANIFEST_FORMS = {
   abacus: { label: "BÀN TÍNH & QUẠ ĐEN", desc: "【HÌNH THÁI VẬT LÝ — KHỐI CỔ ĐẠI / TU TIÊN】: Bàn tính gỗ mun mất một hạt hoặc con quạ đen đeo thẻ đồng ở chân sà xuống mổ “cộc, cộc” lên trán Ký chủ mỗi khi trừ điểm, rồi nhả ra cuộn khế ước giấy dó đóng triện đỏ." },
   radio: { label: "RADIO QUÂN ĐỘI RỈ SÉT", desc: "【HÌNH THÁI VẬT LÝ — MẠT THẾ / VÔ GIAN】: Chiếc radio sắt quân đội rỉ sét rè rè tần số nhiễu 50Hz giữa đống đổ nát, đọc vang biên lai trừ nợ không sót một số lẻ nào bằng giọng tổng đài viên vô cảm." }
 };
-
-const MARKET_ITEMS = [
-  { name: "Adrenaline & Thuốc cầm cự (6 giờ)", costPB: -50, note: "Hệ Thống 00 (+5 PB phí tiêm) — Giữ tỉnh táo, vết thương vật lý vẫn nguyên vẹn." },
-  { name: "Khóa Debuff 'Cạn Phước' tạm thời (3 Turn)", costPB: -200, note: "Hệ Thống 00 — Tránh hỏng micro, gãy gót giày khi tung bằng chứng." },
-  { name: "Mở khóa Ký ức bị tổn thương của Nguyên chủ", costPB: -150, note: "Hệ Thống 00 — Chỉ nhớ lại dữ kiện chính mắt nguyên chủ từng thấy." },
-  { name: "Phí Gia Hạn Hơi Thở / Kích Tim Cấp Cứu (24h)", costPB: -350, note: "Hệ Thống 00 — Mua thêm 24h thoi thóp kèm hóa đơn tiền điện." },
-  { name: "Máy ghi âm mini & Bộ mở khóa cơ (Chợ Đen Lục Nha)", costPB: -25, note: "Phí môi giới tọa độ hẻm sau; Ký chủ tự tay đi gài máy & chịu rủi ro." }
-];
 
 const FORUM_POSTS_BASE = [
   { authorLabel: "@Phòng_Kiểm_Toán [GHIM]", authorSub: "Hệ Thống • Ghim toàn server", avatarUrl: DEFAULT_AVATAR, body: "Cảnh báo kỷ luật: Tuần này có 14 Con nợ tại Điện 3 bị thanh lý thẳng tay vì mềm lòng nghe tra nam khóc lóc dưới mưa." },
@@ -573,6 +567,15 @@ function updateStatsUI() {
   if (secSide) secSide.textContent = state.selectedSector;
   if (manSide) manSide.textContent = MANIFEST_FORMS[state.manifestForm]?.label || "POS ĐEN HIỆN ĐẠI";
   if (profilePb) profilePb.textContent = pbText;
+const mktAvail = document.getElementById("market-pb-avail");
+  if (mktAvail) {
+    if (state.contractLocked && typeof state.pb === "number") {
+      const avail = Math.max(0, state.pb - (-6000));
+      mktAvail.textContent = `${avail.toFixed(2)} PB (Số dư: ${state.pb.toFixed(2)} PB)`;
+    } else {
+      mktAvail.textContent = "CHƯA KÝ HỢP ĐỒNG";
+    }
+  }
 }
 
 // 7. HỢP ĐỒNG + LIVE PREVIEW
@@ -934,7 +937,10 @@ document.getElementById("btn-gen-contracts")?.addEventListener("click", () => {
   pushReceipt("【!NHIEMVU】: Đã khởi tạo 3 Hồ sơ Trọng án Độc bản mới.");
 });
 
-// 10. CHỢ ĐEN & !HETHONG
+// 10. CHỢ ĐEN RESET 3 TIẾNG + TỰ CHẾ ITEM THEO PLOT + GIỎ HÀNG + TRỪ PB + TÚI ĐỒ
+const DEBT_CEILING = -6000;
+const MARKET_SLOT_MS = 3 * 3600 * 1000;
+
 const manifestPreview = document.getElementById("manifest-preview-box");
 function setManifestForm(key) {
   state.manifestForm = MANIFEST_FORMS[key] ? key : "pos";
@@ -951,23 +957,364 @@ document.querySelectorAll(".manifest-btn").forEach((btn) =>
 );
 setManifestForm("pos");
 
-const marketList = document.getElementById("market-list");
-if (marketList) {
-  for (const item of MARKET_ITEMS) {
-    const row = document.createElement("div");
-    row.className = "market-item";
-    row.innerHTML = `<div><h4>${item.name}</h4><p>${item.note}</p></div><button type="button" class="btn-secondary holo-tactile market-buy">${item.costPB} PB</button>`;
-    row.querySelector("button").addEventListener("click", async () => {
-      if (state.sfx) radio.playClickChime();
-      if (!state.contractLocked) { pushReceipt("【CẢNH BÁO】: Phải ký Hợp đồng chính thức mới có PB để giao dịch."); return; }
-      state.pb = Number((state.pb + item.costPB).toFixed(2));
-      updateStatsUI();
-      pushReceipt(`【GIAO DỊCH】: ${item.name} (${item.costPB} PB).`);
-      if (state.username) await saveDebtorState(state.username, { meritBalance: state.pb }).catch(() => {});
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getMarketSlotInfo() {
+  const gmt7Ms = Date.now() + 7 * 3600 * 1000;
+  const slotId = Math.floor(gmt7Ms / MARKET_SLOT_MS);
+  const nextResetMs = (slotId + 1) * MARKET_SLOT_MS;
+  const diffSec = Math.max(0, Math.floor((nextResetMs - gmt7Ms) / 1000));
+  const hh = String(Math.floor(diffSec / 3600)).padStart(2, "0");
+  const mm = String(Math.floor((diffSec % 3600) / 60)).padStart(2, "0");
+  const ss = String(diffSec % 60).padStart(2, "0");
+  const startHour = String((slotId * 3) % 24).padStart(2, "0");
+  const endHour = String(((slotId * 3) + 3) % 24).padStart(2, "0");
+  return { slotId, countdown: `${hh}:${mm}:${ss}`, label: `${startHour}:00 - ${endHour}:00 GMT+7` };
+}
+
+// BỘ TỰ CHẾ ITEM LIÊN QUAN PLOT (KHÔNG LƯU ITEM TĨNH SẴN TRONG CODE)
+const PLOT_SYNTH_GRAMMAR = [
+  {
+    tag: "NGHIỆP VỤ VI BẰNG",
+    adjs: ["Siêu Nhỏ", "Ngụy Trang", "Kháng Nhiễu", "Phản Quang", "Bỏ Túi"],
+    cores: ["Cúc Áo Ghi Âm", "Thẻ Từ Sao Chép Khóa", "Mắt Kính Soi Mực Chìm", "Đầu Đọc USB Mật", "Micro Giấu Trong Bút Bi"],
+    plots: [
+      "lén thu âm lời thú tội của Thiên kim giả tại sảnh tiệc Điện 2",
+      "chụp vi bằng sổ sách kép trong phòng Tổng tài Điện 3",
+      "kiểm tra vết mực hoa bốn cánh trên hợp đồng nợ của Sd.",
+      "lưu lại bản thu thô chưa chỉnh sửa tại hậu trường Điện 1"
+    ],
+    caveats: ["Pin chỉ chạy tối đa 3 giờ; tự tay gài lén trong điểm mù.", "Cấm khoe bản gốc khi ở một mình trong phòng kín."],
+    priceRange: [35, 160]
+  },
+  {
+    tag: "Y TẾ CẦM CỰ",
+    adjs: ["Đậm Đặc", "Tác Dụng Nhanh", "Lách Luật", "Cấp Tốc", "Không Lãi Suất"],
+    cores: ["Ống Tiêm Adrenaline", "Viên Nén Chống Run Tay", "Miếng Dán Tê Xương Khớp", "Bột Hạ Sốt Dạ Dày", "Thuốc Nhỏ Mắt Chống Ngất"],
+    plots: [
+      "kìm phản xạ sang chấn run tay khi đối mặt gã Tra nam Điện 3",
+      "giữ đầu óc tỉnh táo 6 giờ giữa cơn sốt 39 độ tại tầng hầm bệnh viện",
+      "cầm máu vết thương rách chỉ để bước ra ánh đèn sân khấu Điện 1",
+      "chống tụt huyết áp giữa đáy Hàn Băng Ngục Điện 5"
+    ],
+    caveats: ["Không chữa lành vết thương vật lý; hết thuốc sẽ đau bù gấp rưỡi.", "Chỉ bán bằng điểm PB hoặc giao dịch với Lục Nha."],
+    priceRange: [45, 220]
+  },
+  {
+    tag: "GÀI BẪY LIÊN HOÀN",
+    adjs: ["Không Màu", "Kích Nhiệt", "Đảo Ngược", "Chập Mạch", "Tức Thì"],
+    cores: ["Bột Trơn Sàn Sân Khấu", "Chip Nhiễu Sóng Loa Playback", "Dung Dịch Đổi Màu Nước Trà", "Mảnh Sáp Phá Đạo Cụ", "Đèn Chiếu Tia Cực Tím"],
+    plots: [
+      "cắt ngang màn hát nhép của Đỉnh lưu đạo nhái ngay sóng trực tiếp Điện 1",
+      "làm lộ lớp phấn che sẹo giả vờ yếu đuối của Bạch Liên Hoa",
+      "khiến Kẻ Cướp Phước tự vấp ngã kéo tụt bộ tóc giả trước 10 vạn khán giả",
+      "đổi màu bát thuốc bắc chứa xạ hương ở Lãnh cung Điện 4"
+    ],
+    caveats: ["Rủi ro tự văng mảnh trúng mình nếu Debuff Cạn Phước đang bật.", "Phải canh đúng thời điểm trước khi thủy quân vào dọn hiện trường."],
+    priceRange: [28, 130]
+  },
+  {
+    tag: "PHÁP LÝ & NHÂN QUẢ",
+    adjs: ["Công Chứng", "Khẩn Cấp", "Chợ Đen", "Niêm Phong", "Tối Mật"],
+    cores: ["Trát Triệu Tập Kiểm Toán", "Khế Ước Phong Tỏa Cổ Phần", "Phiếu Chặn Thủy Quân Bôi Nhọ", "Thẻ Gọi Thanh Tra Độc Lập", "Kính Giải Mã Hào Quang Lậu"],
+    plots: [
+      "mở đường dây nóng kết nối Phán Quan Tạ Vô Cữu tới hiện trường Điện 2",
+      "khóa đường tẩu tán tài sản sang công ty ma trước giờ công chứng",
+      "dán ấn phong tỏa mảnh Hào quang đánh cắp mang mã nguồn Sd.",
+      "ép trợ lý bị bỏ rơi phản bội lại chủ cũ trong Liên hoàn kế"
+    ],
+    caveats: ["Vô hiệu nếu chưa nắm đủ 2 tầng chứng cứ vật lý.", "Dùng sai quy trình sẽ bị Ngu Hồng Diệp phạt KPI."],
+    priceRange: [180, 1450]
+  }
+];
+
+const SUPPLIERS = ["Lục Nha (Hẻm Tối)", "Kho Dược Tầng Dưới", "Tiểu Thất Tuồn Lén", "Mối Ngầm Kiểm Toán", "Điểm Mù Tín Hiệu"];
+
+let lastMarketSlot = getMarketSlotInfo().slotId;
+let currentMarketCatalog = [];
+
+function generateBlackMarketItems(slotId) {
+  const rand = mulberry32(hashSeed(`market_3h_slot:${slotId}`));
+  const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+  const items = [];
+
+  for (let i = 0; i < 5; i++) {
+    const g = PLOT_SYNTH_GRAMMAR[i % PLOT_SYNTH_GRAMMAR.length];
+    const isRareSlot = i === 4;
+    const adj = pick(g.adjs);
+    const core = pick(g.cores);
+    const plot = pick(g.plots);
+    const caveat = pick(g.caveats);
+    const supplier = pick(SUPPLIERS);
+
+    const [minP, maxP] = isRareSlot ? [650, 1950] : g.priceRange;
+    const cost = Number((minP + rand() * (maxP - minP)).toFixed(2));
+    const serial = `BM-${Math.floor(1000 + rand() * 8999).toString(16).toUpperCase()}`;
+
+    items.push({
+      id: `${slotId}_${i}_${serial}`,
+      serial,
+      tag: g.tag,
+      rare: isRareSlot || cost > 300,
+      supplier,
+      name: `${core} ${adj}`,
+      desc: `Công dụng: Dùng để ${plot}. (${caveat})`,
+      cost
     });
-    marketList.appendChild(row);
+  }
+  return items;
+}
+
+function showMarketFeedback(msg, type = "error") {
+  const box = document.getElementById("market-feedback-msg");
+  if (!box) return;
+  box.textContent = msg;
+  box.className = `market-feedback ${type === "error" ? "is-error" : "is-success"}`;
+  if (type === "error") {
+    box.style.animation = "none";
+    void box.offsetWidth;
+    box.style.animation = "";
   }
 }
+
+function getLocalBagKey() {
+  return `bao_ung_bag_${state.username || "guest"}`;
+}
+function saveInventoryState() {
+  localStorage.setItem(getLocalBagKey(), JSON.stringify(state.inventory));
+  if (state.username) {
+    saveDebtorState(state.username, { meritBalance: state.pb, inventory: state.inventory }).catch(() => {});
+  }
+}
+function loadLocalInventory() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(getLocalBagKey()) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch { return []; }
+}
+
+function renderMarketCatalog() {
+  const listEl = document.getElementById("market-list");
+  const slotInfo = getMarketSlotInfo();
+  lastMarketSlot = slotInfo.slotId;
+  currentMarketCatalog = generateBlackMarketItems(slotInfo.slotId);
+
+  const slotTag = document.getElementById("market-slot-tag");
+  if (slotTag) slotTag.textContent = slotInfo.label;
+
+  if (!listEl) return;
+  listEl.innerHTML = "";
+
+  currentMarketCatalog.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "market-item";
+    row.innerHTML = `
+      <div>
+        <div class="market-item-meta">
+          <span class="mkt-badge">${item.serial}</span>
+          <span class="mkt-badge ${item.rare ? "rare" : ""}">${item.tag}${item.rare ? " ★ HIẾM" : ""}</span>
+          <span class="mkt-badge">Nguồn: ${item.supplier}</span>
+        </div>
+        <h4></h4>
+        <p></p>
+      </div>
+      <div class="market-card-actions">
+        <div class="market-price-tag">-${item.cost.toFixed(2)} PB</div>
+        <button type="button" class="btn-secondary holo-tactile mini-btn btn-add-cart">🛒 + GIỎ HÀNG</button>
+        <button type="button" class="btn-primary holo-tactile mini-btn btn-buy-now">⚡ MUA NGAY</button>
+      </div>
+    `;
+    row.querySelector("h4").textContent = item.name;
+    row.querySelector("p").textContent = item.desc;
+    row.querySelector(".btn-add-cart").addEventListener("click", () => addToCart(item));
+    row.querySelector(".btn-buy-now").addEventListener("click", () => purchaseItems([{ item, qty: 1 }], false));
+    listEl.appendChild(row);
+  });
+}
+
+function addToCart(item) {
+  if (state.sfx) radio.playClickChime();
+  const existing = state.cart.find((c) => c.item.id === item.id);
+  if (existing) existing.qty += 1;
+  else state.cart.push({ item, qty: 1 });
+  renderCart();
+  showMarketFeedback(`🛒 Đã thêm [${item.name}] vào giỏ hàng tạm.`, "success");
+}
+
+function renderCart() {
+  const listEl = document.getElementById("cart-list");
+  const countEl = document.getElementById("cart-count");
+  const totalEl = document.getElementById("cart-total");
+  const totalCount = state.cart.reduce((sum, c) => sum + c.qty, 0);
+  const totalCost = state.cart.reduce((sum, c) => sum + c.item.cost * c.qty, 0);
+
+  if (countEl) countEl.textContent = String(totalCount);
+  if (totalEl) totalEl.textContent = `-${totalCost.toFixed(2)} PB`;
+  if (!listEl) return;
+
+  if (!state.cart.length) {
+    listEl.innerHTML = `<p class="muted">Giỏ hàng đang trống. Bấm “+ Giỏ hàng” ở vật phẩm phía trên.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  state.cart.forEach((entry, idx) => {
+    const row = document.createElement("div");
+    row.className = "cart-row";
+    row.innerHTML = `
+      <div class="cart-row-info"><strong></strong><small>-${(entry.item.cost * entry.qty).toFixed(2)} PB (${entry.item.cost.toFixed(2)} × ${entry.qty})</small></div>
+      <div class="cart-row-ctrl">
+        <button type="button" class="qty-btn btn-dec">-</button>
+        <span style="font-size:0.72rem;min-width:20px;text-align:center;">${entry.qty}</span>
+        <button type="button" class="qty-btn btn-inc">+</button>
+        <button type="button" class="qty-btn btn-rem" style="color:#ff5c77;">✕</button>
+      </div>
+    `;
+    row.querySelector(".cart-row-info strong").textContent = entry.item.name;
+    row.querySelector(".btn-dec").addEventListener("click", () => {
+      entry.qty -= 1;
+      if (entry.qty <= 0) state.cart.splice(idx, 1);
+      renderCart();
+    });
+    row.querySelector(".btn-inc").addEventListener("click", () => { entry.qty += 1; renderCart(); });
+    row.querySelector(".btn-rem").addEventListener("click", () => { state.cart.splice(idx, 1); renderCart(); });
+    listEl.appendChild(row);
+  });
+}
+
+function purchaseItems(entries, clearCartAfter = false) {
+  if (!entries.length) {
+    if (state.sfx) radio.playFlipChime();
+    showMarketFeedback("❌ ERROR: Giỏ hàng đang trống, không có gì để thanh toán!", "error");
+    return;
+  }
+  if (!state.contractLocked || typeof state.pb !== "number") {
+    if (state.sfx) radio.playFlipChime();
+    showMarketFeedback("❌ ERROR: Bạn chưa ký Hợp đồng chính thức (Tab 01) nên chưa có số dư Phước Báu để mua đồ!", "error");
+    pushReceipt("【ERROR CHỢ ĐEN】: Giao dịch bị từ chối — chưa ký Hợp đồng chính thức.");
+    return;
+  }
+
+  const totalCost = Number(entries.reduce((sum, e) => sum + e.item.cost * e.qty, 0).toFixed(2));
+  const available = Number(Math.max(0, state.pb - DEBT_CEILING).toFixed(2));
+
+  if (state.pb - totalCost < DEBT_CEILING) {
+    if (state.sfx) radio.playFlipChime();
+    const shortBy = (totalCost - available).toFixed(2);
+    const errTxt = `❌ ERROR: KHÔNG ĐỦ PHƯỚC BÁU! Cần ${totalCost.toFixed(2)} PB nhưng hạn mức khả dụng trước trần nợ (${DEBT_CEILING} PB) chỉ còn ${available.toFixed(2)} PB (Thiếu ${shortBy} PB).`;
+    showMarketFeedback(errTxt, "error");
+    pushReceipt(`【ERROR CHỢ ĐEN】: Không đủ PB (Thiếu ${shortBy} PB — vượt trần nợ ${DEBT_CEILING} PB).`);
+    return;
+  }
+
+  if (state.sfx) radio.playClickChime();
+  state.pb = Number((state.pb - totalCost).toFixed(2));
+
+  entries.forEach(({ item, qty }) => {
+    const found = state.inventory.find((b) => b.name === item.name);
+    if (found) {
+      found.qty += qty;
+    } else {
+      state.inventory.unshift({
+        id: item.id,
+        serial: item.serial,
+        name: item.name,
+        tag: item.tag,
+        desc: item.desc,
+        qty
+      });
+    }
+  });
+
+  if (clearCartAfter) {
+    state.cart = [];
+    renderCart();
+  }
+  saveInventoryState();
+  updateStatsUI();
+  renderBag();
+
+  const names = entries.map((e) => `${e.item.name} (×${e.qty})`).join(", ");
+  showMarketFeedback(`✅ MUA THÀNH CÔNG (-${totalCost.toFixed(2)} PB): [${names}] đã được chuyển vào Túi Đồ!`, "success");
+  pushReceipt(`【CHỢ ĐEN -${totalCost.toFixed(2)} PB】: Đã cất vào Túi: ${names}.`);
+}
+
+function renderBag() {
+  const listEl = document.getElementById("bag-list");
+  const countEl = document.getElementById("bag-count");
+  const totalQty = state.inventory.reduce((sum, b) => sum + (b.qty || 1), 0);
+  if (countEl) countEl.textContent = String(totalQty);
+  if (!listEl) return;
+
+  if (!state.inventory.length) {
+    listEl.innerHTML = `<p class="muted">Túi đồ trống. Vật phẩm sau khi mua sẽ tự động chuyển vào đây.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  state.inventory.forEach((b, idx) => {
+    const row = document.createElement("div");
+    row.className = "bag-item";
+    row.innerHTML = `
+      <div class="bag-item-info">
+        <strong></strong>
+        <p></p>
+      </div>
+      <button type="button" class="btn-secondary holo-tactile mini-btn btn-use-bag">🔧 DÙNG 1 CÁI</button>
+    `;
+    const strong = row.querySelector("strong");
+    strong.textContent = `[${b.tag}] ${b.name}`;
+    const pill = document.createElement("span");
+    pill.className = "bag-qty-pill";
+    pill.textContent = `×${b.qty}`;
+    strong.appendChild(pill);
+
+    row.querySelector("p").textContent = b.desc;
+    row.querySelector(".btn-use-bag").addEventListener("click", () => {
+      if (state.sfx) radio.playClickChime();
+      b.qty -= 1;
+      pushReceipt(`【DÙNG VẬT PHẨM】: Đã rút [${b.name}] từ Túi Đồ ra sử dụng tại [${state.selectedSector}].`);
+      if (b.qty <= 0) state.inventory.splice(idx, 1);
+      saveInventoryState();
+      renderBag();
+    });
+    listEl.appendChild(row);
+  });
+}
+
+document.getElementById("btn-checkout-cart")?.addEventListener("click", () => purchaseItems(state.cart, true));
+document.getElementById("btn-clear-cart")?.addEventListener("click", () => {
+  state.cart = [];
+  renderCart();
+  showMarketFeedback("🗑️ Đã dọn sạch giỏ hàng tạm.", "success");
+});
+document.getElementById("btn-copy-bag")?.addEventListener("click", (e) => {
+  if (!state.inventory.length) { showMarketFeedback("❌ ERROR: Túi đồ đang trống!", "error"); return; }
+  const txt = [
+    `🎒 [TÚI ĐỒ CHỢ ĐEN CỦA CON NỢ ${state.debtorCode}]:`,
+    ...state.inventory.map((b) => `- ${b.name} (×${b.qty}) [${b.tag}]: ${b.desc}`)
+  ].join("\n");
+  navigator.clipboard?.writeText(txt);
+  if (state.sfx) radio.playClickChime();
+  const btn = e.currentTarget;
+  const prev = btn.textContent;
+  btn.textContent = "✓ ĐÃ COPY TÚI ĐỒ!";
+  setTimeout(() => { btn.textContent = prev; }, 1800);
+  pushReceipt("> Đã copy danh sách Túi Đồ Chợ Đen để dán sang Google AI Studio.");
+});
+
+state.inventory = loadLocalInventory();
+renderMarketCatalog();
+renderCart();
+renderBag();
 
 // 11. DIỄN ĐÀN !DIENDAN
 const forumFeed = document.getElementById("forum-feed");
@@ -1732,6 +2079,13 @@ setInterval(() => {
 
   const vCdEl = document.getElementById("vault-countdown");
   if (vCdEl) vCdEl.textContent = countdown;
+  const mktInfo = getMarketSlotInfo();
+  const mCdEl = document.getElementById("market-countdown");
+  if (mCdEl) mCdEl.textContent = mktInfo.countdown;
+  if (mktInfo.slotId !== lastMarketSlot) {
+    renderMarketCatalog();
+    pushReceipt(`【CHỢ ĐEN 3H】: Đã qua khung giờ mới (${mktInfo.label}) — Tự động xoay lô hàng theo plot mới!`);
+  }
   if (lastVaultDateKey && lastVaultDateKey !== dateKey) {
     lastVaultDateKey = dateKey;
     renderVaultRiddles();
@@ -1793,6 +2147,7 @@ function applyProfileUI(profile) {
     if (uLbl) uLbl.textContent = "ĐĂNG NHẬP";
     authOut?.classList.remove("hidden"); authIn?.classList.add("hidden");
     lockContractFormUI({ contractLocked: false }); updateStatsUI(); updateForumIdentityUI();
+    state.inventory = loadLocalInventory(); renderBag();
     return;
   }
 
@@ -1819,6 +2174,11 @@ function applyProfileUI(profile) {
   authOut?.classList.add("hidden"); authIn?.classList.remove("hidden");
 
   lockContractFormUI(profile); updateStatsUI(); updateForumIdentityUI();
+  const remoteBag = Array.isArray(profile.inventory)
+    ? profile.inventory
+    : profile.inventory ? Object.values(profile.inventory) : null;
+  state.inventory = remoteBag || loadLocalInventory();
+  renderBag();
 }
 
 function compressImageToDataUrl(file) {

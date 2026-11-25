@@ -434,7 +434,7 @@
           <div class="unique-cases-list" id="unique-cases-list"></div>
         </div>
 
-        <!-- TAB 5: CHỢ ĐEN & !HETHONG -->
+        <!-- TAB 5: CHỢ ĐEN RESET 3H + GIỎ HÀNG + TÚI ĐỒ & !HETHONG -->
         <div class="hub-panel hidden" id="tab-market">
           <div class="pane-bar"><span>[ LỆNH !HETHONG — HÌNH THÁI VẬT LÝ CỦA KẾ TOÁN VIÊN 00 ]</span></div>
           <div class="manifest-switch-group" id="manifest-switch-group">
@@ -443,9 +443,46 @@
             <button class="manifest-btn holo-tactile" data-manifest="radio" type="button">📻 RADIO RỈ SÉT (MẠT THẾ / VÔ GIAN)</button>
           </div>
           <div class="manifest-preview-box" id="manifest-preview-box"></div>
-          <div class="pane-bar"><span>[ BẢNG GIÁ HỆ THỐNG 00 VS. CHỢ ĐEN LỤC NHA ]</span></div>
-          <p class="market-note">Mọi giao dịch trừ PB yêu cầu tài khoản đã ký Hợp đồng chính thức.</p>
+
+          <div class="pane-bar">
+            <span>[ CHỢ ĐEN LỤC NHA — VẬT PHẨM TỰ CHẾ THEO PLOT (RESET 3H) ]</span>
+            <span class="vault-countdown-pill">ĐỔI HÀNG SAU: <strong id="market-countdown">00:00:00</strong></span>
+          </div>
+
+          <div class="market-meta-bar">
+            <span>CHU KỲ PHIÊN CHỢ: <strong id="market-slot-tag">--:--</strong></span>
+            <span>HẠN MỨC KHẢ DỤNG (TRẦN -6,000 PB): <strong id="market-pb-avail">CHƯA KÝ HĐ</strong></span>
+          </div>
+
+          <div class="market-feedback hidden" id="market-feedback-msg"></div>
+
           <div class="market-list" id="market-list"></div>
+
+          <!-- GIỎ HÀNG TẠM -->
+          <div class="cart-panel" id="cart-panel">
+            <div class="pane-bar" style="margin-bottom: 8px;">
+              <span>🛒 GIỎ HÀNG TẠM (<em id="cart-count">0</em> MÓN)</span>
+              <span class="cart-total-tag">TỔNG CẦN TRẢ: <strong id="cart-total">0.00 PB</strong></span>
+            </div>
+            <div class="cart-list" id="cart-list">
+              <p class="muted">Giỏ hàng đang trống. Bấm “+ Giỏ hàng” ở vật phẩm phía trên.</p>
+            </div>
+            <div class="form-actions" style="margin-top: 10px;">
+              <button class="btn-primary holo-tactile" id="btn-checkout-cart" type="button">💳 THANH TOÁN GIỎ HÀNG</button>
+              <button class="btn-ghost holo-tactile" id="btn-clear-cart" type="button">🗑️ XÓA GIỎ</button>
+            </div>
+          </div>
+
+          <!-- TÚI ĐỒ ĐÃ MUA (INVENTORY) -->
+          <div class="inventory-panel" id="inventory-panel">
+            <div class="pane-bar" style="margin-bottom: 8px;">
+              <span>🎒 TÚI ĐỒ ĐÃ MUA (<em id="bag-count">0</em> VẬT PHẨM)</span>
+              <button class="btn-secondary holo-tactile mini-btn" id="btn-copy-bag" type="button">📋 COPY TÚI ĐỒ SANG GG AI</button>
+            </div>
+            <div class="bag-grid" id="bag-list">
+              <p class="muted">Túi đồ trống. Vật phẩm sau khi mua sẽ tự động chuyển vào đây.</p>
+            </div>
+          </div>
         </div>
 
         <!-- TAB 6: BÁO ỨNG NET -->
