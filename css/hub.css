@@ -1675,3 +1675,9 @@ body.screen-bonk-shake {
 }
 .sys-mascot-bubble { top: 92px; left: 20px; }
 #btn-close-mission-sim { position: relative; z-index: 15; pointer-events: auto; padding: 4px 10px; }
+.sys-mascot-bubble {
+  top: auto !important;
+  left: auto !important;
+  right: 22px;
+  bottom: 185px;
+}

@@ -1,21 +1,20 @@
-// js/sys-mascot-3d.js — Mô hình 3D Hệ Thống 00 bay nhảy phát sáng rõ nét khắp web
+// js/sys-mascot-3d.js — Hệ Thống 00 3D bay chậm nhẹ nhàng trong góc dưới-phải màn hình
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createHoloMaterial } from "./holo-shader.js";
 
 export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) {
-  const noop = { triggerStunt: () => {}, setEnabled: () => {}, isEnabled: () => false };
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return noop;
-
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
-  } catch (_) {
-    return noop;
+  if (!canvas) {
+    return {
+      triggerStunt: () => {},
+      setEnabled: () => {},
+      isEnabled: () => false
+    };
   }
 
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -33,34 +32,35 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
   }
   let colors = getPalette();
 
-  const ambient = new THREE.AmbientLight(0xffffff, 1.8);
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.5);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
   keyLight.position.set(4, 6, 6);
-  const rimLight = new THREE.DirectionalLight(colors.primary, 3.0);
-  rimLight.position.set(-4, 2, 3);
+  const rimLight = new THREE.DirectionalLight(colors.primary, 2.6);
+  rimLight.position.set(-4, 2, -3);
   scene.add(ambient, keyLight, rimLight);
 
   const mascotGroup = new THREE.Group();
   scene.add(mascotGroup);
 
   const haloRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.1, 0.032, 8, 48),
-    new THREE.MeshBasicMaterial({ color: colors.primary, transparent: true, opacity: 0.85 })
+    new THREE.TorusGeometry(0.72, 0.018, 8, 48),
+    new THREE.MeshBasicMaterial({ color: colors.primary, transparent: true, opacity: 0.65 })
   );
   haloRing.rotation.x = Math.PI / 2.2;
   mascotGroup.add(haloRing);
 
+  // Model dự phòng nhỏ gọn khi đang tải GLB
   const fallbackGroup = new THREE.Group();
   const coreMesh = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.55, 0),
-    createHoloMaterial(`#${colors.primary.getHexString()}`, 0.9)
+    new THREE.OctahedronGeometry(0.32, 0),
+    createHoloMaterial(`#${colors.primary.getHexString()}`, 0.85)
   );
-  const wingGeo = new THREE.BoxGeometry(0.95, 0.05, 0.35);
+  const wingGeo = new THREE.BoxGeometry(0.55, 0.03, 0.22);
   const wingMat = new THREE.MeshBasicMaterial({ color: colors.secondary, wireframe: true });
   const wingL = new THREE.Mesh(wingGeo, wingMat);
   const wingR = new THREE.Mesh(wingGeo, wingMat);
-  wingL.position.x = -0.65;
-  wingR.position.x = 0.65;
+  wingL.position.x = -0.38;
+  wingR.position.x = 0.38;
   fallbackGroup.add(coreMesh, wingL, wingR);
   mascotGroup.add(fallbackGroup);
 
@@ -69,25 +69,20 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
   const loader = new GLTFLoader();
   loader.setCrossOrigin("anonymous");
 
+  const storkUrls = [
+    "https://threejs.org/examples/models/gltf/Stork.glb",
+    "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Stork.glb"
+  ];
+
   (async function loadStork() {
-    const urls = [
-      "https://threejs.org/examples/models/gltf/Stork.glb",
-      "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Stork.glb"
-    ];
-    for (const url of urls) {
+    for (const url of storkUrls) {
       try {
         const gltf = await new Promise((resolve, reject) => loader.load(url, resolve, undefined, reject));
         const obj = gltf.scene;
-        obj.traverse((ch) => {
-          if (ch.isMesh && ch.material) {
-            ch.material.emissive = colors.primary.clone();
-            ch.material.emissiveIntensity = 0.28;
-          }
-        });
         const box = new THREE.Box3().setFromObject(obj);
         const sz = box.getSize(new THREE.Vector3());
         const ct = box.getCenter(new THREE.Vector3());
-        const scale = 2.1 / (Math.max(sz.x, sz.y, sz.z) || 1);
+        const scale = 1.22 / (Math.max(sz.x, sz.y, sz.z) || 1);
 
         const wrap = new THREE.Group();
         obj.scale.setScalar(scale);
@@ -101,7 +96,7 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
         if (gltf.animations?.length) {
           mixer = new THREE.AnimationMixer(obj);
           const act = mixer.clipAction(gltf.animations[0]);
-          act.timeScale = 1.25;
+          act.timeScale = 0.62; // Đập cánh thong thả, êm mắt
           act.play();
         }
         return;
@@ -109,74 +104,74 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
     }
   })();
 
+  // Tính tọa độ neo tại GÓC DƯỚI-PHẢI theo tỷ lệ màn hình thực tế
+  function getCornerAnchor() {
+    const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+    const halfH = 12 * Math.tan(THREE.MathUtils.degToRad(45 * 0.5)); // ~4.97
+    const halfW = halfH * aspect;
+    return {
+      cx: halfW * 0.78,
+      cy: -halfH * 0.70
+    };
+  }
+
+  function pickCornerPoint() {
+    const { cx, cy } = getCornerAnchor();
+    return new THREE.Vector3(
+      cx + (Math.random() - 0.5) * 0.9,
+      cy + (Math.random() - 0.5) * 0.55,
+      0.5 + Math.random() * 1.1
+    );
+  }
+
   let enabled = true;
   let mode = "patrol";
   let modeTimer = 0;
   let bonkFired = false;
-
-  const pos = new THREE.Vector3(-4.2, 1.8, 0.8);
-  const vel = new THREE.Vector3(0.05, 0.01, 0);
-  const target = new THREE.Vector3(3.4, 1.2, 1.2);
   let extraRoll = 0;
 
-  function pickRandomPoint(zMin = -1.0, zMax = 2.6) {
-    const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-    const maxX = Math.max(3.0, 4.2 * aspect);
-    return new THREE.Vector3(
-      (Math.random() - 0.5) * maxX * 1.4,
-      (Math.random() - 0.5) * 5.2,
-      zMin + Math.random() * (zMax - zMin)
-    );
-  }
+  const initCorner = getCornerAnchor();
+  const pos = new THREE.Vector3(initCorner.cx, initCorner.cy, 0.8);
+  const vel = new THREE.Vector3(-0.01, 0.005, 0);
+  const target = pickCornerPoint();
 
   function triggerStunt(forcedMode = null) {
     if (!enabled) return;
-    const pool = ["patrol", "dive_bonk", "barrel_roll", "hover_peek", "glitch_drop"];
+    const pool = ["patrol", "hover_peek", "barrel_roll"];
     mode = forcedMode || pool[Math.floor(Math.random() * pool.length)];
     modeTimer = 0;
     bonkFired = false;
     extraRoll = 0;
 
+    const { cx, cy } = getCornerAnchor();
     if (mode === "dive_bonk") {
-      pos.set((Math.random() - 0.5) * 4.2, (Math.random() - 0.5) * 2.2, -4.5);
-      target.set((Math.random() - 0.5) * 2.0, (Math.random() - 0.5) * 1.0, 9.2);
+      // Chỉ đâm nhẹ ngay trong góc dưới-phải khi người dùng chọc vào
+      pos.set(cx - 0.4, cy + 0.3, -1.5);
+      target.set(cx - 0.2, cy + 0.15, 7.6);
     } else if (mode === "barrel_roll") {
-      const fromLeft = Math.random() > 0.5;
-      pos.set(fromLeft ? -8.5 : 8.5, (Math.random() - 0.5) * 3.8, 1.8);
-      target.set(fromLeft ? 8.5 : -8.5, (Math.random() - 0.5) * 3.8, 1.8);
-    } else if (mode === "mission_swoop") {
-      pos.set(-7.5, 3.2, 2.2);
-      target.set(3.6, 1.6, 2.8);
-    } else if (mode === "hover_peek") {
-      target.set(Math.random() > 0.5 ? 3.8 : -3.8, 1.8, 2.6);
+      target.set(cx - 0.3, cy + 0.25, 1.4);
+    } else if (mode === "mission_swoop" || mode === "hover_peek") {
+      target.set(cx - 0.25, cy + 0.35, 1.8);
     } else if (mode === "glitch_drop") {
-      pos.y = 4.0;
-      target.set(pos.x, -3.2, 1.2);
+      target.set(cx, cy - 0.45, 1.0);
     } else {
-      target.copy(pickRandomPoint());
+      target.copy(pickCornerPoint());
     }
   }
 
+  // Tự chuyển động nhẹ nhàng trong góc mỗi 12 giây (không tự đâm màn hình làm phiền)
   setInterval(() => {
     if (!enabled || mode === "dizzy" || mode === "dive_bonk") return;
-    const r = Math.random();
-    if (r < 0.25) triggerStunt("dive_bonk");
-    else if (r < 0.48) triggerStunt("barrel_roll");
-    else if (r < 0.7) triggerStunt("hover_peek");
-    else if (r < 0.84) triggerStunt("glitch_drop");
+    if (Math.random() < 0.35) triggerStunt("hover_peek");
+    else if (Math.random() < 0.55) triggerStunt("barrel_roll");
     else triggerStunt("patrol");
-  }, 8500);
+  }, 12000);
 
   const observer = new MutationObserver(() => {
     colors = getPalette();
     rimLight.color.copy(colors.primary);
     haloRing.material.color.copy(colors.primary);
     wingMat.color.copy(colors.secondary);
-    if (gltfWrapper) {
-      gltfWrapper.traverse((ch) => {
-        if (ch.isMesh && ch.material?.emissive) ch.material.emissive.copy(colors.primary);
-      });
-    }
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
@@ -195,78 +190,68 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
     time += dt;
     modeTimer += dt;
 
-    if (mixer) mixer.update(dt * (mode === "dive_bonk" ? 1.8 : mode === "dizzy" ? 0.35 : 1.0));
-    haloRing.rotation.z += 0.03;
+    if (mixer) mixer.update(dt * (mode === "dive_bonk" ? 1.35 : mode === "dizzy" ? 0.3 : 0.62));
+    haloRing.rotation.z += 0.012;
 
     if (!gltfWrapper) {
-      wingL.rotation.z = Math.sin(time * 12) * 0.48;
-      wingR.rotation.z = -Math.sin(time * 12) * 0.48;
+      wingL.rotation.z = Math.sin(time * 6.5) * 0.42;
+      wingR.rotation.z = -Math.sin(time * 6.5) * 0.42;
       coreMesh.material.uniforms.uTime.value = time;
       coreMesh.material.uniforms.uColor.value.copy(colors.primary);
     }
 
     if (mode === "dive_bonk") {
       const toT = target.clone().sub(pos);
-      if (toT.length() > 0.35) {
-        vel.lerp(toT.normalize().multiplyScalar(0.28), 0.16);
+      if (toT.length() > 0.3) {
+        vel.lerp(toT.normalize().multiplyScalar(0.16), 0.12);
         pos.add(vel);
       }
-      if (pos.z >= 8.4 && !bonkFired) {
+      if (pos.z >= 7.0 && !bonkFired) {
         bonkFired = true;
         mode = "dizzy";
         modeTimer = 0;
-        vel.set((Math.random() - 0.5) * 0.18, 0.08, -0.26);
+        vel.set(-0.04, 0.03, -0.15);
+
         mascotGroup.position.copy(pos);
         mascotGroup.updateMatrixWorld(true);
         projVec.copy(pos).project(camera);
-        onScreenBonk?.(
-          (projVec.x * 0.5 + 0.5) * window.innerWidth,
-          (-projVec.y * 0.5 + 0.5) * window.innerHeight
-        );
+        const sx = (projVec.x * 0.5 + 0.5) * window.innerWidth;
+        const sy = (-projVec.y * 0.5 + 0.5) * window.innerHeight;
+        onScreenBonk?.(sx, sy);
       }
     } else if (mode === "dizzy") {
       pos.add(vel);
-      vel.multiplyScalar(0.94);
-      extraRoll += 0.24;
-      if (modeTimer > 1.35) {
+      vel.multiplyScalar(0.92);
+      extraRoll += 0.14;
+      if (modeTimer > 1.3) {
         mode = "patrol";
         extraRoll = 0;
-        target.copy(pickRandomPoint());
+        target.copy(pickCornerPoint());
       }
     } else if (mode === "barrel_roll") {
-      const toT = target.clone().sub(pos);
-      vel.lerp(toT.normalize().multiplyScalar(0.14), 0.12);
-      pos.add(vel);
-      extraRoll += 0.18;
-      if (toT.length() < 0.7 || modeTimer > 4.2) {
+      pos.lerp(target, 0.035);
+      extraRoll += 0.085;
+      if (modeTimer > 2.4) {
         mode = "patrol";
         extraRoll = 0;
-        target.copy(pickRandomPoint());
+        target.copy(pickCornerPoint());
       }
-    } else if (mode === "glitch_drop") {
-      pos.y -= 0.12;
-      pos.x += Math.sin(time * 24) * 0.08;
-      extraRoll = Math.sin(time * 18) * 0.55;
-      if (pos.y <= -3.0 || modeTimer > 1.4) {
-        mode = "patrol";
-        extraRoll = 0;
-        target.set(pos.x, 2.0, 1.0);
-      }
-    } else if (mode === "hover_peek" || mode === "mission_swoop") {
+    } else if (mode === "hover_peek" || mode === "mission_swoop" || mode === "glitch_drop") {
       const hoverT = target.clone();
-      hoverT.y += Math.sin(time * 3.2) * 0.25;
-      pos.lerp(hoverT, 0.06);
+      hoverT.y += Math.sin(time * 1.8) * 0.16;
+      pos.lerp(hoverT, 0.035);
       extraRoll *= 0.9;
-      if (modeTimer > 5.0) {
+      if (modeTimer > 6.0) {
         mode = "patrol";
-        target.copy(pickRandomPoint());
+        target.copy(pickCornerPoint());
       }
     } else {
+      // Bay lượn chậm rãi quanh góc dưới-phải
       const toT = target.clone().sub(pos);
-      if (toT.length() < 0.9) target.copy(pickRandomPoint());
-      const desired = toT.normalize().multiplyScalar(0.068);
-      desired.y += Math.sin(time * 2.4) * 0.015;
-      vel.lerp(desired, 0.045);
+      if (toT.length() < 0.35) target.copy(pickCornerPoint());
+      const desired = toT.normalize().multiplyScalar(0.016);
+      desired.y += Math.sin(time * 1.4) * 0.004;
+      vel.lerp(desired, 0.03);
       pos.add(vel);
       extraRoll *= 0.9;
     }
@@ -274,30 +259,29 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
     mascotGroup.position.copy(pos);
 
     if (mode === "hover_peek" || mode === "mission_swoop") {
-      mascotGroup.rotation.y += (Math.sin(time * 1.4) * 0.45 - mascotGroup.rotation.y) * 0.08;
-      mascotGroup.rotation.x += (0.08 - mascotGroup.rotation.x) * 0.08;
-      mascotGroup.rotation.z += (extraRoll - mascotGroup.rotation.z) * 0.1;
+      // Hướng nhẹ mặt vào bên trong web cho dễ nhìn
+      mascotGroup.rotation.y += (-0.65 + Math.sin(time * 0.9) * 0.18 - mascotGroup.rotation.y) * 0.06;
+      mascotGroup.rotation.x += (0.04 - mascotGroup.rotation.x) * 0.06;
+      mascotGroup.rotation.z += (extraRoll - mascotGroup.rotation.z) * 0.08;
     } else if (mode === "dizzy") {
       mascotGroup.rotation.z = extraRoll;
-      mascotGroup.rotation.x = Math.sin(time * 14) * 0.4;
+      mascotGroup.rotation.x = Math.sin(time * 10) * 0.28;
     } else {
-      const targetYaw = Math.atan2(vel.x, vel.z);
-      const bank = Math.max(-0.6, Math.min(0.6, -vel.x * 4.5));
-      mascotGroup.rotation.y += (targetYaw - mascotGroup.rotation.y) * 0.1;
-      mascotGroup.rotation.x += (-vel.y * 2.4 - mascotGroup.rotation.x) * 0.1;
-      mascotGroup.rotation.z += (bank + extraRoll - mascotGroup.rotation.z) * 0.14;
+      const targetYaw = Math.atan2(vel.x, Math.abs(vel.z) + 0.015);
+      const bank = Math.max(-0.32, Math.min(0.32, -vel.x * 6));
+      mascotGroup.rotation.y += (targetYaw - mascotGroup.rotation.y) * 0.06;
+      mascotGroup.rotation.x += (-vel.y * 2.0 - mascotGroup.rotation.x) * 0.06;
+      mascotGroup.rotation.z += (bank + extraRoll - mascotGroup.rotation.z) * 0.08;
     }
 
     renderer.render(scene, camera);
 
     if (onProjectScreen) {
       mascotGroup.updateMatrixWorld(true);
-      projVec.copy(pos).add(new THREE.Vector3(0, 0.7, 0)).project(camera);
-      onProjectScreen(
-        (projVec.x * 0.5 + 0.5) * window.innerWidth,
-        (-projVec.y * 0.5 + 0.5) * window.innerHeight,
-        mode
-      );
+      projVec.copy(pos).project(camera);
+      const sx = (projVec.x * 0.5 + 0.5) * window.innerWidth;
+      const sy = (-projVec.y * 0.5 + 0.5) * window.innerHeight;
+      onProjectScreen(sx, sy, mode);
     }
   }
 
@@ -305,6 +289,7 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    target.copy(pickCornerPoint());
   });
 
   animate();
@@ -314,7 +299,7 @@ export function initSystemMascot3D({ canvasId, onProjectScreen, onScreenBonk }) 
     setEnabled(val) {
       enabled = Boolean(val);
       canvas.style.opacity = enabled ? "1" : "0";
-      if (enabled) triggerStunt("patrol");
+      if (enabled) triggerStunt("hover_peek");
     },
     isEnabled: () => enabled
   };

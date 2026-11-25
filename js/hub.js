@@ -1901,17 +1901,12 @@ function showMascotQuote(forcedCat = null, customObj = null) {
   const q = customObj || synthesizeSystemQuote(forcedCat);
   bubbleTopicTag.textContent = q.tag;
   bubbleQuoteText.textContent = q.text;
-
-  // Đảm bảo có tọa độ mặc định gọn đẹp kể cả khi chưa kịp project khung hình
-  if (!mascotBubble.style.left || !mascotBubble.style.top) {
-    mascotBubble.style.left = `${Math.max(16, window.innerWidth - 340)}px`;
-    mascotBubble.style.top = "92px";
-  }
   mascotBubble.classList.remove("hidden");
 
   clearTimeout(bubbleHideTimeout);
-  bubbleHideTimeout = setTimeout(() => { if (!bubbleHovered) mascotBubble.classList.add("hidden"); }, 9500);
+  bubbleHideTimeout = setTimeout(() => { if (!bubbleHovered) mascotBubble.classList.add("hidden"); }, 14000);
 }
+  mascotBubble.classList.remove("hidden");
 
 mascotBubble?.addEventListener("mouseenter", () => { bubbleHovered = true; });
 mascotBubble?.addEventListener("mouseleave", () => {
@@ -1930,14 +1925,7 @@ try {
       if (mascotHitbox) {
         mascotHitbox.style.display = inView && sysMascot3D.isEnabled() ? "block" : "none";
         mascotHitbox.style.left = `${Math.max(48, Math.min(window.innerWidth - 48, sx))}px`;
-        mascotHitbox.style.top = `${Math.max(76, Math.min(window.innerHeight - 48, sy + 28))}px`;
-      }
-      if (mascotBubble && !mascotBubble.classList.contains("hidden") && inView) {
-        const bw = Math.min(315, window.innerWidth * 0.84);
-        const bx = Math.max(12, Math.min(window.innerWidth - bw - 12, sx - bw * 0.5));
-        const by = sy < 185 ? Math.min(window.innerHeight - 165, sy + 52) : Math.max(70, sy - 128);
-        mascotBubble.style.left = `${bx}px`;
-        mascotBubble.style.top = `${by}px`;
+        mascotHitbox.style.top = `${Math.max(76, Math.min(window.innerHeight - 48, sy))}px`;
       }
     },
     onScreenBonk: (ix, iy) => {
