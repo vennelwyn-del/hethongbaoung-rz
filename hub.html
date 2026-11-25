@@ -418,7 +418,10 @@
         <div class="hub-panel hidden" id="tab-sectors">
           <div class="pane-bar">
             <span>[ DANH MỤC 10 KHU VỰC THẬP ĐIỆN ]</span>
-            <button class="btn-secondary holo-tactile mini-btn" id="btn-random-case" type="button">🎲 CHỌN ĐIỆN NGẪU NHIÊN</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-primary holo-tactile mini-btn" id="btn-sim-mission-tab" type="button">🎬 MÔ PHỎNG THANH NHIỆM VỤ</button>
+              <button class="btn-secondary holo-tactile mini-btn" id="btn-random-case" type="button">🎲 CHỌN ĐIỆN NGẪU NHIÊN</button>
+            </div>
           </div>
           <div class="sectors-grid" id="sectors-grid"></div>
           <div class="sector-detail-box">
@@ -582,6 +585,16 @@
           <button class="cmd-chip holo-tactile" data-cmd="!diendan" type="button">!diendan</button>
           <button class="cmd-chip holo-tactile" data-cmd="!kiemtoan" type="button">!kiemtoan</button>
         </div>
+        <div class="mascot-ctrl-box">
+          <div class="mascot-ctrl-row">
+            <button class="cmd-chip holo-tactile" id="btn-sim-mission" type="button">🎬 MÔ PHỎNG NV</button>
+            <button class="cmd-chip holo-tactile" id="btn-mascot-stunt" type="button">💥 CHỌC 3D / THOẠI</button>
+          </div>
+          <div class="mascot-ctrl-row">
+            <button class="cmd-chip holo-tactile" id="btn-toggle-mascot" type="button" style="grid-column: 1 / -1;">🦅 HỆ THỐNG 3D: BẬT</button>
+          </div>
+          <small class="mascot-cd-hint">Thoại ngẫu nhiên tiếp (10p): <strong id="mascot-quote-cd">10:00</strong></small>
+        </div>
         <div class="live-number-ticker" id="live-number-ticker">00.00 | 0x00 | 98.4%</div>
       </aside>
     </section>
@@ -735,7 +748,34 @@
       <span>⚠ ACCESS DENIED // TRUY CẬP BỊ TỪ CHỐI // SYSTEM LOCKDOWN // DO NOT ATTEMPT AGAIN ⚠</span>
     </div>
   </div>
+  <!-- LỚP MÔ HÌNH 3D HỆ THỐNG 00 BAY NHẢY KHẮP WEB + BONG BÓNG QUOTES + THANH NHIỆM VỤ MÔ PHỎNG -->
+  <canvas id="sys-mascot-canvas" aria-hidden="true"></canvas>
+  <button id="sys-mascot-hitbox" type="button" title="Bấm vào Hệ Thống 3D để chọc ghẹo!" aria-label="Tương tác Hệ Thống 3D"></button>
 
+  <div class="sys-mascot-bubble hidden" id="sys-mascot-bubble" role="status">
+    <div class="bubble-head">
+      <span id="bubble-topic-tag">HỆ THỐNG 00 // QUOTES</span>
+      <button type="button" id="btn-close-bubble" aria-label="Đóng thoại">✕</button>
+    </div>
+    <p id="bubble-quote-text"></p>
+  </div>
+
+  <div class="screen-impact-fx hidden" id="screen-impact-fx" aria-hidden="true"></div>
+
+  <!-- THANH MÔ PHỎNG NHIỆM VỤ & THÔNG BÁO HỆ THỐNG NỔI -->
+  <aside class="hoyo-frame mission-sim-bar hidden" id="mission-sim-bar" role="status">
+    <div class="hoyo-corner-nodes"><i></i><i></i><i></i><i></i></div>
+    <div class="mission-sim-head">
+      <div class="mission-sim-title">
+        <span class="sim-pulse-dot"></span>
+        <strong id="sim-mission-title">⚖️ KHỞI TẠO THANH NHIỆM VỤ...</strong>
+      </div>
+      <button type="button" class="modal-close" id="btn-close-mission-sim">✕</button>
+    </div>
+    <div class="mission-sim-progress"><span id="sim-mission-bar-fill"></span></div>
+    <div class="mission-sim-meta" id="sim-mission-meta"></div>
+    <div class="mission-sim-broadcast" id="sim-mission-broadcast"></div>
+  </aside>
   <script type="module" src="./js/hub.js"></script>
 </body>
 </html>

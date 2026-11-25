@@ -3,6 +3,7 @@
 import { initBioHologram } from "./bio-holo.js";
 import { initInvertedPyramid3D } from "./pyramid-3d.js";
 import { initNpcMorph3D } from "./npc-morph-3d.js";
+import { initSystemMascot3D } from "./sys-mascot-3d.js";
 import { SITE_CONFIG, ANIMAL_PRESETS } from "./config.js";
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
@@ -538,7 +539,7 @@ document.getElementById("btn-lock-from-pyramid")?.addEventListener("click", () =
     updateLiveDossierPreview();
   }
   updateStatsUI();
-  pushReceipt(`> Khóa tầng ${sec.id}/10 từ Mô hình 3D: [${sec.name}].`);
+  pushReceipt(`> Khóa tầng ${sec.id}/10 từ Mô hình 3D: [${sec.name}].`); triggerMissionSimulation(sec.name);
 });
 selectPyramidTier(1, false);
 
@@ -890,7 +891,7 @@ document.getElementById("btn-lock-sector")?.addEventListener("click", () => {
     updateLiveDossierPreview();
   }
   updateStatsUI();
-  pushReceipt(`> Đã khóa mục tiêu: [${state.selectedSector}].`);
+  pushReceipt(`> Đã khóa mục tiêu: [${state.selectedSector}].`); triggerMissionSimulation(state.selectedSector);
 });
 
 const pkgGrid = document.getElementById("contracts-pkg-grid");
@@ -2026,7 +2027,7 @@ document.querySelectorAll("[data-cmd]").forEach((btn) => {
     if (state.sfx) radio.playClickChime();
     const cmd = btn.dataset.cmd;
     if (cmd === "!hethong") { switchTab("tab-market"); pushReceipt("【LỆNH !HETHONG】: Đã triệu hồi bảng điều chỉnh Hình thái Vật lý."); }
-    else if (cmd === "!nhiemvu") { switchTab("tab-sectors"); generateUniqueCases(); pushReceipt("【LỆNH !NHIEMVU】: Đã mở Sảnh Trọng Án Độc Bản."); }
+    else if (cmd === "!nhiemvu") { switchTab("tab-sectors"); generateUniqueCases(); triggerMissionSimulation(state.selectedSector); pushReceipt("【LỆNH !NHIEMVU】: Đã mở Sảnh Trọng Án Độc Bản."); }
     else if (cmd === "!diendan") { switchTab("tab-forum"); pushReceipt("【LỆNH !DIENDAN】: Đã kết nối Mạng nội bộ Báo Ứng Net v4.0."); }
     else if (cmd === "!kiemtoan") {
       const pbTxt = state.contractLocked && typeof state.pb === "number" ? `${state.pb.toFixed(2)} PB` : "Chưa ký chính thức";
@@ -2191,7 +2192,309 @@ setInterval(() => {
     tickEl.textContent = `${(Math.random() * 99).toFixed(2)} | 0x${Math.floor(Math.random() * 255).toString(16).toUpperCase().padStart(2, "0")} | ${sync}%`;
   }
 }, 900);
+// 16. MÔ PHỎNG THANH NHIỆM VỤ + MASCOT 3D BAY NHẢY + BỘ TỰ CHẾ QUOTES MỖI 10 PHÚT
+const AUTO_QUOTE_MS = 10 * 60 * 1000; // Chu kỳ 10 phút
+let nextAutoQuoteAt = Date.now() + AUTO_QUOTE_MS;
+let bubbleHideTimeout = null;
+let bubbleHovered = false;
+let missionSimTimer = null;
+let missionTypeTimer = null;
+let missionAutoCloseTimer = null;
 
+const mascotHitbox = document.getElementById("sys-mascot-hitbox");
+const mascotBubble = document.getElementById("sys-mascot-bubble");
+const bubbleTopicTag = document.getElementById("bubble-topic-tag");
+const bubbleQuoteText = document.getElementById("bubble-quote-text");
+const impactFx = document.getElementById("screen-impact-fx");
+const missionSimBar = document.getElementById("mission-sim-bar");
+
+// BỘ TỰ CHẾ QUOTES ĐỘNG THEO NGỮ CẢNH (KHÔNG LƯU CÂU SẴN)
+function synthesizeSystemQuote(forcedCat = null) {
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const gmt7Hour = new Date(Date.now() + 7 * 3600 * 1000).getUTCHours();
+  const timeOfDay = gmt7Hour < 11 ? "sáng" : gmt7Hour < 14 ? "trưa" : gmt7Hour < 18 ? "chiều" : "khuya";
+  const pbStr = state.contractLocked && typeof state.pb === "number" ? `${state.pb.toFixed(2)} PB` : "chưa thèm ký hợp đồng";
+  const code = state.debtorCode !== "CHƯA CẤP" ? `Con nợ ${state.debtorCode}` : "Kẻ vô danh";
+  const fee = (0.25 + Math.random() * 2.4).toFixed(2);
+
+  const generators = {
+    mission: () => {
+      const open = pick(["Cập nhật tiến độ", "Đánh giá KPI", "Báo cáo hiện trường", "Cảnh báo thời hạn"]);
+      const act = pick([
+        `tại [${state.selectedSector}] đang dậm chân tại chỗ`,
+        `ở [${state.selectedSector}] có dấu hiệu Kẻ Cướp Phước sắp tẩu tán chứng cứ`,
+        `của ${code} vẫn chưa chạm nổi ngưỡng 10% chỉ tiêu thu hồi`,
+        `theo gói [${state.selectedPkg}] đòi hỏi động não nhiều hơn là ngồi nhìn màn hình`
+      ]);
+      const tail = pick([
+        "Muốn để bị thanh lý sớm hay định bắt tay vào làm việc đi?",
+        "Đừng mong có Bàn tay vàng nào rớt xuống cứu hộ miễn phí.",
+        `Phí nhắc nhở tiến độ: -${fee} PB.`
+      ]);
+      return { tag: "HỆ THỐNG 00 // NHIỆM VỤ", text: `【${open}: Tiến trình ${act}. ${tail}】` };
+    },
+    roast: () => {
+      const obs = state.contractLocked
+        ? pick([
+            `đang ôm khoản nợ ${pbStr} mà vẫn ngồi bấm chuột thong thả như đi dạo công viên`,
+            `có nhịp tim ổn định một cách đáng ngờ dù ví tiền chỉ đủ mua nửa gói mì`,
+            `vừa liếc qua giao diện mà não bộ chưa xuất ra được kế hoạch vả mặt nào khả dĩ`
+          ])
+        : pick([
+            "lượn lờ khắp Sảnh Chờ 00 như khách tham quan miễn phí mà không chịu ký hợp đồng",
+            "tính ăn quỵt tiền điện máy chủ của Cục Báo Ứng bằng chế độ khách tới bao giờ?"
+          ]);
+      const sting = pick([
+        "Hệ thống đánh giá chỉ số sinh tồn hôm nay ở mức: Đáng báo động.",
+        `Đề nghị ${code} bớt lười lại để tránh bị trừ thêm -${fee} PB phí chiếm dụng băng thông.`,
+        "Tiểu Thất nhìn còn thấy sốt ruột giùm."
+      ]);
+      return { tag: "HỆ THỐNG 00 // MỈA MAI", text: `【Kiểm toán thái độ: ${code} ${obs}. ${sting}】` };
+    },
+    weather: () => {
+      const sky = pick([
+        `trời ${timeOfDay} nay âm u ẩm mốc như tường tầng hầm bệnh viện`,
+        `nắng ${timeOfDay} gắt như ánh đèn sân khấu Điện 1 chiếu thẳng vào mặt trà xanh`,
+        `gió mùa lùa lạnh buốt làm vết thương cũ của nguyên chủ nhức nhối`,
+        `không khí đặc quánh mùi nước hoa rẻ tiền trộn khói bụi đô thị`
+      ]);
+      const jab = pick([
+        `Thời tiết thế này mà ${code} vẫn ra đường không mang áo mưa là tự tăng nguy cơ cảm cúm tốn thêm 50 PB mua thuốc đấy.`,
+        `Thời tiết rất hợp để tra nam quỳ dầm mưa diễn khổ nhục kế — còn bạn đừng có dại đứng nhìn mà sụt sùi theo.`,
+        `Phí điều hòa không khí trong Sảnh Chờ 00 buổi ${timeOfDay}: -${fee} PB.`
+      ]);
+      return { tag: "HỆ THỐNG 00 // CHÊ THỜI TIẾT", text: `【Dự báo khí tượng: ${sky}. ${jab}】` };
+    },
+    money: () => {
+      const status = state.contractLocked
+        ? `Nhìn vào số dư ${pbStr} kia đi`
+        : "Ví tiền ngoài đời thực lẫn tài khoản Phước Báu đều trống trơn";
+      const roastMoney = pick([
+        "đến cả cái bánh bao nguội ở cổng bệnh viện còn suy nghĩ ba lần mới dám cắn.",
+        "nghèo đến mức máy in hóa đơn nhiệt cũng ngại tốn giấy khi in sao kê cho bạn.",
+        `bán cả linh hồn đi thanh lý chắc vừa đủ trả tiền điện chạy quạt cho máy chủ 3 phút.`,
+        `cứ tiêu xài kiểu này thì lãi suất 10% mỗi 10 Turn sẽ nhấn chìm bạn trước khi kịp tát ai.`
+      ]);
+      return { tag: "HỆ THỐNG 00 // CHÊ TIỀN", text: `【Báo cáo tài chính: ${status} — ${roastMoney}】` };
+    },
+    badluck: () => {
+      const incident = pick([
+        "vừa bước ra cửa đã có nguy cơ gãy gót giày hoặc dẫm trúng vũng nước bẩn",
+        "cầm ly nước lọc uống cũng dễ sặc tới mức nhập viện",
+        "mang đúng cái mệnh Sao Quả Tạ khiến đèn hành lang chớp tắt đúng lúc quan trọng",
+        "càng cố tỏ ra ngầu lòi thì xác suất vấp thảm lăn cầu thang càng tăng gấp đôi"
+      ]);
+      return { tag: "HỆ THỐNG 00 // CHÊ XUI", text: `【Cảnh báo Debuff Cạn Phước: Theo tính toán xác suất, hôm nay ${code} ${incident}. Khấu trừ trước -${fee} PB phí bảo hiểm tai nạn ngớ ngẩn.】` };
+    },
+    goodluck: () => {
+      const illusion = pick([
+        "Thấy tự nhiên nhặt được tiền hay được tổng tài để mắt tới",
+        "Mơ màng tưởng mình có hào quang nhân vật chính độ mệnh",
+        "Tưởng hôm nay tự nhiên gặp chuyện suôn sẻ bất thường"
+      ]);
+      const slap = pick([
+        "Xin chúc mừng: 99% đó là mồi nhử của Kẻ Cướp Phước hoặc hàng tồn kho hết hạn bảo hành.",
+        "Đừng tin vào may mắn từ trên trời rơi xuống — thứ rơi từ trên trời xuống thường chỉ có phân chim hoặc hóa đơn nợ.",
+        "Nếu may mắn thật thì bạn đã chẳng ngồi đây đọc dòng thông báo này của tôi."
+      ]);
+      return { tag: "HỆ THỐNG 00 // CHÊ MAY MẮN", text: `【Giải ảo vận may: ${illusion}? ${slap}】` };
+    },
+    gossip: () => {
+      const target = pick([
+        "Tiểu Thất #707",
+        "Lục Nha ở tiệm cầm đồ hẻm sau",
+        "Thanh Tra Tạ Vô Cữu",
+        "Giám Ngục Ngu Hồng Diệp",
+        "vị khách tóc trắng ở lô VIP tầng thượng",
+        "đám Kẻ Cướp Phước bên Điện 3"
+      ]);
+      const tea = pick([
+        "sáng nay lại làm chập mạch ổ điện khiến cả khu kiểm toán mất sóng 5 phút rồi lén trốn vào góc quấn băng gạc.",
+        "vừa uống cạn nửa chai rượu mạnh xong đứng chửi xéo mức phí dịch vụ 80% của Cục suốt nửa tiếng.",
+        "nhìn bảng sao kê nợ của bạn xong lắc đầu thở dài như nhìn một ca vô phương cứu chữa.",
+        "đang đặt cược ngầm xem bạn trụ được bao nhiêu ngày trước khi bị lừa sạch chứng cứ.",
+        "lúc nào cũng giả vờ đạo mạo thanh cao nhưng sau lưng thì lén thuê thủy quân dọn sạch phốt."
+      ]);
+      return { tag: "HỆ THỐNG 00 // NÓI XẤU NỘI BỘ", text: `【Tin đồn hành lang: Nghe bảo ${target} ${tea} Đừng nói là Hệ Thống 00 kể nhé.】` };
+    }
+  };
+
+  const keys = Object.keys(generators);
+  const chosenKey = forcedCat && generators[forcedCat] ? forcedCat : pick(keys);
+  return generators[chosenKey]();
+}
+
+function showMascotQuote(forcedCat = null, customObj = null) {
+  if (!mascotBubble || !bubbleQuoteText || !bubbleTopicTag) return;
+  const q = customObj || synthesizeSystemQuote(forcedCat);
+  bubbleTopicTag.textContent = q.tag;
+  bubbleQuoteText.textContent = q.text;
+  mascotBubble.classList.remove("hidden");
+
+  clearTimeout(bubbleHideTimeout);
+  bubbleHideTimeout = setTimeout(() => {
+    if (!bubbleHovered) mascotBubble.classList.add("hidden");
+  }, 9500);
+}
+
+mascotBubble?.addEventListener("mouseenter", () => { bubbleHovered = true; });
+mascotBubble?.addEventListener("mouseleave", () => {
+  bubbleHovered = false;
+  clearTimeout(bubbleHideTimeout);
+  bubbleHideTimeout = setTimeout(() => mascotBubble.classList.add("hidden"), 4500);
+});
+document.getElementById("btn-close-bubble")?.addEventListener("click", () => mascotBubble?.classList.add("hidden"));
+
+const sysMascot3D = initSystemMascot3D({
+  canvasId: "sys-mascot-canvas",
+  onProjectScreen: (sx, sy) => {
+    const inView = sx > -60 && sx < window.innerWidth + 60 && sy > -60 && sy < window.innerHeight + 60;
+    if (mascotHitbox) {
+      mascotHitbox.style.display = inView && sysMascot3D.isEnabled() ? "block" : "none";
+      mascotHitbox.style.left = `${Math.max(48, Math.min(window.innerWidth - 48, sx))}px`;
+      mascotHitbox.style.top = `${Math.max(76, Math.min(window.innerHeight - 48, sy + 28))}px`;
+    }
+    if (mascotBubble && !mascotBubble.classList.contains("hidden")) {
+      const bw = Math.min(315, window.innerWidth * 0.84);
+      const bx = Math.max(12, Math.min(window.innerWidth - bw - 12, sx - bw * 0.5));
+      const by = sy < 185 ? Math.min(window.innerHeight - 165, sy + 52) : Math.max(70, sy - 128);
+      mascotBubble.style.left = `${bx}px`;
+      mascotBubble.style.top = `${by}px`;
+    }
+  },
+  onScreenBonk: (ix, iy) => {
+    if (state.sfx) radio.playFlipChime();
+    document.body.classList.remove("screen-bonk-shake");
+    void document.body.offsetWidth;
+    document.body.classList.add("screen-bonk-shake");
+
+    if (impactFx) {
+      impactFx.style.left = `${Math.max(60, Math.min(window.innerWidth - 60, ix))}px`;
+      impactFx.style.top = `${Math.max(90, Math.min(window.innerHeight - 60, iy))}px`;
+      impactFx.classList.remove("hidden");
+      impactFx.style.animation = "none";
+      void impactFx.offsetWidth;
+      impactFx.style.animation = "";
+      setTimeout(() => impactFx.classList.add("hidden"), 560);
+    }
+
+    const bonkFee = (0.5 + Math.random() * 1.5).toFixed(2);
+    showMascotQuote(null, {
+      tag: "HỆ THỐNG 00 // VA CHẠM KÍNH",
+      text: `【Ái!! Hệ thống 3D vừa đâm sầm vào mặt kính màn hình do Ký chủ thiết lập tọa độ thiếu thẩm mỹ. Tự động ghi nợ phí lau vết nứt: -${bonkFee} PB.】`
+    });
+    pushReceipt(`💥 【VA CHẠM 3D】: Con Hạc Kiểm Toán đâm sầm vào màn hình! (-${bonkFee} PB phí sửa kính ảo).`);
+  }
+});
+
+// Chọc con Hạc 3D
+function pokeMascot3D() {
+  if (!sysMascot3D.isEnabled()) {
+    sysMascot3D.setEnabled(true);
+    const tog = document.getElementById("btn-toggle-mascot");
+    if (tog) tog.textContent = "🦅 HỆ THỐNG 3D: BẬT";
+  }
+  if (state.sfx) radio.playClickChime();
+  const stunts = ["dive_bonk", "barrel_roll", "glitch_drop", "hover_peek"];
+  sysMascot3D.triggerStunt(stunts[Math.floor(Math.random() * stunts.length)]);
+  showMascotQuote();
+}
+mascotHitbox?.addEventListener("click", pokeMascot3D);
+document.getElementById("btn-mascot-stunt")?.addEventListener("click", pokeMascot3D);
+
+document.getElementById("btn-toggle-mascot")?.addEventListener("click", (e) => {
+  if (state.sfx) radio.playClickChime();
+  const nextState = !sysMascot3D.isEnabled();
+  sysMascot3D.setEnabled(nextState);
+  e.currentTarget.textContent = nextState ? "🦅 HỆ THỐNG 3D: BẬT" : "🦅 HỆ THỐNG 3D: TẮT";
+  if (!nextState) {
+    mascotBubble?.classList.add("hidden");
+    if (mascotHitbox) mascotHitbox.style.display = "none";
+  }
+});
+
+// MÔ PHỎNG THANH NHIỆM VỤ HIỆN RA + THÔNG BÁO HỆ THỐNG ĐÁNH MÁY
+function triggerMissionSimulation(sectorName = state.selectedSector) {
+  if (!missionSimBar) return;
+  clearInterval(missionSimTimer);
+  clearInterval(missionTypeTimer);
+  clearTimeout(missionAutoCloseTimer);
+
+  const secObj = SECTORS.find((s) => s.name === sectorName) || SECTORS[0];
+  const titleEl = document.getElementById("sim-mission-title");
+  const fillEl = document.getElementById("sim-mission-bar-fill");
+  const metaEl = document.getElementById("sim-mission-meta");
+  const broadEl = document.getElementById("sim-mission-broadcast");
+
+  missionSimBar.classList.remove("hidden");
+  if (titleEl) titleEl.textContent = `⚖️ ĐANG ĐỒNG BỘ THANH NHIỆM VỤ — ${secObj.name.toUpperCase()}`;
+  if (fillEl) fillEl.style.width = "0%";
+  if (metaEl) metaEl.innerHTML = `▸ Vùng triển khai: <b>${secObj.zone}</b> (${secObj.sub})<br/>▸ Luật sinh tử: ${secObj.rule}`;
+  if (broadEl) broadEl.textContent = "Đang kết nối máy chủ Kế Toán Viên 00...";
+
+  if (state.sfx) radio.playClickChime();
+  sysMascot3D.triggerStunt("mission_swoop");
+
+  let pct = 0;
+  missionSimTimer = setInterval(() => {
+    pct = Math.min(100, pct + 12);
+    if (fillEl) fillEl.style.width = `${pct}%`;
+    if (pct >= 100) {
+      clearInterval(missionSimTimer);
+      if (titleEl) titleEl.textContent = `✅ THANH NHIỆM VỤ ĐÃ KÍCH HOẠT: ${secObj.name}`;
+      if (state.sfx) radio.playFlipChime();
+
+      const pbInfo = state.contractLocked && typeof state.pb === "number" ? `${state.pb.toFixed(2)} PB` : "Tài khoản chưa ký";
+      const fullBroadcast = `【THÔNG BÁO HỆ THỐNG 00】: Hồ sơ Báo Ứng tại [${secObj.name}] đã khóa mục tiêu! Gói chỉ tiêu: [${state.selectedPkg}] | Số dư hiện tại: [${pbInfo}]. Đừng chết lãng xẹt trước khi thu hồi đủ Phước Báu trả nợ.`;
+
+      let idx = 0;
+      if (broadEl) broadEl.textContent = "";
+      missionTypeTimer = setInterval(() => {
+        if (broadEl) broadEl.textContent = fullBroadcast.slice(0, ++idx);
+        if (idx >= fullBroadcast.length) clearInterval(missionTypeTimer);
+      }, 22);
+
+      showMascotQuote("mission");
+      pushReceipt(`🎬 【MÔ PHỎNG NHIỆM VỤ】: Đã bật thanh nhiệm vụ [${secObj.name}].`);
+    }
+  }, 75);
+
+  missionAutoCloseTimer = setTimeout(() => {
+    missionSimBar.classList.add("hidden");
+  }, 13500);
+}
+
+document.getElementById("btn-sim-mission")?.addEventListener("click", () => triggerMissionSimulation());
+document.getElementById("btn-sim-mission-tab")?.addEventListener("click", () => triggerMissionSimulation());
+document.getElementById("btn-close-mission-sim")?.addEventListener("click", () => {
+  clearInterval(missionSimTimer);
+  clearInterval(missionTypeTimer);
+  missionSimBar?.classList.add("hidden");
+});
+
+// Bộ đếm chu kỳ 10 phút tự nói 1 câu quote random
+setInterval(() => {
+  const now = Date.now();
+  const rem = Math.max(0, nextAutoQuoteAt - now);
+  const totalSec = Math.ceil(rem / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const ss = String(totalSec % 60).padStart(2, "0");
+  const cdEl = document.getElementById("mascot-quote-cd");
+  if (cdEl) cdEl.textContent = `${mm}:${ss}`;
+
+  if (now >= nextAutoQuoteAt) {
+    nextAutoQuoteAt = now + AUTO_QUOTE_MS;
+    if (sysMascot3D.isEnabled()) {
+      sysMascot3D.triggerStunt("hover_peek");
+      showMascotQuote();
+    }
+  }
+}, 1000);
+
+// Chào màn sau 3.5 giây khi mới mở web
+setTimeout(() => {
+  if (sysMascot3D.isEnabled()) showMascotQuote("roast");
+}, 3500);
 applyTheme(state.theme, false);
 updateStatsUI();
 updateLiveDossierPreview();
