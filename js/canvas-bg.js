@@ -1,6 +1,7 @@
-// js/canvas-bg.js — Đường hầm Dữ liệu AI Nhị phân 0/1 + Điểm Sáng Chân Trời (Theo ảnh concept)
+// js/canvas-bg.js — Đường hầm Dữ liệu Nhị phân 0/1 + Hào quang Chân trời (Không fog đen, Sàn vô tận tan mờ)
 
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
+import { SITE_CONFIG } from "./config.js";
 
 export function initVRCanvas() {
   const canvas = document.getElementById("vr-canvas");
@@ -11,175 +12,229 @@ export function initVRCanvas() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x020612, 0.015);
-
-  const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 180);
-  camera.position.set(0, 1.4, 18);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(0, 1.3, 18);
 
   function getHexColors() {
     const s = getComputedStyle(document.documentElement);
+    const pStr = s.getPropertyValue("--c-primary").trim() || "#00E5FF";
+    const sStr = s.getPropertyValue("--c-secondary").trim() || "#5EA8FF";
+    const bgStr = s.getPropertyValue("--bg-void").trim() || "#020612";
     return {
-      primaryStr: s.getPropertyValue("--c-primary").trim() || "#00E5FF",
-      secondaryStr: s.getPropertyValue("--c-secondary").trim() || "#5EA8FF",
-      primary: new THREE.Color(s.getPropertyValue("--c-primary").trim() || "#00E5FF"),
-      secondary: new THREE.Color(s.getPropertyValue("--c-secondary").trim() || "#5EA8FF"),
-      voidBg: new THREE.Color(s.getPropertyValue("--bg-void").trim() || "#020612")
+      primaryStr: pStr,
+      secondaryStr: sStr,
+      primary: new THREE.Color(pStr),
+      secondary: new THREE.Color(sStr),
+      voidBg: new THREE.Color(bgStr)
     };
   }
 
-  let colors = getHexColors();
-  scene.fog.color.copy(colors.voidBg);
-
-  // TẠO TEXTURE DẢI SỐ NHỊ PHÂN 0 / 1 PHÁT SÁNG SẮC NÉT
-  function makeBinaryStreamTexture(colorHex, seed = 1) {
-    const c = document.createElement("canvas");
-    c.width = 128;
-    c.height = 512;
-    const ctx = c.getContext("2d");
-    const grad = ctx.createLinearGradient(0, 0, 0, 512);
-    grad.addColorStop(0, "transparent");
-    grad.addColorStop(0.18, colorHex);
-    grad.addColorStop(0.5, "#ffffff");
-    grad.addColorStop(0.82, colorHex);
-    grad.addColorStop(1, "transparent");
-
-    ctx.font = "bold 36px 'JetBrains Mono', monospace";
-    ctx.textAlign = "center";
-    ctx.shadowColor = colorHex;
-    ctx.shadowBlur = 16;
-    ctx.fillStyle = grad;
-
-    for (let y = 36; y < 490; y += 44) {
-      const bit = ((Math.sin(y * 1.37 + seed * 7.1) + 1) * 0.5) > 0.48 ? "1" : "0";
-      ctx.globalAlpha = 0.45 + 0.55 * Math.abs(Math.sin(y * 0.2 + seed));
-      ctx.fillText(bit, 64, y);
-    }
-
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = THREE.ClampToEdgeWrapping;
-    tex.wrapT = THREE.RepeatWrapping;
-    return tex;
+  function hasCustomBgImage(themeName) {
+    const cfg = SITE_CONFIG?.backgroundImage;
+    if (!cfg) return false;
+    const url = (cfg.byTheme && cfg.byTheme[themeName]) || cfg.defaultUrl || "";
+    return Boolean(url.trim());
   }
 
-  // TẠO TEXTURE HÀO QUANG ĐIỂM CHÂN TRỜI
-  function makeHorizonFlareTexture(colorHex) {
+  let colors = getHexColors();
+
+  function syncClearColor() {
+    const curTheme = document.documentElement.getAttribute("data-theme") || "orbital-cyan";
+    if (hasCustomBgImage(curTheme)) {
+      renderer.setClearColor(0x000000, 0);
+    } else {
+      renderer.setClearColor(colors.voidBg, 1);
+    }
+  }
+  syncClearColor();
+
+  // TEXTURE THÁC SỐ 0/1 SẮC NÉT
+  function makeBinaryStreamCanvas(colorHex, seed = 1) {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 1024;
+    const ctx = c.getContext("2d");
+
+    ctx.font = "bold 32px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+
+    const cols = [44, 108, 172, 224];
+    cols.forEach((cx, ci) => {
+      for (let y = 32; y < 990; y += 38) {
+        const bit = ((Math.sin(y * 1.13 + seed * 5.7 + ci * 3.1) + 1) * 0.5) > 0.48 ? "1" : "0";
+        const edgeFade = Math.sin((y / 1024) * Math.PI);
+        const isHead = ((y + ci * 76) % 228) < 40;
+        ctx.globalAlpha = Math.max(0.08, edgeFade * (isHead ? 0.98 : 0.45 + 0.35 * Math.abs(Math.sin(y * 0.1 + ci))));
+        ctx.fillStyle = isHead ? "#ffffff" : colorHex;
+        ctx.shadowColor = colorHex;
+        ctx.shadowBlur = isHead ? 18 : 10;
+        ctx.fillText(bit, cx, y);
+      }
+    });
+    return c;
+  }
+
+  function makeFlareCanvas(colorHex) {
     const c = document.createElement("canvas");
     c.width = 512;
     c.height = 512;
     const ctx = c.getContext("2d");
-    const g = ctx.createRadialGradient(256, 256, 8, 256, 256, 250);
-    g.addColorStop(0, "#ffffff");
-    g.addColorStop(0.16, colorHex);
-    g.addColorStop(0.45, "rgba(0, 140, 255, 0.22)");
-    g.addColorStop(1, "transparent");
+    const g = ctx.createRadialGradient(256, 256, 2, 256, 256, 252);
+    g.addColorStop(0.0, "#ffffff");
+    g.addColorStop(0.09, "#e6fcff");
+    g.addColorStop(0.24, colorHex);
+    g.addColorStop(0.55, "rgba(0, 140, 255, 0.16)");
+    g.addColorStop(1.0, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 512, 512);
-    return new THREE.CanvasTexture(c);
+    return c;
   }
 
-  const binTex1 = makeBinaryStreamTexture(colors.primaryStr, 1);
-  const binTex2 = makeBinaryStreamTexture(colors.secondaryStr, 2);
-  const flareTex = makeHorizonFlareTexture(colors.primaryStr);
+  const binTex1 = new THREE.CanvasTexture(makeBinaryStreamCanvas(colors.primaryStr, 1));
+  binTex1.wrapT = THREE.RepeatWrapping;
+  const binTex2 = new THREE.CanvasTexture(makeBinaryStreamCanvas(colors.secondaryStr, 2));
+  binTex2.wrapT = THREE.RepeatWrapping;
+  const flareTex = new THREE.CanvasTexture(makeFlareCanvas(colors.primaryStr));
 
-  // 1. ĐIỂM KỲ DỊ ÁNH SÁNG CHÂN TRỜI (SINGULARITY FLARE)
-  const flareMat = new THREE.SpriteMaterial({
-    map: flareTex,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.95,
-    blending: THREE.AdditiveBlending
-  });
-  const horizonFlare = new THREE.Sprite(flareMat);
-  horizonFlare.position.set(0, -1.6, -54);
-  horizonFlare.scale.set(42, 32, 1);
+  // 1. TÂM SÁNG CHÂN TRỜI (fog: false ĐỂ KHÔNG BỊ ĐEN!)
+  const horizonFlare = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: flareTex,
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.96,
+      blending: THREE.AdditiveBlending,
+      fog: false,
+      depthWrite: false
+    })
+  );
+  horizonFlare.position.set(0, -1.2, -56);
+  horizonFlare.scale.set(48, 34, 1);
   scene.add(horizonFlare);
 
-  // CÁC TIA SÁNG XUYÊN TÂM TỎA RA TỪ CHÂN TRỜI
+  // DẢI SÁNG NGANG CHÂN TRỜI
+  const horizonBand = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: flareTex,
+      color: colors.primary,
+      transparent: true,
+      opacity: 0.72,
+      blending: THREE.AdditiveBlending,
+      fog: false,
+      depthWrite: false
+    })
+  );
+  horizonBand.position.set(0, -2.4, -55);
+  horizonBand.scale.set(110, 8, 1);
+  scene.add(horizonBand);
+
+  // CÁC TIA QUANG HỌC XUYÊN TÂM
   const rayMat = new THREE.MeshBasicMaterial({
+    map: flareTex,
     color: colors.primary,
     transparent: true,
-    opacity: 0.12,
+    opacity: 0.24,
     side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
+    fog: false,
     depthWrite: false
   });
   const rayPlanes = [];
   for (let i = 0; i < 6; i++) {
-    const ray = new THREE.Mesh(new THREE.PlaneGeometry(58, 0.55), rayMat);
-    ray.position.set(0, -1.6, -53.5);
+    const ray = new THREE.Mesh(new THREE.PlaneGeometry(76, 1.4), rayMat);
+    ray.position.set(0, -1.2, -54.5);
     ray.rotation.z = (i / 6) * Math.PI;
     scene.add(ray);
     rayPlanes.push(ray);
   }
 
-  // 2. MẶT SÀN DỮ LIỆU PHỐI CẢNH LAO VỀ PHÍA TRƯỚC
-  const floorGrid = new THREE.GridHelper(180, 72, colors.primary, colors.primary);
-  floorGrid.position.y = -7.2;
-  floorGrid.material.transparent = true;
-  floorGrid.material.opacity = 0.26;
-  scene.add(floorGrid);
+  // 2. SÀN DỮ LIỆU VÔ TẬN TAN MỜ VÀO CHÂN TRỜI (SHADER GLSL — KHÔNG CÒN MÉP CẮT VUÔNG!)
+  const floorUniforms = {
+    uTime: { value: 0 },
+    uPrimary: { value: colors.primary.clone() },
+    uSecondary: { value: colors.secondary.clone() }
+  };
+  const floorMat = new THREE.ShaderMaterial({
+    uniforms: floorUniforms,
+    vertexShader: `
+      varying vec2 vXZ;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vXZ = wp.xz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uPrimary;
+      uniform vec3 uSecondary;
+      varying vec2 vXZ;
 
-  // CÁC DẢI TIA SÁNG CHẠY DỌC MẶT SÀN HƯỚNG TỚI CHÂN TRỜI
-  const trackLines = [];
-  for (let i = -8; i <= 8; i++) {
-    if (i === 0) continue;
-    const pts = [new THREE.Vector3(i * 3.8, -7.15, 22), new THREE.Vector3(i * 0.45, -2.0, -54)];
-    const mat = new THREE.LineBasicMaterial({
-      color: i % 2 === 0 ? colors.primary : colors.secondary,
-      transparent: true,
-      opacity: 0.28,
-      blending: THREE.AdditiveBlending
-    });
-    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
-    l.userData = { isSec: i % 2 !== 0 };
-    scene.add(l);
-    trackLines.push(l);
-  }
+      void main() {
+        vec2 uv = vec2(vXZ.x * 0.32, (vXZ.y + uTime * 3.8) * 0.32);
+        vec2 grid = abs(fract(uv - 0.5) - 0.5) / max(fwidth(uv), vec2(0.002));
+        float line = 1.0 - min(min(grid.x, grid.y), 1.0);
 
-  // 3. CÁC CỘT THÁC SỐ 0/1 DỌC HAI BÊN HÀNH LANG VŨ TRỤ
+        float distFade = smoothstep(74.0, 12.0, length(vXZ - vec2(0.0, -8.0)));
+        float sideFade = smoothstep(52.0, 10.0, abs(vXZ.x));
+        float centerGlow = exp(-abs(vXZ.x) * 0.14) * smoothstep(22.0, -56.0, vXZ.y);
+
+        vec3 col = mix(uPrimary, uSecondary, clamp(centerGlow * 1.4, 0.0, 1.0));
+        float alpha = (line * 0.52 + centerGlow * 0.28) * distFade * sideFade;
+        gl_FragColor = vec4(col * (1.1 + centerGlow), clamp(alpha, 0.0, 0.85));
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  const floorPlane = new THREE.Mesh(new THREE.PlaneGeometry(160, 140), floorMat);
+  floorPlane.rotation.x = -Math.PI / 2;
+  floorPlane.position.set(0, -6.4, -22);
+  scene.add(floorPlane);
+
+  // 3. CÁC CỘT THÁC SỐ 0/1 CHẠY DỌC ĐƯỜNG HẦM
   const rainPillars = [];
-  const pillarGeo = new THREE.PlaneGeometry(1.35, 16);
-  for (let i = 0; i < 38; i++) {
+  const pillarGeo = new THREE.PlaneGeometry(2.6, 18);
+  for (let i = 0; i < 42; i++) {
     const side = i % 2 === 0 ? -1 : 1;
-    const x = side * (3.6 + Math.random() * 24);
-    const y = (Math.random() - 0.15) * 10;
-    const z = -52 + Math.random() * 62;
+    const x = side * (3.8 + Math.random() * 24);
+    const y = -0.5 + Math.random() * 8;
+    const z = -54 + Math.random() * 64;
     const useSec = i % 3 === 0;
     const mat = new THREE.MeshBasicMaterial({
       map: useSec ? binTex2 : binTex1,
       transparent: true,
-      opacity: 0.35 + Math.random() * 0.45,
+      opacity: 0.42 + Math.random() * 0.42,
       side: THREE.DoubleSide,
       blending: THREE.AdditiveBlending,
+      fog: false,
       depthWrite: false
     });
     const mesh = new THREE.Mesh(pillarGeo, mat);
     mesh.position.set(x, y, z);
-    mesh.userData = {
-      speedZ: 0.08 + Math.random() * 0.12,
-      speedScroll: 0.004 + Math.random() * 0.008,
-      baseX: x
-    };
+    mesh.userData = { speedZ: 0.08 + Math.random() * 0.13 };
     scene.add(mesh);
     rainPillars.push(mesh);
   }
 
-  // 4. BỤI HẠT NĂNG LƯỢNG CHÂN TRỜI
+  // 4. HẠT DỮ LIỆU BAY XUYÊN TÂM
   const starCount = 950;
   const starPositions = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
     starPositions[i * 3] = (Math.random() - 0.5) * 90;
-    starPositions[i * 3 + 1] = -7.0 + Math.random() * 34;
-    starPositions[i * 3 + 2] = -60 + Math.random() * 75;
+    starPositions[i * 3 + 1] = -6.0 + Math.random() * 34;
+    starPositions[i * 3 + 2] = -62 + Math.random() * 76;
   }
   const starGeo = new THREE.BufferGeometry();
   starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
   const starMat = new THREE.PointsMaterial({
     color: colors.primary,
-    size: 0.16,
+    size: 0.15,
     transparent: true,
     opacity: 0.85,
-    blending: THREE.AdditiveBlending
+    blending: THREE.AdditiveBlending,
+    fog: false
   });
   scene.add(new THREE.Points(starGeo, starMat));
 
@@ -197,7 +252,8 @@ export function initVRCanvas() {
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.9,
-      blending: THREE.AdditiveBlending
+      blending: THREE.AdditiveBlending,
+      fog: false
     });
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.27, 36), ringMat);
     ring.position.copy(pos);
@@ -206,24 +262,25 @@ export function initVRCanvas() {
     shockwaves.push({ mesh: ring, mat: ringMat, scale: 1 });
   }
 
-  let targetCamX = 0, targetCamY = 1.4;
+  let targetCamX = 0, targetCamY = 1.3;
   window.addEventListener("pointermove", (e) => {
-    targetCamX = (e.clientX / window.innerWidth - 0.5) * 4.5;
-    targetCamY = 1.4 - (e.clientY / window.innerHeight - 0.5) * 2.4;
+    targetCamX = (e.clientX / window.innerWidth - 0.5) * 4.2;
+    targetCamY = 1.3 - (e.clientY / window.innerHeight - 0.5) * 2.2;
   });
 
   const observer = new MutationObserver(() => {
     colors = getHexColors();
-    scene.fog.color.copy(colors.voidBg);
-    floorGrid.material.color.copy(colors.primary);
+    syncClearColor();
+    floorUniforms.uPrimary.value.copy(colors.primary);
+    floorUniforms.uSecondary.value.copy(colors.secondary);
+    horizonBand.material.color.copy(colors.primary);
     rayMat.color.copy(colors.primary);
     starMat.color.copy(colors.primary);
-    trackLines.forEach((l) => l.material.color.copy(l.userData.isSec ? colors.secondary : colors.primary));
-    binTex1.image = makeBinaryStreamTexture(colors.primaryStr, 1).image;
+    binTex1.image = makeBinaryStreamCanvas(colors.primaryStr, 1);
     binTex1.needsUpdate = true;
-    binTex2.image = makeBinaryStreamTexture(colors.secondaryStr, 2).image;
+    binTex2.image = makeBinaryStreamCanvas(colors.secondaryStr, 2);
     binTex2.needsUpdate = true;
-    flareTex.image = makeHorizonFlareTexture(colors.primaryStr).image;
+    flareTex.image = makeFlareCanvas(colors.primaryStr);
     flareTex.needsUpdate = true;
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
@@ -235,28 +292,26 @@ export function initVRCanvas() {
 
     camera.position.x += (targetCamX - camera.position.x) * 0.055;
     camera.position.y += (targetCamY - camera.position.y) * 0.055;
-    camera.lookAt(0, -1.2, -54);
+    camera.lookAt(0, -1.1, -56);
 
-    floorGrid.position.z = (time * 3.5) % 2.5;
-    binTex1.offset.y -= 0.004;
-    binTex2.offset.y -= 0.0065;
+    floorUniforms.uTime.value = time;
+    binTex1.offset.y -= 0.0045;
+    binTex2.offset.y -= 0.007;
 
-    const pulse = 1 + Math.sin(time * 2.2) * 0.08;
-    horizonFlare.scale.set(42 * pulse, 32 * pulse, 1);
+    const pulse = 1 + Math.sin(time * 2.2) * 0.07;
+    horizonFlare.scale.set(48 * pulse, 34 * pulse, 1);
 
-    rayPlanes.forEach((r, idx) => {
-      r.rotation.z += (idx % 2 === 0 ? 0.0015 : -0.0015);
-    });
+    rayPlanes.forEach((r, idx) => { r.rotation.z += (idx % 2 === 0 ? 0.0012 : -0.0012); });
 
     rainPillars.forEach((p) => {
       p.position.z += p.userData.speedZ;
-      if (p.position.z > 14) p.position.z = -52;
+      if (p.position.z > 14) p.position.z = -54;
     });
 
     const sArr = starGeo.attributes.position.array;
     for (let i = 0; i < starCount; i++) {
       sArr[i * 3 + 2] += 0.14;
-      if (sArr[i * 3 + 2] > 16) sArr[i * 3 + 2] = -60;
+      if (sArr[i * 3 + 2] > 16) sArr[i * 3 + 2] = -62;
     }
     starGeo.attributes.position.needsUpdate = true;
 
