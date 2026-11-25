@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CORE VR WORKSPACE, HOYO HOLO PANELS, TOPBAR, MODALS & RADIAL GATE 00
+   CORE VR WORKSPACE, KÍNH MỜ NHỊ PHÂN HOYO, TOPBAR, MODALS & RADIAL GATE 00
    ========================================================================== */
 
 * {
@@ -11,14 +11,24 @@
 
 html, body {
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 30%, var(--bg-deep), var(--bg-void) 76%);
+  background: radial-gradient(circle at 50% 30%, var(--bg-deep), var(--bg-void) 78%);
   color: var(--text-main);
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
   overflow-x: clip;
   overflow-y: auto;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: var(--c-primary) var(--bg-void);
+}
+
+h1, h2, h3, h4, h5,
+.core-title,
+.brand-text strong,
+.quest-main-title,
+.gallery-heading,
+.bio-lab-title-group h2,
+.intrusion-title {
+  font-family: "Chakra Petch", "IBM Plex Mono", monospace;
 }
 
 .hidden {
@@ -36,7 +46,7 @@ html, body {
   box-shadow: 0 0 12px var(--glow-primary);
 }
 
-/* LỚP KHÔNG GIAN VŨ TRỤ 3D CỐ ĐỊNH */
+/* LỚP KHÔNG GIAN ĐƯỜNG HẦM 3D CỐ ĐỊNH */
 .bg-image-layer {
   position: fixed;
   inset: 0;
@@ -60,7 +70,7 @@ html, body {
 .vr-vignette {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 48%, transparent 40%, rgba(1, 3, 12, 0.82) 100%);
+  background: radial-gradient(circle at 50% 48%, transparent 38%, rgba(1, 3, 12, 0.84) 100%);
   pointer-events: none;
   z-index: 2;
 }
@@ -78,7 +88,7 @@ html, body {
   z-index: 90;
 }
 
-/* CON TRỎ VŨ TRỤ TACTILE */
+/* CON TRỎ TỌA ĐỘ TACTILE */
 .touch-hud-cursor {
   position: fixed;
   pointer-events: none;
@@ -88,11 +98,11 @@ html, body {
   font-size: 0.62rem;
   letter-spacing: 0.06em;
   color: var(--c-primary);
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-left: 2px solid var(--c-secondary);
-  background: rgba(2, 6, 18, 0.65);
-  backdrop-filter: blur(4px);
-  opacity: 0.86;
+  background: rgba(2, 6, 18, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0.88;
   text-shadow: 0 0 8px var(--glow-primary);
 }
 
@@ -105,24 +115,22 @@ html, body {
     border-color 0.24s ease,
     background 0.24s ease;
 }
-.holo-tactile:hover {
-  transform: translateY(-1.5px);
-}
-.holo-tactile:active {
-  transform: scale(0.955) translateY(1px);
-}
+.holo-tactile:hover { transform: translateY(-1.5px); }
+.holo-tactile:active { transform: scale(0.955) translateY(1px); }
 
-/* KHUNG BẢNG HOYO-HOLO CHUNG (VÁT GÓC + NÚT NEO GÓC PHÁT SÁNG) */
+/* KHUNG BẢNG HOYO-HOLO: NỀN NHỊ PHÂN + LỚP KÍNH MỜ TỐI ĐỂ RÕ CHỮ */
 .hoyo-frame {
   position: relative;
-  border: 1px solid rgba(var(--rgb-primary), 0.48);
-  background: linear-gradient(155deg, rgba(var(--rgb-primary), 0.12), var(--bg-glass-strong) 68%);
-  backdrop-filter: blur(18px) saturate(135%);
-  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  border: 1px solid rgba(var(--rgb-primary), 0.44);
+  background:
+    linear-gradient(160deg, rgba(2, 8, 22, 0.76), rgba(2, 5, 16, 0.86)),
+    var(--matrix-panel-bg, none) center / cover no-repeat;
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
   box-shadow:
-    0 12px 38px rgba(0, 0, 0, 0.55),
+    0 14px 40px rgba(0, 0, 0, 0.62),
     0 0 28px rgba(var(--rgb-primary), 0.14),
-    inset 0 0 22px rgba(var(--rgb-primary), 0.08);
+    inset 0 0 24px rgba(var(--rgb-primary), 0.08);
   clip-path: polygon(
     14px 0%, calc(100% - 14px) 0%, 100% 14px,
     100% calc(100% - 14px), calc(100% - 14px) 100%,
@@ -138,8 +146,8 @@ html, body {
 }
 .hoyo-corner-nodes i {
   position: absolute;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--c-primary);
   box-shadow: 0 0 10px var(--glow-primary), 0 0 18px var(--c-secondary);
@@ -161,11 +169,13 @@ html, body {
   justify-content: space-between;
   gap: 12px;
   padding: 9px 18px;
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background:
+    linear-gradient(180deg, rgba(3, 9, 24, 0.84), rgba(2, 6, 18, 0.9)),
+    var(--matrix-panel-bg, none) center / cover no-repeat;
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
   border-bottom: 1px solid rgba(var(--rgb-primary), 0.34);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.52);
   flex-wrap: wrap;
 }
 
@@ -184,7 +194,6 @@ html, body {
   text-decoration: none;
   color: var(--text-main);
   padding: 5px 13px;
-  border-radius: 6px;
   border: 1px solid rgba(var(--rgb-primary), 0.45);
   background: rgba(var(--rgb-primary), 0.08);
   clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
@@ -195,7 +204,7 @@ html, body {
 }
 
 .brand-text { display: flex; flex-direction: column; line-height: 1.12; }
-.brand-text strong { font-size: 0.84rem; letter-spacing: 0.08em; }
+.brand-text strong { font-size: 0.88rem; letter-spacing: 0.1em; }
 .brand-text small { font-family: "JetBrains Mono", monospace; font-size: 0.58rem; color: var(--c-primary); }
 
 /* RADIO */
@@ -208,7 +217,6 @@ html, body {
   background: rgba(var(--rgb-primary), 0.08);
   border: 1px solid rgba(var(--rgb-primary), 0.34);
 }
-
 .radio-btn {
   width: 25px;
   height: 25px;
@@ -221,7 +229,6 @@ html, body {
   place-items: center;
   font-size: 0.66rem;
 }
-
 .radio-meta { display: flex; align-items: center; gap: 8px; }
 .radio-title {
   font-family: "JetBrains Mono", monospace;
@@ -268,7 +275,6 @@ html, body {
   align-items: center;
   gap: 6px;
   padding: 6px 13px;
-  border-radius: 6px;
   border: 1px solid rgba(var(--rgb-primary), 0.42);
   background: rgba(var(--rgb-primary), 0.09);
   color: var(--text-main);
@@ -286,7 +292,7 @@ html, body {
 .user-avatar-mini { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--c-primary); }
 
 /* ==========================================================================
-   GIAO DIỆN 1: RADIAL ORBITAL GATE 00 (ẢNH 2 + TILT 3D)
+   GIAO DIỆN 1: RADIAL ORBITAL GATE 00
    ========================================================================== */
 .vr-room {
   position: relative;
@@ -314,14 +320,15 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.7rem;
 }
 .wing-left-gate { transform: rotateY(14deg); }
 .wing-right-gate { transform: rotateY(-14deg); text-align: right; }
 
 .wing-kicker {
-  font-size: 0.62rem;
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.66rem;
   letter-spacing: 0.16em;
   color: var(--c-primary);
 }
@@ -372,7 +379,6 @@ html, body {
   50% { opacity: 0.45; }
 }
 
-/* CỔNG TRÒN TRUNG TÂM ẢNH 2 */
 .holo-gate {
   position: relative;
   width: 450px;
@@ -415,10 +421,12 @@ html, body {
   width: 234px;
   height: 234px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(var(--rgb-primary), 0.22), var(--bg-glass-strong) 82%);
+  background:
+    radial-gradient(circle, rgba(2, 12, 34, 0.72), rgba(2, 6, 18, 0.9) 82%),
+    var(--matrix-panel-bg, none) center / cover no-repeat;
   border: 1.5px solid rgba(var(--rgb-primary), 0.78);
   box-shadow: 0 0 54px var(--glow-primary), inset 0 0 32px rgba(var(--rgb-secondary), 0.24);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -446,7 +454,7 @@ html, body {
 }
 
 .core-kicker { font-family: "JetBrains Mono", monospace; font-size: 0.64rem; letter-spacing: 0.16em; color: var(--c-primary); }
-.core-title { font-size: 2.05rem; letter-spacing: 0.1em; color: var(--text-main); text-shadow: 0 0 20px var(--glow-primary); }
+.core-title { font-size: 2.1rem; letter-spacing: 0.12em; color: var(--text-main); text-shadow: 0 0 20px var(--glow-primary); }
 .core-sub { font-family: "JetBrains Mono", monospace; font-size: 0.76rem; color: var(--c-secondary); }
 .core-meter { width: 126px; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, 0.14); overflow: hidden; margin-top: 4px; }
 .core-meter span { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-secondary)); transition: width 0.48s ease; }
@@ -460,8 +468,7 @@ html, body {
 .btn-danger,
 .holo-switch {
   padding: 9px 14px;
-  border-radius: 6px;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -476,9 +483,7 @@ html, body {
   color: #030712;
   box-shadow: 0 0 18px var(--glow-primary);
 }
-.btn-primary:hover {
-  box-shadow: 0 0 26px var(--glow-secondary);
-}
+.btn-primary:hover { box-shadow: 0 0 26px var(--glow-secondary); }
 .btn-secondary,
 .holo-switch {
   background: rgba(var(--rgb-secondary), 0.14);
@@ -500,8 +505,8 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(2, 4, 14, 0.78);
-  backdrop-filter: blur(10px);
+  background: rgba(2, 4, 14, 0.8);
+  backdrop-filter: blur(12px);
   display: grid;
   place-items: center;
   padding: 16px;
@@ -521,35 +526,33 @@ html, body {
   margin-bottom: 14px;
   border-bottom: 1px solid rgba(var(--rgb-primary), 0.28);
 }
-.modal-head h3 { font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--c-primary); }
+.modal-head h3 { font-size: 0.88rem; letter-spacing: 0.08em; color: var(--c-primary); }
 .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.15rem; cursor: pointer; }
-.modal-body { display: flex; flex-direction: column; gap: 14px; font-size: 0.84rem; }
+.modal-body { display: flex; flex-direction: column; gap: 14px; font-size: 0.82rem; }
 .auth-form { display: flex; flex-direction: column; gap: 10px; }
 
 input[type="text"],
 input[type="password"],
 input[type="url"] {
   padding: 9px 12px;
-  border-radius: 6px;
   border: 1px solid rgba(var(--rgb-primary), 0.38);
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.5);
   color: var(--text-main);
-  font-family: "JetBrains Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.76rem;
 }
 
 .auth-actions { display: flex; gap: 10px; }
 .auth-actions > * { flex: 1; }
-.auth-msg { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: var(--c-secondary); }
+.auth-msg { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--c-secondary); }
 
 .profile-box {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border-radius: 8px;
   border: 1px solid rgba(var(--rgb-primary), 0.34);
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.32);
 }
 .profile-avatar-lg {
   width: 56px;
@@ -566,9 +569,8 @@ input[type="url"] {
   flex-direction: column;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 8px;
   border: 1px dashed rgba(var(--rgb-primary), 0.38);
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.32);
 }
 .avatar-editor label { font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: var(--c-primary); }
 .avatar-row { display: flex; gap: 8px; align-items: center; }
@@ -578,7 +580,6 @@ input[type="url"] {
   align-items: center;
   justify-content: center;
   padding: 7px 10px;
-  border-radius: 6px;
   border: 1px solid var(--c-secondary);
   color: var(--c-secondary);
   font-family: "JetBrains Mono", monospace;
