@@ -1,4 +1,4 @@
-// js/npc-morph-3d.js — Tải Động Vật 3D Thật (.glb via GLTFLoader + AnimationMixer + Chế độ Thực Tế / Holo + Chỉ điểm 4 vùng)
+// js/npc-morph-3d.js — Động Vật 3D Thật (.glb + AnimationMixer + Fallback Link + Chế độ Thực Tế / Holo hỗ trợ SkinnedMesh)
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -27,9 +27,8 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   }
   let colors = getPalette();
 
-  // Ánh sáng Studio Công nghệ cao làm nổi khối động vật 3D thật
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.45);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.3);
   keyLight.position.set(4, 6, 5);
   const rimLight = new THREE.DirectionalLight(colors.primary, 2.4);
   rimLight.position.set(-4, 3, -4);
@@ -37,7 +36,6 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   underLight.position.set(0, -2.2, 2);
   scene.add(ambientLight, keyLight, rimLight, underLight);
 
-  // Đế quét sinh học dưới chân linh thú
   const floorGroup = new THREE.Group();
   floorGroup.position.y = -1.35;
   scene.add(floorGroup);
@@ -72,16 +70,17 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
   scene.add(modelRoot);
 
   const loader = new GLTFLoader();
+  loader.setCrossOrigin("anonymous");
   const gltfCache = new Map();
 
   let mixer = null;
   let currentModelWrapper = null;
-  let renderMode = "real"; // "real" (3D thật có ánh sáng công nghệ) | "holo" (x-ray lưới hologram)
+  let renderMode = "real";
   let activeZone = "head";
   let loadSeq = 0;
+  let currentWireMat = null;
 
   const hotspotMeshes = [];
-  const originalMaterials = new Map();
   const loadingBadge = document.getElementById("lab-model-loading");
 
   function clearHotspots() {
@@ -103,20 +102,28 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       modelRoot.remove(currentModelWrapper);
       currentModelWrapper = null;
     }
-    originalMaterials.clear();
   }
 
   function applyCurrentRenderMode() {
     if (!currentModelWrapper) return;
-    const holoMat = createHoloMaterial(`#${colors.primary.getHexString()}`, 0.78);
+    if (!currentWireMat) {
+      currentWireMat = new THREE.MeshStandardMaterial({
+        color: colors.primary,
+        emissive: colors.primary,
+        emissiveIntensity: 0.65,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.78
+      });
+    } else {
+      currentWireMat.color.copy(colors.primary);
+      currentWireMat.emissive.copy(colors.primary);
+    }
+
     currentModelWrapper.traverse((obj) => {
       if (!obj.isMesh) return;
-      if (!originalMaterials.has(obj)) originalMaterials.set(obj, obj.material);
-      if (renderMode === "holo") {
-        obj.material = holoMat;
-      } else {
-        obj.material = originalMaterials.get(obj);
-      }
+      if (!obj.userData.__origMat) obj.userData.__origMat = obj.material;
+      obj.material = renderMode === "holo" ? currentWireMat : obj.userData.__origMat;
     });
   }
 
@@ -142,7 +149,6 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
         tail: new THREE.Vector3(0, max.y * 0.25, min.z * 0.82)
       };
     } else {
-      // Quadruped (Horse, Fox, etc.)
       anchors = {
         head: new THREE.Vector3(0, max.y * 0.68, max.z * 0.68),
         chest: new THREE.Vector3(0, max.y * 0.22, max.z * 0.34),
@@ -163,33 +169,39 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
     });
   }
 
+  async function loadGltfWithFallback(urls) {
+    let lastErr = null;
+    for (const url of urls) {
+      if (gltfCache.has(url)) return gltfCache.get(url);
+      try {
+        const data = await new Promise((resolve, reject) => {
+          loader.load(url, resolve, undefined, reject);
+        });
+        data.scene.traverse((obj) => {
+          if (obj.isMesh && !obj.userData.__origMat) obj.userData.__origMat = obj.material;
+        });
+        gltfCache.set(url, data);
+        return data;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+    throw lastErr || new Error("Không tải được model 3D");
+  }
+
   async function loadAnimalModel(npc, stats) {
     const mySeq = ++loadSeq;
     clearLoadedModel();
 
     const preset = ANIMAL_PRESETS[stats.animalKey] || ANIMAL_PRESETS.horse;
-    const url = (stats.modelUrl || "").trim() || preset.url;
+    const customUrl = (stats.modelUrl || "").trim();
+    const urls = customUrl ? [customUrl, preset.url, preset.fallback].filter(Boolean) : [preset.url, preset.fallback].filter(Boolean);
     const animalType = preset.type || "quad";
 
     loadingBadge?.classList.remove("hidden");
 
     try {
-      const gltf = await new Promise((resolve, reject) => {
-        if (gltfCache.has(url)) {
-          resolve(gltfCache.get(url));
-          return;
-        }
-        loader.load(
-          url,
-          (data) => {
-            gltfCache.set(url, data);
-            resolve(data);
-          },
-          undefined,
-          (err) => reject(err)
-        );
-      });
-
+      const gltf = await loadGltfWithFallback(urls);
       if (mySeq !== loadSeq) return;
 
       const sceneObj = gltf.scene;
@@ -197,7 +209,6 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       sceneObj.rotation.set(0, 0, 0);
       sceneObj.scale.set(1, 1, 1);
 
-      // Tự căn giữa & co giãn khớp vào bệ 3D
       const rawBox = new THREE.Box3().setFromObject(sceneObj);
       const size = rawBox.getSize(new THREE.Vector3());
       const center = rawBox.getCenter(new THREE.Vector3());
@@ -209,13 +220,8 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       sceneObj.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
       wrapper.add(sceneObj);
 
-      // Đặt chân sát mặt bệ (-1.35) nếu là thú đứng mặt đất
       const normBox = new THREE.Box3().setFromObject(wrapper);
-      if (animalType === "quad") {
-        wrapper.position.y = -1.32 - normBox.min.y;
-      } else {
-        wrapper.position.y = 0.05;
-      }
+      wrapper.position.y = animalType === "quad" ? (-1.32 - normBox.min.y) : 0.05;
 
       modelRoot.add(wrapper);
       currentModelWrapper = wrapper;
@@ -232,7 +238,6 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
       }
     } catch (_) {
       if (mySeq !== loadSeq) return;
-      // Fallback nhẹ nếu mất mạng
       const fallback = new THREE.Mesh(
         new THREE.OctahedronGeometry(0.8, 1),
         createHoloMaterial(`#${colors.primary.getHexString()}`, 0.7)
@@ -349,15 +354,6 @@ export function initNpcMorph3D({ canvasId, onProjectZones, onSelectZone }) {
     modelRoot.rotation.x = rotX;
     floorGroup.rotation.y = -time * 0.2;
     scanPlane.position.y = Math.sin(time * 1.4) * 1.15 - 0.15;
-
-    if (currentModelWrapper && renderMode === "holo") {
-      currentModelWrapper.traverse((obj) => {
-        if (obj.material?.uniforms?.uTime) {
-          obj.material.uniforms.uTime.value = time;
-          obj.material.uniforms.uColor.value.copy(colors.primary);
-        }
-      });
-    }
 
     hotspotMeshes.forEach((dot) => {
       const isSel = dot.userData.zoneKey === activeZone;

@@ -1,41 +1,47 @@
-// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (MỖI NPC 1 ĐỘNG VẬT 3D THẬT)
+// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (ĐÃ SỬA LINK 3D CHUẨN + FALLBACK)
 
 export const ANIMAL_PRESETS = {
   stork: {
     label: "Hắc Hạc Đưa Tin (Stork)",
     type: "bird",
-    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Stork.glb"
+    url: "https://threejs.org/examples/models/gltf/Stork.glb",
+    fallback: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Stork.glb"
   },
   horse: {
     label: "Chiến Mã Phán Quyết (Horse)",
     type: "quad",
-    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Horse.glb"
+    url: "https://threejs.org/examples/models/gltf/Horse.glb",
+    fallback: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Horse.glb"
   },
   fox: {
     label: "Xích Hồ Ly Chợ Đen (Fox)",
     type: "quad",
-    url: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb"
+    url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+    fallback: "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb"
   },
   flamingo: {
     label: "Hồng Hạc Huyết Đỏ (Flamingo)",
     type: "bird",
-    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Flamingo.glb"
+    url: "https://threejs.org/examples/models/gltf/Flamingo.glb",
+    fallback: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Flamingo.glb"
   },
   parrot: {
     label: "Vẹt Báo Tin Hậu Đậu (Parrot)",
     type: "bird",
-    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r164/examples/models/gltf/Parrot.glb"
+    url: "https://threejs.org/examples/models/gltf/Parrot.glb",
+    fallback: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Parrot.glb"
   },
   shark: {
     label: "Bạch Sa Vũ Trụ (Shark)",
     type: "swim",
-    url: "https://cdn.jsdelivr.net/gh/BabylonJS/MeshesLibrary@master/shark.glb"
+    url: "https://rawcdn.githack.com/BabylonJS/MeshesLibrary/55f475726670be2e7e4017b5f88c5762a90508c2/shark.glb",
+    fallback: "https://raw.githubusercontent.com/BabylonJS/MeshesLibrary/master/shark.glb"
   }
 };
 
 export const SITE_CONFIG = {
   backgroundImage: {
-    defaultUrl: "", // Link ảnh nền tùy chọn
+    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png",
     byTheme: {
       "orbital-cyan": "",
       "cyber-violet": "",
@@ -57,7 +63,6 @@ export const SITE_CONFIG = {
     sfx: true
   },
 
-  // MỖI NPC CHỈ 1 ĐỘNG VẬT 3D + CHỈ SỐ SINH HỌC
   npcProfiles: {
     sys00: {
       avatarUrl: "",
