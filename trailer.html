@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="orbital-cyan">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#020612" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>TRAILER 9:16 // HỆ THỐNG BÁO ỨNG — CHỌN KỊCH BẢN &amp; NHÂN VẬT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/themes.css" />
+  <link rel="stylesheet" href="./css/trailer.css" />
+</head>
+<body class="trailer-studio-body">
+  <div class="trailer-workspace">
+    <!-- KHUNG QUAY VIDEO DỌC 9:16 -->
+    <main class="trailer-phone-frame" id="trailer-stage">
+      <div class="bg-image-layer" id="bg-image-layer" aria-hidden="true"></div>
+      <canvas id="vr-canvas" aria-hidden="true"></canvas>
+      <div class="trailer-vignette" aria-hidden="true"></div>
+      <div class="trailer-scanlines" aria-hidden="true"></div>
+
+      <!-- HEADER CINEMATIC TRONG KHUNG QUAY -->
+      <header class="tr-hud-top">
+        <div class="tr-rec-pill">
+          <i class="rec-dot"></i>
+          <span id="tr-scene-badge">TRAILER // 9:16</span>
+        </div>
+        <div class="tr-card-counter" id="tr-card-counter">01 / 06</div>
+      </header>
+
+      <!-- CẢNH 0: INTRO HOOK -->
+      <section class="tr-scene tr-scene-intro" id="scene-intro">
+        <div class="intro-gate-rings" aria-hidden="true">
+          <span class="ring r1"></span>
+          <span class="ring r2"></span>
+          <span class="ring r3"></span>
+        </div>
+        <div class="intro-receipt-feed" id="intro-receipt-feed">
+          <p>&gt; KẾT NỐI MÁY CHỦ: CỤC BÁO ỨNG 00...</p>
+          <p>&gt; PHÁT HIỆN LINH HỒN CHẾT OAN // BẬT KHẾ ƯỚC</p>
+        </div>
+        <div class="intro-headline-box">
+          <span class="intro-kicker">SYSTEM // TERMINAL 00</span>
+          <h1>CHẾT OAN?<br />ĐỪNG LO.</h1>
+          <p>CHÚNG TÔI CHO VAY <strong>PHƯỚC BÁU</strong> ĐỂ VẢ MẶT — LÃI SUẤT <strong>10% / 10 TURN</strong>.</p>
+        </div>
+        <div class="intro-tap-start" id="btn-intro-start">
+          <span>[ CHẠM ĐỂ CHỌN KỊCH BẢN ]</span>
+        </div>
+      </section>
+
+      <!-- CẢNH 1: LƯỚT TRÁI PHẢI CHỌN THẺ NHÂN VẬT & KỊCH BẢN -->
+      <section class="tr-scene tr-scene-showcase hidden" id="scene-showcase">
+        <div class="tr-stage-title">
+          <small id="tr-sector-kicker">ĐIỆN 01 // CHỌN KỊCH BẢN KÝ CHỦ</small>
+          <h2>HỒ SƠ NHÂN VẬT ĐỘC BẢN</h2>
+        </div>
+
+        <!-- VÒNG XOAY 3D LƯỚT TRÁI PHẢI -->
+        <div class="tr-carousel-wrap">
+          <button type="button" class="tr-nav-arrow left" id="tr-btn-prev" aria-label="Nhân vật trước">‹</button>
+          <div class="tr-carousel-viewport" id="tr-carousel-viewport">
+            <div class="tr-floor-glow" aria-hidden="true"></div>
+            <div class="tr-carousel-track" id="tr-carousel-track"></div>
+          </div>
+          <button type="button" class="tr-nav-arrow right" id="tr-btn-next" aria-label="Nhân vật tiếp">›</button>
+        </div>
+
+        <!-- CHẤM CHỈ MỤC -->
+        <div class="tr-dots-bar" id="tr-dots-bar" aria-label="Danh sách thẻ"></div>
+
+        <!-- BẢNG KỊCH BẢN CHẠY CHỮ THEO NHÂN VẬT ĐANG CHỌN -->
+        <article class="tr-dossier-panel" id="tr-dossier-panel">
+          <div class="tr-dossier-head">
+            <span class="tr-scenario-tag" id="tr-scenario-tag">KỊCH BẢN 01</span>
+            <span class="tr-pb-tag" id="tr-pb-tag">-2,180 PB</span>
+          </div>
+          <h3 class="tr-scenario-title" id="tr-scenario-title">ÁN TRÁO BẢN THẢO SHOWBIZ</h3>
+          <p class="tr-scenario-story" id="tr-scenario-story"></p>
+          <blockquote class="tr-scenario-quote" id="tr-scenario-quote"></blockquote>
+          <div class="tr-progress-bar"><span id="tr-auto-progress"></span></div>
+        </article>
+      </section>
+
+      <!-- CẢNH 2: OUTRO CALL TO ACTION -->
+      <section class="tr-scene tr-scene-outro hidden" id="scene-outro">
+        <div class="outro-core-ring" aria-hidden="true"><i></i><i></i></div>
+        <span class="outro-kicker">ORBITAL GATE // VR-00</span>
+        <h2>HỆ THỐNG BÁO ỨNG</h2>
+        <p>KÝ HỢP ĐỒNG LAO ĐỘNG &amp; ĐÒI NỢ NHÂN QUẢ NGAY HÔM NAY</p>
+        <div class="outro-cta-pill">SẴN SÀNG TRUYỀN TỐNG // 10 ĐIỆN</div>
+        <div class="outro-actions-row">
+          <button type="button" class="tr-btn primary" id="btn-outro-replay">↻ XEM LẠI TRAILER</button>
+          <a href="./hub.html" class="tr-btn ghost">VÀO TRẠM CHÍNH →</a>
+        </div>
+      </section>
+
+      <!-- HIỆU ỨNG BÁO ĐỘNG TWIST THẺ CUỐI -->
+      <div class="tr-twist-flash hidden" id="tr-twist-flash" aria-hidden="true">
+        <div class="twist-tape">⚠ ERROR 403 // CLEARANCE OMEGA VIOLATION ⚠</div>
+        <div class="twist-center-box">
+          <strong>ACCESS DENIED</strong>
+          <span>PHÁT HIỆN TRUY CẬP HỒ SƠ [V.00]</span>
+        </div>
+        <div class="twist-tape">⚠ KẺ XÂM NHẬP HỆ THỐNG // LOCKDOWN ⚠</div>
+      </div>
+
+      <!-- ĐẾM NGƯỢC KHI BẤM QUAY CLEAN -->
+      <div class="tr-countdown-overlay hidden" id="tr-countdown-overlay">
+        <span id="tr-countdown-num">3</span>
+        <small>CHUẨN BỊ QUAY MÀN HÌNH...</small>
+      </div>
+
+      <!-- THANH MINI TRÊN MOBILE ĐỂ BẮT ĐẦU / THOÁT CHẾ ĐỘ SẠCH -->
+      <div class="tr-mobile-bar" id="tr-mobile-bar">
+        <button type="button" class="tr-btn primary" id="btn-mobile-auto">▶ QUAY AUTO TRAILER</button>
+        <button type="button" class="tr-btn ghost" id="btn-mobile-manual">✋ TỰ VUỐT</button>
+      </div>
+      <button type="button" class="tr-clean-exit hidden" id="btn-clean-exit" title="Hiện lại điều khiển">✕</button>
+    </main>
+
+    <!-- BẢNG ĐẠO DIỄN NẰM NGOÀI KHUNG 9:16 (TIỆN QUAY OBS TRÊN MÁY TÍNH) -->
+    <aside class="trailer-director-dock" id="director-dock">
+      <div class="dock-head">
+        <span>🎬 PHÒNG ĐẠO DIỄN TRAILER</span>
+        <small>KHÔNG LỌT VÀO KHUNG 9:16</small>
+      </div>
+
+      <div class="dock-group">
+        <label>CHẾ ĐỘ DIỄN HOẠT</label>
+        <div class="dock-btn-row">
+          <button type="button" class="tr-btn primary" id="btn-play-auto">▶ QUAY AUTO (ẨN HUD)</button>
+          <button type="button" class="tr-btn ghost" id="btn-stop-auto">⏸ TẠM DỪNG</button>
+        </div>
+        <div class="dock-btn-row">
+          <button type="button" class="tr-btn ghost" id="btn-jump-intro">Cảnh 1: Intro</button>
+          <button type="button" class="tr-btn ghost" id="btn-jump-cards">Cảnh 2: Lướt thẻ</button>
+          <button type="button" class="tr-btn ghost" id="btn-jump-outro">Cảnh 3: Outro</button>
+        </div>
+      </div>
+
+      <div class="dock-group">
+        <label>NHỊP LƯỚT MỖI THẺ: <strong id="lbl-dwell-sec">3.8s</strong></label>
+        <input type="range" id="rng-dwell" min="2.2" max="6.5" step="0.2" value="3.8" />
+        <label class="dock-check">
+          <input type="checkbox" id="chk-bgm" checked />
+          <span>Bật âm thanh &amp; SFX hệ thống khi chạy</span>
+        </label>
+      </div>
+
+      <div class="dock-group">
+        <label>TEST GẮN ẢNH NHANH CHO THẺ ĐANG CHỌN</label>
+        <p class="dock-note">Thẻ hiện tại: <strong id="dock-current-npc">THẨM TỊCH NGUYỆT</strong></p>
+        <label class="tr-btn ghost upload-lbl">
+          📁 Chọn ảnh từ máy để xem thử
+          <input type="file" id="dock-upload-avatar" accept="image/*" class="sr-only-file" />
+        </label>
+      </div>
+
+      <div class="dock-group">
+        <a href="./hub.html" class="tr-btn ghost">← Quay về Trạm Chính</a>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="./js/trailer.js"></script>
+</body>
+</html>
