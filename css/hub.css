@@ -1663,3 +1663,15 @@ body.screen-bonk-shake {
 .mascot-ctrl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .mascot-cd-hint { font-size: 0.58rem; color: var(--text-muted); text-align: center; }
 .mascot-cd-hint strong { color: var(--c-primary); }
+#btn-close-mission-sim {
+  position: relative;
+  z-index: 15;
+  padding: 4px 10px;
+  pointer-events: auto;
+}
+.sys-mascot-bubble {
+  top: 130px;
+  left: 24px;
+}
+.sys-mascot-bubble { top: 92px; left: 20px; }
+#btn-close-mission-sim { position: relative; z-index: 15; pointer-events: auto; padding: 4px 10px; }
