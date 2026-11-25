@@ -39,6 +39,50 @@ const gateActionText = document.getElementById("gate-action-text");
 
 document.getElementById("scanlines-layer")?.classList.toggle("hidden", !state.scanlines);
 
+// 1. TẠO TEXTURE ĐƯỜNG HẦM NHỊ PHÂN PHỦ KÍNH MỜ CHO CÁC BLOCK + THEME + ẢNH NỀN
+function updateMatrixBlockTexture() {
+  const s = getComputedStyle(htmlEl);
+  const p = s.getPropertyValue("--c-primary").trim() || "#00E5FF";
+  const sec = s.getPropertyValue("--c-secondary").trim() || "#5EA8FF";
+  const c = document.createElement("canvas");
+  c.width = 480;
+  c.height = 320;
+  const ctx = c.getContext("2d");
+
+  ctx.fillStyle = "#020612";
+  ctx.fillRect(0, 0, 480, 320);
+
+  const flare = ctx.createRadialGradient(240, 172, 4, 240, 172, 220);
+  flare.addColorStop(0, "#ffffff");
+  flare.addColorStop(0.14, p);
+  flare.addColorStop(0.45, "rgba(0,110,255,0.18)");
+  flare.addColorStop(1, "transparent");
+  ctx.fillStyle = flare;
+  ctx.fillRect(0, 0, 480, 320);
+
+  ctx.strokeStyle = p;
+  ctx.globalAlpha = 0.22;
+  for (let i = -6; i <= 6; i++) {
+    ctx.beginPath();
+    ctx.moveTo(240 + i * 52, 320);
+    ctx.lineTo(240, 172);
+    ctx.stroke();
+  }
+
+  ctx.font = "bold 15px 'JetBrains Mono', monospace";
+  ctx.textAlign = "center";
+  for (let x = 22; x < 470; x += 34) {
+    for (let y = 18; y < 310; y += 22) {
+      if (Math.hypot(x - 240, y - 172) < 42) continue;
+      ctx.fillStyle = (x + y) % 3 === 0 ? sec : p;
+      ctx.globalAlpha = 0.16 + Math.random() * 0.34;
+      ctx.fillText(Math.random() > 0.5 ? "1" : "0", x, y);
+    }
+  }
+
+  htmlEl.style.setProperty("--matrix-panel-bg", `url("${c.toDataURL("image/png")}")`);
+}
+
 function updateBackgroundImage(themeName) {
   const cfg = SITE_CONFIG.backgroundImage;
   const imgUrl = (cfg.byTheme && cfg.byTheme[themeName]) || cfg.defaultUrl || "";
@@ -57,6 +101,7 @@ function applyTheme(themeName, syncCloud = true) {
   htmlEl.setAttribute("data-theme", safeTheme);
   localStorage.setItem("bao_ung_theme", safeTheme);
   updateBackgroundImage(safeTheme);
+  requestAnimationFrame(updateMatrixBlockTexture);
 
   document.querySelectorAll(".theme-dot").forEach((btn) =>
     btn.classList.toggle("active", btn.dataset.setTheme === safeTheme)
@@ -74,7 +119,7 @@ document.querySelectorAll("[data-set-theme]").forEach((btn) => {
   });
 });
 
-// Con trỏ tọa độ + Parallax 3D sân khấu cổng vào
+// 2. CON TRỎ TỌA ĐỘ, PARALLAX 3D & SÓNG CHẠM
 window.addEventListener("pointermove", (e) => {
   if (touchCursor && cursorCoords) {
     touchCursor.style.left = `${e.clientX}px`;
@@ -82,8 +127,8 @@ window.addEventListener("pointermove", (e) => {
     cursorCoords.textContent = `X:${String(Math.round(e.clientX)).padStart(3, "0")} Y:${String(Math.round(e.clientY)).padStart(3, "0")}`;
   }
   if (SITE_CONFIG.effects.parallax3D && gateStage && window.innerWidth > 980) {
-    const rx = ((e.clientY / window.innerHeight) - 0.5) * -5.5;
-    const ry = ((e.clientX / window.innerWidth) - 0.5) * 7.5;
+    const rx = (e.clientY / window.innerHeight - 0.5) * -5.5;
+    const ry = (e.clientX / window.innerWidth - 0.5) * 7.5;
     gateStage.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
   }
 });
@@ -92,7 +137,7 @@ window.addEventListener("pointerdown", (e) => {
   vrBg.spawnTouchRipple(e.clientX, e.clientY);
 });
 
-// Radio + Oscilloscope
+// 3. RADIO + OSCILLOSCOPE
 const radioToggle = document.getElementById("radio-toggle");
 const radioTrackName = document.getElementById("radio-track-name");
 const rScope = document.getElementById("radio-scope");
@@ -116,39 +161,44 @@ function drawRadioScope() {
 }
 drawRadioScope();
 
-radioTrackName.textContent = radio.currentTrackName;
-radioToggle.addEventListener("click", () => {
+if (radioTrackName) radioTrackName.textContent = radio.currentTrackName;
+radioToggle?.addEventListener("click", () => {
   const playing = radio.toggle();
-  radioToggle.querySelector(".radio-icon").textContent = playing ? "❚❚" : "▶";
+  const icon = radioToggle.querySelector(".radio-icon");
+  if (icon) icon.textContent = playing ? "❚❚" : "▶";
 });
-document.getElementById("radio-next").addEventListener("click", () => {
-  radioTrackName.textContent = radio.nextTrack();
+document.getElementById("radio-next")?.addEventListener("click", () => {
+  if (radioTrackName) radioTrackName.textContent = radio.nextTrack();
 });
-document.getElementById("radio-vol").addEventListener("input", (e) => radio.setVolume(e.target.value));
+document.getElementById("radio-vol")?.addEventListener("input", (e) => radio.setVolume(e.target.value));
 
+// 4. NHẤN CỔNG -> CHUYỂN SANG HUB.HTML
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23041634'/><text x='32' y='40' font-size='28' text-anchor='middle' fill='%2300E5FF'>⚖️</text></svg>";
 
-portalGate.addEventListener("click", () => {
+portalGate?.addEventListener("click", () => {
   if (state.isBreaching) return;
   state.isBreaching = true;
   if (state.sfx) radio.playClickChime();
 
-  gateTouchCore.classList.add("is-scanning");
-  gateActionText.textContent = "[ ĐANG TRUYỀN TỐNG... ]";
-  coreProgressBar.style.width = "100%";
+  gateTouchCore?.classList.add("is-scanning");
+  if (gateActionText) gateActionText.textContent = "[ ĐANG TRUYỀN TỐNG... ]";
+  if (coreProgressBar) coreProgressBar.style.width = "100%";
 
   setTimeout(() => {
     window.location.href = "./hub.html";
   }, 500);
 });
 
-// Modal Tài Khoản Firebase
-const openModal = (id) => document.getElementById(id).classList.remove("hidden");
-const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+// 5. MODAL TÀI KHOẢN FIREBASE
+const openModal = (id) => document.getElementById(id)?.classList.remove("hidden");
+const closeModal = (id) => document.getElementById(id)?.classList.add("hidden");
 document.querySelectorAll("[data-close-modal]").forEach((btn) =>
   btn.addEventListener("click", () => closeModal(btn.dataset.closeModal))
 );
-document.getElementById("btn-auth").addEventListener("click", () => openModal("modal-auth"));
+document.getElementById("btn-auth")?.addEventListener("click", () => openModal("modal-auth"));
+document.getElementById("modal-auth")?.addEventListener("click", (e) => {
+  if (e.target.id === "modal-auth") closeModal("modal-auth");
+});
 
 const authOut = document.getElementById("auth-logged-out");
 const authIn = document.getElementById("auth-logged-in");
@@ -158,11 +208,12 @@ function applyProfileUI(profile) {
   const topAvatar = document.getElementById("topbar-avatar");
   if (!profile) {
     state.username = null;
-    document.getElementById("user-dot").classList.remove("online");
-    topAvatar.classList.add("hidden");
-    document.getElementById("user-label").textContent = "ĐĂNG NHẬP";
-    authOut.classList.remove("hidden");
-    authIn.classList.add("hidden");
+    document.getElementById("user-dot")?.classList.remove("online");
+    topAvatar?.classList.add("hidden");
+    const uLbl = document.getElementById("user-label");
+    if (uLbl) uLbl.textContent = "ĐĂNG NHẬP";
+    authOut?.classList.remove("hidden");
+    authIn?.classList.add("hidden");
     return;
   }
 
@@ -170,12 +221,16 @@ function applyProfileUI(profile) {
   if (profile.theme && VALID_THEMES.includes(profile.theme)) applyTheme(profile.theme, false);
 
   const avt = profile.avatarUrl || DEFAULT_AVATAR;
-  topAvatar.src = avt;
-  topAvatar.classList.remove("hidden");
-  document.getElementById("profile-avatar").src = avt;
-  document.getElementById("avatar-url-input").value = profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : "";
+  if (topAvatar) {
+    topAvatar.src = avt;
+    topAvatar.classList.remove("hidden");
+  }
+  const profAvt = document.getElementById("profile-avatar");
+  if (profAvt) profAvt.src = avt;
+  const avtInput = document.getElementById("avatar-url-input");
+  if (avtInput) avtInput.value = profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : "";
 
-  document.getElementById("user-dot").classList.add("online");
+  document.getElementById("user-dot")?.classList.add("online");
   document.getElementById("user-label").textContent = profile.displayName || profile.username;
   document.getElementById("profile-name").textContent = profile.contractLocked
     ? `Con nợ ${profile.debtorCode} (Đã khóa hồ sơ)`
@@ -186,8 +241,8 @@ function applyProfileUI(profile) {
       ? `${profile.meritBalance.toFixed(2)} PB`
       : "Chưa ký hợp đồng (-- PB)";
 
-  authOut.classList.add("hidden");
-  authIn.classList.remove("hidden");
+  authOut?.classList.add("hidden");
+  authIn?.classList.remove("hidden");
 }
 
 function compressImageToDataUrl(file) {
@@ -199,7 +254,8 @@ function compressImageToDataUrl(file) {
       img.onerror = () => reject(new Error("File không phải ảnh hợp lệ."));
       img.onload = () => {
         const c = document.createElement("canvas");
-        c.width = 128; c.height = 128;
+        c.width = 128;
+        c.height = 128;
         const ctx = c.getContext("2d");
         const minSide = Math.min(img.width, img.height);
         ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, 128, 128);
@@ -211,7 +267,7 @@ function compressImageToDataUrl(file) {
   });
 }
 
-document.getElementById("btn-save-avatar-url").addEventListener("click", async () => {
+document.getElementById("btn-save-avatar-url")?.addEventListener("click", async () => {
   if (!state.username) return;
   const url = document.getElementById("avatar-url-input").value.trim();
   await saveDebtorState(state.username, { avatarUrl: url });
@@ -219,7 +275,7 @@ document.getElementById("btn-save-avatar-url").addEventListener("click", async (
   document.getElementById("auth-sync-msg").textContent = "Đã cập nhật Avatar lên Firebase.";
 });
 
-document.getElementById("avatar-file-input").addEventListener("change", async (e) => {
+document.getElementById("avatar-file-input")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file || !state.username) return;
   try {
@@ -241,24 +297,26 @@ async function restoreSession() {
   } catch { applyProfileUI(null); }
 }
 
-document.getElementById("simple-auth-form").addEventListener("submit", async (e) => {
+document.getElementById("simple-auth-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
     authMsg.textContent = "Đang đăng nhập...";
     applyProfileUI(await loginSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
+    closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
 
-document.getElementById("btn-register-simple").addEventListener("click", async () => {
+document.getElementById("btn-register-simple")?.addEventListener("click", async () => {
   try {
     authMsg.textContent = "Đang tạo tài khoản...";
     applyProfileUI(await registerSimpleAccount(document.getElementById("auth-username").value, document.getElementById("auth-pass").value));
     authMsg.textContent = "";
+    closeModal("modal-auth");
   } catch (err) { authMsg.textContent = err.message; }
 });
 
-document.getElementById("btn-logout").addEventListener("click", () => {
+document.getElementById("btn-logout")?.addEventListener("click", () => {
   logoutSimpleAccount();
   applyProfileUI(null);
 });
