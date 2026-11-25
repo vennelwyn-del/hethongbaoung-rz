@@ -541,57 +541,8 @@
           <div class="vault-cards-stage hidden" id="vault-cards-stage">
             <div class="pane-bar">
               <span>[ BẤM THẺ ĐỂ GIẢI MÃ &amp; XEM ĐỘNG VẬT 3D BIỂU TƯỢNG ]</span>
-              <div class="vault-stage-actions">
-                <button class="btn-secondary holo-tactile mini-btn" id="btn-toggle-npc-editor" type="button">⚙️ SETTING ẢNH &amp; LINH THÚ 3D</button>
-                <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
-              </div>
+              <button class="btn-secondary holo-tactile mini-btn" id="btn-vault-lock" type="button">🔒 KHÓA KÉT LẠI</button>
             </div>
-
-            <!-- SETTING MỖI NPC 1 ĐỘNG VẬT 3D THẬT + ẢNH CHÂN DUNG -->
-            <form class="npc-editor-panel hidden" id="npc-editor-panel">
-              <div class="npc-editor-grid">
-                <label class="field">
-                  <span>Chọn NPC cần Setting</span>
-                  <select id="npc-edit-select">
-                    <option value="sys00">Hệ Thống 00 (Kế Toán Viên)</option>
-                    <option value="tavocuu">Tạ Vô Cữu (Thanh Tra Trưởng)</option>
-                    <option value="lucnha">Lục Nha (Trùm Chợ Đen)</option>
-                    <option value="nguhongdiep">Ngu Hồng Diệp (Giám Ngục)</option>
-                    <option value="tieuthat">Tiểu Thất #707 (Thực Tập Sinh)</option>
-                    <option value="sd">Quý Cô 'Sd.' (Trùm Cuối)</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>1 Loài Động Vật 3D Biểu Tượng</span>
-                  <select id="npc-edit-animal">
-                    <option value="stork">Hắc Hạc Đưa Tin (Stork.glb — Bay)</option>
-                    <option value="horse">Chiến Mã Phán Quyết (Horse.glb — Phi)</option>
-                    <option value="fox">Xích Hồ Ly Chợ Đen (Fox.glb — Cáo)</option>
-                    <option value="flamingo">Hồng Hạc Huyết Đỏ (Flamingo.glb — Bay)</option>
-                    <option value="parrot">Vẹt Báo Tin Hậu Đậu (Parrot.glb — Bay)</option>
-                    <option value="shark">Bạch Sa Vũ Trụ (shark.glb — Bơi)</option>
-                  </select>
-                </label>
-                <label class="field span-2">
-                  <span>Link Model 3D .GLB riêng (Để trống sẽ tự dùng model động vật 3D thật mặc định)</span>
-                  <input type="url" id="npc-edit-model" placeholder="https://.../animal.glb hoặc ./assets/models/..." />
-                </label>
-                <label class="field span-2">
-                  <span>Link Ảnh Chân Dung NPC (Góc trái khung hồ sơ)</span>
-                  <input type="url" id="npc-edit-avatar" placeholder="https://... hoặc ./assets/..." />
-                </label>
-              </div>
-              <div class="npc-editor-actions">
-                <label class="file-upload-btn holo-tactile">
-                  📁 Chọn ảnh từ máy
-                  <input type="file" id="npc-edit-file" accept="image/*" hidden />
-                </label>
-                <button class="btn-primary holo-tactile mini-btn" type="submit">💾 LƯU XEM THỬ</button>
-                <button class="btn-secondary holo-tactile mini-btn" id="btn-npc-copy-cfg" type="button">📋 COPY CODE CHO config.js</button>
-                <button class="btn-ghost mini-btn" id="btn-npc-reset" type="button">↺ MẶC ĐỊNH</button>
-                <button class="btn-secondary holo-tactile mini-btn" id="btn-npc-preview-lab" type="button">👁️ XEM BIO-LAB 3D</button>
-              </div>
-            </form>
 
             <div class="vault-cards-grid" id="vault-cards-grid"></div>
           </div>

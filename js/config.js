@@ -1,4 +1,4 @@
-// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (ĐÃ SỬA LINK 3D CHUẨN + FALLBACK)
+// js/config.js — FILE CẤU HÌNH DÀNH RIÊNG CHO CHỦ WEB (DÁN LINK ẢNH NPC VÀO CÁC Ô avatarUrl BÊN DƯỚI)
 
 export const ANIMAL_PRESETS = {
   stork: {
@@ -41,7 +41,7 @@ export const ANIMAL_PRESETS = {
 
 export const SITE_CONFIG = {
   backgroundImage: {
-    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png",
+    defaultUrl: "./assets/assets/OPW/Hethongbaoung/canvas_bg.png", // Link ảnh nền tùy chọn (vd: "./assets/.../canvas_bg.png")
     byTheme: {
       "orbital-cyan": "",
       "cyber-violet": "",
@@ -63,9 +63,12 @@ export const SITE_CONFIG = {
     sfx: true
   },
 
+  // =========================================================================
+  // CHỖ THÊM LINK ẢNH CHO TỪNG NPC (Dán link https://... hoặc ./assets/... vào avatarUrl)
+  // =========================================================================
   npcProfiles: {
     sys00: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH HỆ THỐNG 00 VÀO ĐÂY
       animalKey: "stork",
       modelUrl: "",
       animalTitle: "HẮC HẠC KIỂM TOÁN",
@@ -83,7 +86,7 @@ export const SITE_CONFIG = {
       ]
     },
     tavocuu: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH TẠ VÔ CỮU VÀO ĐÂY
       animalKey: "horse",
       modelUrl: "",
       animalTitle: "CHIẾN MÃ PHÁN QUYẾT",
@@ -101,7 +104,7 @@ export const SITE_CONFIG = {
       ]
     },
     lucnha: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH LỤC NHA VÀO ĐÂY
       animalKey: "fox",
       modelUrl: "",
       animalTitle: "XÍCH HỒ LY CHỢ ĐEN",
@@ -119,7 +122,7 @@ export const SITE_CONFIG = {
       ]
     },
     nguhongdiep: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH NGU HỒNG DIỆP VÀO ĐÂY
       animalKey: "flamingo",
       modelUrl: "",
       animalTitle: "HỒNG HẠC HUYẾT ĐỎ",
@@ -137,7 +140,7 @@ export const SITE_CONFIG = {
       ]
     },
     tieuthat: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH TIỂU THẤT #707 VÀO ĐÂY
       animalKey: "parrot",
       modelUrl: "",
       animalTitle: "VẸT BÁO TIN HẬU ĐẬU",
@@ -155,7 +158,7 @@ export const SITE_CONFIG = {
       ]
     },
     sd: {
-      avatarUrl: "",
+      avatarUrl: "", // <-- DÁN LINK ẢNH QUÝ CÔ Sd. VÀO ĐÂY
       animalKey: "shark",
       modelUrl: "",
       animalTitle: "BẠCH SA TỐI THƯỢNG",

@@ -206,20 +206,16 @@ const VAULT_NPCS = [
   {
     id: "sd",
     code: "OMEGA // Sd.",
-    clearance: "LEVEL 5 [SOVEREIGN]",
-    emblem: "🦈",
+    clearance: "LEVEL 5 [NIÊM PHONG]",
+    emblem: "🔒",
     name: "QUÝ CÔ 'Sd.'",
-    role: "Sovereign Director — Trùm Cuối Kiến Tạo Hệ Thống",
-    artifact: "Tuxedo đen bóng, nơ đen huy hiệu bạc & đóa hoa 4 cánh màu trắng bạc",
-    scent: "Tuyết lạnh đỉnh núi cao, hoa linh lan trắng nở về đêm, Gin Tonic đắng & giấy bạc mới",
-    bio: "[GROUND TRUTH]: Bề ngoài là Nhà bảo trợ nghệ thuật / Chủ tịch quỹ đầu tư ngầm tóc trắng bạch kim ngồi ở lô VIP cao nhất. Thực chất là Kẻ Kiến Tạo Hệ Thống Báo Ứng & Trùm Buôn Lậu Khí Vận Đa Vũ Trụ — kẻ tự tay rút cạn Phước Báu của Ký chủ, chia nhỏ bán cho đám Kẻ Cướp Phước để ngồi trên cao thưởng thức trò chơi đòi nợ.",
-    quote: "“Khoác lên thứ ánh sáng đi mượn mà cứ ngỡ mình là mặt trời... Bước lên đó và xé toạc lớp da giả tạo của chúng ra cho tôi xem nào.”",
-    zones: {
-      head: { title: "MẮT XANH BĂNG & HÀM SĂN MỒI", text: "Tóc trắng bạch kim rủ nhẹ ngang hàng mi; đôi mắt xanh băng khép hờ nhìn xuống con mồi như cá mập trắng dưới đáy biển tối." },
-      chest: { title: "KHOANG NGỰC TUXEDO & HOA 4 CÁNH", text: "Lớp da đen-trắng bóng bẩy tựa bộ Tuxedo thủ công cài nơ đen huy hiệu bạc và đóa hoa bốn cánh trắng bạc trên ve áo trái." },
-      limb: { title: "VÂY LƯNG CẮT SÓNG KHÔNG TIẾNG ĐỘNG", text: "Lướt êm qua 10 Khu Vực không dấu vết; ngón tay trắng muốt chỉ khẽ xoay nơ là cả sàn chứng khoán nhân quả rung chuyển." },
-      tail: { title: "ĐUÔI LÁI TỐI THƯỢNG (460 CM)", text: "Kẻ đứng đầu chuỗi thức ăn đa vũ trụ — toàn bộ 80% phí dịch vụ Hệ Thống 00 khấu trừ đều chảy thẳng về tài khoản mang chữ ký 'Sd.'." }
-    }
+    role: "[DỮ LIỆU MẬT — KHÔNG CÓ QUYỀN TRUY CẬP]",
+    isSd: true,
+    artifact: "[BỊ KHÓA]",
+    scent: "[BỊ KHÓA]",
+    bio: "[ACCESS DENIED]",
+    quote: "",
+    zones: {}
   }
 ];
 
@@ -1512,14 +1508,8 @@ const VAULT_PROTOCOLS = [
   }
 ];
 
-const NPC_OVERRIDE_KEY = "bao_ung_npc_overrides";
-function getNpcOverrides() {
-  try { return JSON.parse(localStorage.getItem(NPC_OVERRIDE_KEY) || "{}"); } catch { return {}; }
-}
 function getMergedNpcStats(npcId) {
-  const base = SITE_CONFIG.npcProfiles?.[npcId] || {};
-  const ov = getNpcOverrides()[npcId] || {};
-  return { ...base, ...ov };
+  return SITE_CONFIG.npcProfiles?.[npcId] || {};
 }
 function getDailyVaultProtocolIndex() {
   const { dateKey } = getGMT7Info();
@@ -1763,7 +1753,7 @@ function openNpcBioLabModal(npc) {
     if ((stats.avatarUrl || "").trim()) {
       portraitBox.innerHTML = `<img src="${stats.avatarUrl.trim()}" alt="${npc.name}" /><div class="portrait-scan-beam"></div>`;
     } else {
-      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA CÀI ẢNH CHÂN DUNG<br/><small>(Dán link vào config.js hoặc ⚙️ Setting)</small></div><div class="portrait-scan-beam"></div>`;
+      portraitBox.innerHTML = `<div class="portrait-empty-holo"><span>${npc.emblem}</span>CHƯA GẮN LINK ẢNH NPC<br/><small>(Thêm link vào avatarUrl trong js/config.js)</small></div><div class="portrait-scan-beam"></div>`;
     }
   }
 
@@ -1871,7 +1861,7 @@ function renderVaultCards() {
     const card = document.createElement("div");
     card.className = `dossier-flip-card ${npc.isSd ? "is-sd-card" : ""}`;
     const frontHint = npc.isSd ? `<span class="sd-err-tag">[TRUY CẬP BỊ CẤM // KHÔNG CÓ QUYỀN]</span>` : `[ BẤM LẬT THẺ &amp; QUÉT LINH THÚ 3D ]`;
-    const thumbHtml = (stats.avatarUrl || "").trim()
+    const thumbHtml = (!npc.isSd && (stats.avatarUrl || "").trim())
       ? `<img src="${stats.avatarUrl.trim()}" alt="" style="width:54px;height:54px;border-radius:50%;object-fit:cover;border:1.5px solid var(--c-primary);" />`
       : npc.emblem;
 
@@ -1899,87 +1889,6 @@ function renderVaultCards() {
     vaultCardsGrid.appendChild(card);
   });
 }
-
-// SETTING MỖI NPC 1 ĐỘNG VẬT 3D + ẢNH
-const npcEditorPanel = document.getElementById("npc-editor-panel");
-const npcEditSelect = document.getElementById("npc-edit-select");
-function syncNpcEditorFields() {
-  if (!npcEditSelect) return;
-  const st = getMergedNpcStats(npcEditSelect.value);
-  const animalSel = document.getElementById("npc-edit-animal");
-  const modelInp = document.getElementById("npc-edit-model");
-  const avtInp = document.getElementById("npc-edit-avatar");
-  if (animalSel) animalSel.value = st.animalKey || "horse";
-  if (modelInp) modelInp.value = st.modelUrl || "";
-  if (avtInp) avtInp.value = st.avatarUrl?.startsWith("data:") ? "" : (st.avatarUrl || "");
-}
-document.getElementById("btn-toggle-npc-editor")?.addEventListener("click", () => {
-  if (state.sfx) radio.playClickChime();
-  npcEditorPanel?.classList.toggle("hidden");
-  syncNpcEditorFields();
-});
-npcEditSelect?.addEventListener("change", syncNpcEditorFields);
-
-document.getElementById("btn-npc-preview-lab")?.addEventListener("click", () => {
-  const npc = VAULT_NPCS.find((n) => n.id === npcEditSelect.value);
-  if (npc) openNpcBioLabModal(npc);
-});
-
-document.getElementById("npc-edit-file")?.addEventListener("change", (e) => {
-  const file = e.target.files?.[0];
-  if (!file || !npcEditSelect) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = 360; c.height = 440;
-      const ctx = c.getContext("2d");
-      const ratio = Math.max(c.width / img.width, c.height / img.height);
-      const nw = img.width * ratio, nh = img.height * ratio;
-      ctx.drawImage(img, (c.width - nw) / 2, (c.height - nh) / 2, nw, nh);
-      const ov = getNpcOverrides();
-      const id = npcEditSelect.value;
-      ov[id] = { ...(ov[id] || {}), avatarUrl: c.toDataURL("image/webp", 0.85) };
-      localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
-      renderVaultCards();
-      pushReceipt(`> Đã tải ảnh chân dung cho NPC [${id}].`);
-    };
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-npcEditorPanel?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (state.sfx) radio.playClickChime();
-  const id = npcEditSelect.value;
-  const ov = getNpcOverrides();
-  const avtVal = document.getElementById("npc-edit-avatar").value.trim();
-  const modelVal = document.getElementById("npc-edit-model").value.trim();
-  const animalKey = document.getElementById("npc-edit-animal").value;
-  ov[id] = { ...(ov[id] || {}), animalKey, modelUrl: modelVal };
-  if (avtVal) ov[id].avatarUrl = avtVal;
-  localStorage.setItem(NPC_OVERRIDE_KEY, JSON.stringify(ov));
-  renderVaultCards();
-  pushReceipt(`> Đã gán linh thú 3D [${ANIMAL_PRESETS[animalKey]?.label}] cho [${id}].`);
-});
-
-document.getElementById("btn-npc-copy-cfg")?.addEventListener("click", () => {
-  const id = npcEditSelect.value;
-  const st = getMergedNpcStats(id);
-  const snippet = `${id}: {\n  avatarUrl: "${st.avatarUrl || ""}",\n  animalKey: "${st.animalKey || "horse"}",\n  modelUrl: "${st.modelUrl || ""}"\n}`;
-  navigator.clipboard?.writeText(snippet);
-  if (state.sfx) radio.playClickChime();
-  pushReceipt(`> Đã copy cấu hình [${id}] để dán vào js/config.js.`);
-});
-
-document.getElementById("btn-npc-reset")?.addEventListener("click", () => {
-  localStorage.removeItem(NPC_OVERRIDE_KEY);
-  syncNpcEditorFields(); renderVaultCards();
-  pushReceipt("> Đã đặt lại cấu hình NPC về mặc định của config.js.");
-});
-
 function setVaultState(unlocked) {
   state.vaultUnlocked = unlocked;
   if (unlocked) clearVaultHintBox();
