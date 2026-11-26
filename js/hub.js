@@ -69,13 +69,13 @@ const SECTORS = [
 ];
 
 const TAB_TITLES = {
-  "tab-profile": "HỢP ĐỒNG LAO ĐỘNG & TẠO PROMPT",
-  "tab-pyramid": "SƠ ĐỒ THÁP BÁO ỨNG 3D",
-  "tab-ranking": "BẢNG XẾP HẠNG CON NỢ 24H",
-  "tab-sectors": "KHO TRỌNG ÁN & MÔ PHỎNG !NHIEMVU",
-  "tab-market": "CHỢ ĐEN 3H, GIỎ HÀNG & !HETHONG",
-  "tab-forum": "BÁO ỨNG NET v4.0 (!DIENDAN)",
-  "tab-vault": "KHO HỒ SƠ MẬT & LINH THÚ 3D"
+  "tab-profile": "HỢP ĐỒNG LAO ĐỘNG",
+  "tab-pyramid": "SƠ ĐỒ THÁP BÁO ỨNG",
+  "tab-ranking": "BẢNG XẾP HẠNG CON NỢ",
+  "tab-sectors": "KHO TRỌNG ÁN",
+  "tab-market": "CHỢ ĐEN",
+  "tab-forum": "BÁO ỨNG NET",
+  "tab-vault": "KHO HỒ SƠ MẬT"
 };
 
 const CONTRACT_PACKAGES = [
@@ -96,9 +96,9 @@ const UNIQUE_CASE_POOL = [
 ];
 
 const MANIFEST_FORMS = {
-  pos: { label: "POS ĐEN HIỆN ĐẠI", desc: "【HÌNH THÁI VẬT LÝ — KHỐI HIỆN ĐẠI】: Một chiếc máy quẹt thẻ POS vỏ đen bóng lạnh toát tự xuất hiện trên mặt bàn gần nhất. Người ngoài nhìn vào chỉ thấy cục nhựa vô tri; riêng bạn nghe rõ tiếng mô-tơ “rẹt… rẹt…” nhả cuộn hóa đơn nhiệt in mực đỏ máu từng khoản phí nhỏ nhặt (-1.00 PB phí hao mòn phần cứng)." },
-  abacus: { label: "BÀN TÍNH & QUẠ ĐEN", desc: "【HÌNH THÁI VẬT LÝ — KHỐI CỔ ĐẠI / TU TIÊN】: Bàn tính gỗ mun mất một hạt hoặc con quạ đen đeo thẻ đồng ở chân sà xuống mổ “cộc, cộc” lên trán Ký chủ mỗi khi trừ điểm, rồi nhả ra cuộn khế ước giấy dó đóng triện đỏ." },
-  radio: { label: "RADIO QUÂN ĐỘI RỈ SÉT", desc: "【HÌNH THÁI VẬT LÝ — MẠT THẾ / VÔ GIAN】: Chiếc radio sắt quân đội rỉ sét rè rè tần số nhiễu 50Hz giữa đống đổ nát, đọc vang biên lai trừ nợ không sót một số lẻ nào bằng giọng tổng đài viên vô cảm." }
+  pos: { label: "POS ĐEN", desc: "【HÌNH THÁI VẬT LÝ — KHỐI HIỆN ĐẠI】: Một chiếc máy quẹt thẻ POS vỏ đen bóng lạnh toát tự xuất hiện trên mặt bàn gần nhất. Người ngoài nhìn vào chỉ thấy cục nhựa vô tri; riêng bạn nghe rõ tiếng mô-tơ “rẹt… rẹt…” nhả cuộn hóa đơn nhiệt in mực đỏ máu từng khoản phí nhỏ nhặt (-1.00 PB phí hao mòn phần cứng)." },
+  abacus: { label: "BÀN TÍNH", desc: "【HÌNH THÁI VẬT LÝ — KHỐI CỔ ĐẠI / TU TIÊN】: Bàn tính gỗ mun mất một hạt hoặc con quạ đen đeo thẻ đồng ở chân sà xuống mổ “cộc, cộc” lên trán Ký chủ mỗi khi trừ điểm, rồi nhả ra cuộn khế ước giấy dó đóng triện đỏ." },
+  radio: { label: "RADIO", desc: "【HÌNH THÁI VẬT LÝ — MẠT THẾ / VÔ GIAN】: Chiếc radio sắt quân đội rỉ sét rè rè tần số nhiễu 50Hz giữa đống đổ nát, đọc vang biên lai trừ nợ không sót một số lẻ nào bằng giọng tổng đài viên vô cảm." }
 };
 
 const FORUM_POSTS_BASE = [
@@ -742,8 +742,6 @@ function updateLiveDossierPreview() {
     `**Tính cách, Thói xấu & Phong cách Vả Mặt (Cơ sở để Hệ thống random biên lai phạt Phước Báu đầu game):**`,
     `  * Tính cách chủ đạo: ${p.personality || "[Chưa điền tính cách & phong cách vả mặt]"}`,
     `  * Thói xấu / Nghiệp chướng kiếp trước: ${p.sin || "[Chưa điền thói xấu / nghiệp chướng]"}`, ``,
-    `**Mối quan hệ khởi điểm với Nhân vật Cục Báo Ứng:**`,
-    `  * ${p.relations || "Chạm trán ngẫu nhiên theo quy trình Cục Báo Ứng (Sd, Tạ Vô Cữu, Lục Nha, Ngu Hồng Diệp, Tiểu Thất #707)"}`, ``,
     `**Kỹ năng sinh tồn thực tế mang theo từ kiếp trước (Không có bàn tay vàng ma thuật):**`,
     `  * ${p.skill || "[Chưa điền kỹ năng thực tế]"}`, ``,
     `**Yêu cầu Kịch bản Thế giới 1 (Tùy chọn):**`,
@@ -2137,9 +2135,9 @@ try {
       const bonkFee = (0.5 + Math.random() * 1.5).toFixed(2);
       showMascotQuote(null, {
         tag: "HỆ THỐNG 00 // VA CHẠM KÍNH",
-        text: `【Ái!! Hệ thống 3D vừa đâm sầm vào mặt kính màn hình do Ký chủ bố trí giao diện quá chói. Tự động ghi nợ phí lau vết nứt: -${bonkFee} PB.】`
+        text: `【Ái!! Hệ thống vừa đâm sầm vào mặt kính màn hình do Ký chủ bố trí giao diện quá chói. Tự động ghi nợ phí lau vết nứt: -${bonkFee} PB.】`
       });
-      pushReceipt(`💥 【VA CHẠM 3D】: Con Hạc Kiểm Toán đâm sầm vào màn hình! (-${bonkFee} PB phí sửa kính ảo).`);
+      pushReceipt(`💥 【VA CHẠM】: Con Hạc Kiểm Toán đâm sầm vào màn hình! (-${bonkFee} PB phí sửa kính ảo).`);
     }
   });
 } catch (_) {}
@@ -2148,7 +2146,7 @@ function pokeMascot3D() {
   if (!sysMascot3D.isEnabled()) {
     sysMascot3D.setEnabled(true);
     const tog = document.getElementById("btn-toggle-mascot");
-    if (tog) tog.textContent = "🦅 HỆ THỐNG 3D: BẬT";
+    if (tog) tog.textContent = "🦅 HỆ THỐNG: BẬT";
   }
   if (state.sfx) radio.playClickChime();
   const stunts = ["dive_bonk", "barrel_roll", "glitch_drop", "hover_peek"];
@@ -2162,7 +2160,7 @@ document.getElementById("btn-toggle-mascot")?.addEventListener("click", (e) => {
   if (state.sfx) radio.playClickChime();
   const nextState = !sysMascot3D.isEnabled();
   sysMascot3D.setEnabled(nextState);
-  e.currentTarget.textContent = nextState ? "🦅 HỆ THỐNG 3D: BẬT" : "🦅 HỆ THỐNG 3D: TẮT";
+  e.currentTarget.textContent = nextState ? "🦅 HỆ THỐNG: BẬT" : "🦅 HỆ THỐNG: TẮT";
   if (!nextState) {
     mascotBubble?.classList.add("hidden");
     if (mascotHitbox) mascotHitbox.style.display = "none";
@@ -2401,7 +2399,7 @@ setInterval(() => {
     lastVaultDateKey = dateKey;
     renderVaultRiddles();
     if (state.vaultUnlocked) setVaultState(false);
-    pushReceipt("【KÉT BẢO MẬT 24H】: Đã sang chu kỳ mới — Hệ thống tự động cập nhật bộ câu hỏi xác thực.");
+    pushReceipt("【KÉT BẢO MẬT】: Đã sang chu kỳ mới — Hệ thống tự động cập nhật bộ câu hỏi xác thực.");
   }
 
   const mktInfo = getMarketSlotInfo();
@@ -2409,7 +2407,7 @@ setInterval(() => {
   if (mCdEl) mCdEl.textContent = mktInfo.countdown;
   if (mktInfo.slotId !== lastMarketSlot) {
     renderMarketCatalog();
-    pushReceipt(`【CHỢ ĐEN 3H】: Đã qua khung giờ mới (${mktInfo.label}) — Tự động xoay lô hàng theo plot mới!`);
+    pushReceipt(`【CHỢ ĐEN】: Đã qua khung giờ mới (${mktInfo.label}) — Tự động xoay lô hàng theo plot mới!`);
   }
 
   const now = Date.now();
