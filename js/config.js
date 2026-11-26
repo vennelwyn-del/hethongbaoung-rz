@@ -52,9 +52,10 @@ export const SITE_CONFIG = {
   },
 
   musicPlaylist: [
-    { title: "CH.01 // VOID DRONE", url: "" },
-    { title: "CH.02 // CYBER PULSE", url: "" },
-    { title: "CH.03 // TINH THỂ Sd.", url: "" }
+    { title: "CH.01", url: "001.mp3" },
+    { title: "CH.02", url: "002.mp3" },
+    { title: "CH.03", url: "003.mp3" },
+    { title: "CH.03", url: "004.mp3" }
   ],
 
   effects: {
