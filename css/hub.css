@@ -1864,3 +1864,159 @@
   .carousel-arrow { width: 30px; height: 82px; font-size: 1.35rem; }
   .tab-caption strong { font-size: 0.72rem; }
 }
+/* ==========================================================================
+   FIX HIT-TESTING NÚT BẤM TRÊN iOS + HƯỚNG DẪN PB & BỐI CẢNH XUYÊN XÁC
+   ========================================================================== */
+@media (max-width: 1220px), (hover: none), (pointer: coarse) {
+  .cockpit-3d-grid { perspective: none !important; }
+  .system-quest-shell {
+    transform-style: flat !important;
+    transform: none !important;
+  }
+}
+
+.system-quest-shell .hub-panel,
+#contract-form,
+.dual-sign-box,
+.dual-sign-box button {
+  position: relative;
+  z-index: 5;
+}
+
+.contract-error-banner {
+  padding: 9px 12px;
+  border: 1px solid #ff2e54;
+  border-left: 4px solid #ff2e54;
+  background: rgba(58, 6, 18, 0.85);
+  color: #ffd0d9;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.pb-guide-box {
+  margin-bottom: 12px;
+  border: 1px solid rgba(var(--rgb-primary), 0.42);
+  background: rgba(2, 10, 26, 0.72);
+  font-size: 0.72rem;
+}
+.pb-guide-box summary {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--c-primary);
+  letter-spacing: 0.04em;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.pb-guide-box summary::-webkit-details-marker { display: none; }
+.pb-guide-box summary::after {
+  content: "▾";
+  font-size: 0.85rem;
+  color: var(--c-secondary);
+  transition: transform 0.2s ease;
+}
+.pb-guide-box[open] summary::after {
+  transform: rotate(180deg);
+}
+.pb-guide-body {
+  padding: 9px 12px 11px;
+  border-top: 1px dashed rgba(var(--rgb-primary), 0.26);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  line-height: 1.48;
+  color: var(--text-muted);
+}
+.pb-guide-body strong { color: var(--text-main); }
+.pb-guide-body b { color: var(--c-secondary); }
+
+.world-entry-brief {
+  padding: 12px 13px;
+  border: 1px solid rgba(var(--rgb-secondary), 0.5);
+  border-left: 3px solid var(--c-secondary);
+  background:
+    linear-gradient(160deg, rgba(4, 14, 34, 0.82), rgba(2, 6, 18, 0.92)),
+    var(--matrix-panel-bg, none) center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.world-brief-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(var(--rgb-primary), 0.28);
+}
+.world-brief-head span {
+  font-family: "Chakra Petch", monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--c-secondary);
+}
+.world-brief-head small {
+  font-size: 0.58rem;
+  color: var(--c-primary);
+}
+.world-brief-body {
+  font-size: 0.74rem;
+  line-height: 1.52;
+  color: var(--text-main);
+}
+.world-side-quests {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 4px;
+}
+.side-quest-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border-left: 2px solid var(--c-primary);
+  font-size: 0.69rem;
+  line-height: 1.42;
+  color: var(--text-muted);
+}
+.side-quest-chip strong {
+  color: var(--c-secondary);
+  flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.sd-world-box {
+  padding: 9px 11px;
+  border-left: 3px solid var(--c-primary);
+  background: rgba(0, 0, 0, 0.42);
+  font-size: 0.73rem;
+  line-height: 1.48;
+  color: var(--text-main);
+}
+.sd-world-box b { color: var(--c-secondary); }
+
+.mission-sim-bar {
+  max-height: 82dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 680px) {
+  .side-quest-chip { flex-direction: column; gap: 3px; }
+  .mission-sim-bar { max-height: 76dvh; }
+}
+@media (max-width: 1220px), (hover: none), (pointer: coarse) {
+  .system-quest-shell {
+    transform: none !important;
+    transform-style: flat !important;
+  }
+}

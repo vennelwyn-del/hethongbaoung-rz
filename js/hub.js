@@ -839,7 +839,8 @@ function lockContractFormUI(profileObj) {
     document.getElementById("f-personality").value = lp.personality || "";
     document.getElementById("f-skill").value = lp.skill || "";
     document.getElementById("f-sin").value = lp.sin || "";
-    document.getElementById("f-relations").value = lp.relations || "";
+    const relEl = document.getElementById("f-relations");
+    if (relEl) relEl.value = lp.relations || "";
     document.getElementById("f-world-req").value = lp.worldReq || "Random Độc Bản";
     document.getElementById("f-quote").value = lp.quote || "";
   }
@@ -862,20 +863,82 @@ document.getElementById("btn-sign-draft")?.addEventListener("click", () => {
   pushReceipt(`【BẢN NHÁP】: Random thử ${bundle.finalPB.toFixed(2)} PB.`);
 });
 
+let confirmSignPending = false;
+let confirmSignTimer = null;
+if (contractFormEl) contractFormEl.noValidate = true;
+
 contractFormEl?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (state.contractLocked) return;
   if (state.sfx) radio.playClickChime();
-  if (!state.username) { openModal("modal-auth"); return; }
-  if (!confirm("XÁC NHẬN KÝ HỢP ĐỒNG CHÍNH THỨC?\nSau khi ký, hồ sơ sẽ KHÓA VĨNH VIỄN. Muốn sửa bắt buộc tạo tài khoản mới!")) return;
+
+  if (!state.username) {
+    openModal("modal-auth");
+    return;
+  }
+
+  // Kiểm tra các ô bắt buộc (tránh iOS chặn submit im lặng)
+  const requiredIds = [
+    ["f-name", "Họ và tên Ký chủ"],
+    ["f-gender", "Giới tính & Đại từ xưng hô"],
+    ["f-sin", "Thói xấu / Nghiệp chướng"],
+    ["f-skill", "Kỹ năng sinh tồn"]
+  ];
+  for (const [id, label] of requiredIds) {
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) {
+      el.focus();
+      const box = document.getElementById("audit-receipt-box");
+      if (box) {
+        box.textContent = `⚠️ Vui lòng điền [${label}] trước khi ký Hợp đồng chính thức!`;
+        document.getElementById("audit-result")?.classList.remove("hidden");
+      }
+      return;
+    }
+  }
+
+  // Xác nhận 2 lần bấm ngay trên nút (chạy được mọi trình duyệt iOS/Android)
+  const signBtn = document.getElementById("btn-sign-official");
+  if (!confirmSignPending) {
+    confirmSignPending = true;
+    if (signBtn) signBtn.textContent = "⚠️ BẤM LẦN NỮA ĐỂ KÝ & KHÓA VĨNH VIỄN";
+    clearTimeout(confirmSignTimer);
+    confirmSignTimer = setTimeout(() => {
+      confirmSignPending = false;
+      if (signBtn && !state.contractLocked) signBtn.textContent = "⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC";
+    }, 4500);
+    return;
+  }
+
+  confirmSignPending = false;
+  clearTimeout(confirmSignTimer);
+  if (signBtn) {
+    signBtn.disabled = true;
+    signBtn.textContent = "⏳ ĐANG LƯU LÊN FIREBASE...";
+  }
+
   try {
     const bundle = buildAuditBundle();
-    const updated = await signOfficialContract(state.username, { debtorCode: bundle.code, meritBalance: bundle.finalPB, lastProfile: bundle.profileData });
+    const updated = await signOfficialContract(state.username, {
+      debtorCode: bundle.code,
+      meritBalance: bundle.finalPB,
+      lastProfile: bundle.profileData
+    });
     state.draftAudit = null;
     applyProfileUI(updated);
     renderAuditReceipt(bundle, true);
     pushReceipt(`【CHÍNH THỨC】: Đã ký ${bundle.code} (${bundle.finalPB.toFixed(2)} PB).`);
-  } catch (err) { alert(err.message); }
+  } catch (err) {
+    const box = document.getElementById("audit-receipt-box");
+    if (box) {
+      box.textContent = `❌ LỖI LƯU HỢP ĐỒNG: ${err.message}`;
+      document.getElementById("audit-result")?.classList.remove("hidden");
+    }
+    if (signBtn && !state.contractLocked) {
+      signBtn.disabled = false;
+      signBtn.textContent = "⚖️ KÝ HỢP ĐỒNG CHÍNH THỨC";
+    }
+  }
 });
 
 async function copyDossierWithFeedback(triggerBtn) {
