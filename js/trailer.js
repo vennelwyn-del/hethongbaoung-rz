@@ -1,4 +1,4 @@
-// js/trailer.js — Kịch Bản & NPC Tự Chế cho Trailer Dọc 9:16 (Auto-Director + Vuốt Tay)
+// js/trailer.js — Kịch Bản & NPC Tự Chế cho Trailer Dọc 9:16 (Fix chuẩn iOS Safari & Android)
 
 import { initVRCanvas } from "./canvas-bg.js";
 import { SystemRadio } from "./radio.js";
@@ -6,7 +6,7 @@ import { SITE_CONFIG } from "./config.js";
 
 // ============================================================================
 // DANH SÁCH 6 NHÂN VẬT & KỊCH BẢN TỰ CHẾ
-// Sau này có ảnh, bạn chỉ cần dán link hoặc "./assets/..." vào trường avatarUrl!
+// Sau này có ảnh, bạn dán link hoặc "./assets/..." vào trường avatarUrl!
 // ============================================================================
 const TRAILER_CAST = [
   {
@@ -14,7 +14,7 @@ const TRAILER_CAST = [
     code: "ID // #404",
     badge: "KÝ CHỦ MỚI",
     emblem: "⚖️",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/01.png", // <-- DÁN LINK ẢNH NHÂN VẬT 1 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 1 VÀO ĐÂY
     name: "THẨM TỊCH NGUYỆT",
     role: "Kiểm Toán Viên Đột Tử • Ký Chủ Khế Ước Máu",
     theme: "orbital-cyan",
@@ -30,7 +30,7 @@ const TRAILER_CAST = [
     code: "ID // AUDIT-09",
     badge: "THANH TRA",
     emblem: "⚔️",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/02.png", // <-- DÁN LINK ẢNH NHÂN VẬT 2 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 2 VÀO ĐÂY
     name: "CỐ HÀN THƯƠNG",
     role: "Phán Quan Kỷ Luật • Đội Thanh Trừng Tầng 3",
     theme: "orbital-cyan",
@@ -46,7 +46,7 @@ const TRAILER_CAST = [
     code: "ID // BLACK-77",
     badge: "CHỢ ĐEN",
     emblem: "🦊",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/03.png", // <-- DÁN LINK ẢNH NHÂN VẬT 3 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 3 VÀO ĐÂY
     name: "MẶC CỬU CA",
     role: "Chủ Tiệm Cầm Đồ Điểm Mù • Trùm Buôn Lậu",
     theme: "acid",
@@ -62,7 +62,7 @@ const TRAILER_CAST = [
     code: "ID // VIP-04",
     badge: "GIÁM NGỤC",
     emblem: "🦩",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/04.png", // <-- DÁN LINK ẢNH NHÂN VẬT 4 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 4 VÀO ĐÂY
     name: "DIỆP THANH YÊN",
     role: "Độc Hậu Truyền Thông • Giám Ngục Điện Đố Kỵ",
     theme: "cyber-violet",
@@ -78,7 +78,7 @@ const TRAILER_CAST = [
     code: "ID // #808",
     badge: "XUI XẺO S+",
     emblem: "🦜",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/05.png", // <-- DÁN LINK ẢNH NHÂN VẬT 5 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 5 VÀO ĐÂY
     name: "A LỤC (#808)",
     role: "Thực Tập Sinh Sao Quả Tạ • Cục Tầng Dưới",
     theme: "acid",
@@ -94,7 +94,7 @@ const TRAILER_CAST = [
     code: "OMEGA // ???",
     badge: "NIÊM PHONG",
     emblem: "🦈",
-    avatarUrl: "./assets/assets/OPW/Hethongbaoung/06.png", // <-- DÁN LINK ẢNH NHÂN VẬT 6 VÀO ĐÂY
+    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 6 VÀO ĐÂY
     name: "QUÝ CÔ [V.00]",
     role: "Chủ Nợ Tối Cao • Người Viết Lại Luật Nhân Quả",
     theme: "crimson-karma",
@@ -123,8 +123,6 @@ const carouselViewport = document.getElementById("tr-carousel-viewport");
 const carouselTrack = document.getElementById("tr-carousel-track");
 const dotsBar = document.getElementById("tr-dots-bar");
 
-const badgeScene = document.getElementById("tr-scene-badge");
-const cardCounter = document.getElementById("tr-card-counter");
 const sectorKicker = document.getElementById("tr-sector-kicker");
 const scenarioTag = document.getElementById("tr-scenario-tag");
 const pbTag = document.getElementById("tr-pb-tag");
@@ -135,6 +133,7 @@ const autoProgressFill = document.getElementById("tr-auto-progress");
 const twistFlash = document.getElementById("tr-twist-flash");
 const countdownOverlay = document.getElementById("tr-countdown-overlay");
 const countdownNum = document.getElementById("tr-countdown-num");
+const btnCleanExit = document.getElementById("btn-clean-exit");
 
 const dockCurrentNpc = document.getElementById("dock-current-npc");
 const rngDwell = document.getElementById("rng-dwell");
@@ -153,6 +152,7 @@ let dragStartX = 0, dragStartY = 0, dragLastX = 0, dragStartPos = 0, dragVel = 0
 let typeTimer = null;
 let autoTimers = [];
 let autoProgressRaf = null;
+let exitFadeTimer = null;
 let isAutoRunning = false;
 let dwellMs = 3800;
 
@@ -161,7 +161,7 @@ function syncBgForTheme(themeName) {
   const imgUrl = (cfg?.byTheme && cfg.byTheme[themeName]) || cfg?.defaultUrl || "";
   if (imgUrl.trim()) {
     bgImageLayer.style.backgroundImage = `url("${imgUrl.trim()}")`;
-    bgImageLayer.style.opacity = "0.26";
+    bgImageLayer.style.opacity = String(cfg.opacity ?? 0.42);
   } else {
     bgImageLayer.style.backgroundImage = "none";
     bgImageLayer.style.opacity = "0";
@@ -178,7 +178,6 @@ function playSfxIfAllowed(fnName) {
   try { radio[fnName]?.(); } catch (_) {}
 }
 
-// Dựng các thẻ nhân vật vào Carousel 3D
 const cardElements = [];
 const dotElements = [];
 
@@ -236,16 +235,20 @@ function getWrappedDelta(index, centerPos) {
   return d;
 }
 
+function getSpacing() {
+  const vpW = carouselViewport?.clientWidth || stageFrame?.clientWidth || window.innerWidth;
+  return Math.min(206, Math.max(142, vpW * 0.55));
+}
+
 function layoutCards() {
-  const vpW = carouselViewport?.clientWidth || 320;
-  const spacing = Math.max(150, vpW * 0.54);
+  const spacing = getSpacing();
   cardElements.forEach((card, i) => {
     const d = getWrappedDelta(i, carouselPos);
     const absD = Math.abs(d);
     const x = d * spacing;
     const z = 24 - (absD * absD * 34 + absD * 64);
     const rotY = Math.max(-42, Math.min(42, -d * 24));
-    const scale = Math.max(0.68, 1.02 - absD * 0.16);
+    const scale = Math.max(0.68, 1.0 - absD * 0.16);
     const opacity = absD > 1.85 ? Math.max(0, 1 - (absD - 1.85) * 2.2) : Math.max(0.38, 1 - absD * 0.28);
 
     card.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), -50%, ${z.toFixed(1)}px) rotateY(${rotY.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
@@ -300,12 +303,11 @@ function selectCard(idx, withSfx = false) {
   setTrailerTheme(npc.theme);
   if (withSfx) playSfxIfAllowed("playClickChime");
 
-  cardCounter.textContent = `${String(activeIdx + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
-  sectorKicker.textContent = npc.sector;
-  scenarioTag.textContent = npc.scenarioTag;
-  pbTag.textContent = npc.pbTag;
-  scenarioTitle.textContent = npc.scenarioTitle;
-  scenarioQuote.textContent = npc.quote;
+  if (sectorKicker) sectorKicker.textContent = npc.sector;
+  if (scenarioTag) scenarioTag.textContent = npc.scenarioTag;
+  if (pbTag) pbTag.textContent = npc.pbTag;
+  if (scenarioTitle) scenarioTitle.textContent = npc.scenarioTitle;
+  if (scenarioQuote) scenarioQuote.textContent = npc.quote;
   if (dockCurrentNpc) dockCurrentNpc.textContent = npc.name;
 
   typewriteStory(npc.story);
@@ -314,20 +316,11 @@ function selectCard(idx, withSfx = false) {
   const cy = (stageFrame.clientHeight || 640) * 0.4;
   vrBg.spawnTouchRipple(cx, cy);
 }
+
 function showScene(name) {
   sceneIntro.classList.toggle("hidden", name !== "intro");
   sceneShowcase.classList.toggle("hidden", name !== "showcase");
   sceneOutro.classList.toggle("hidden", name !== "outro");
-  cardCounter?.classList.toggle("hidden", name !== "showcase");
-  if (name === "intro") {
-    badgeScene.textContent = "INTRO // 00";
-    setTrailerTheme("orbital-cyan");
-  }
-  if (name === "showcase") badgeScene.textContent = "CHỌN KỊCH BẢN // 9:16";
-  if (name === "outro") {
-    badgeScene.textContent = "OUTRO // VR-00";
-    setTrailerTheme("orbital-cyan");
-  }
   if (name === "showcase") requestAnimationFrame(layoutCards);
 }
 
@@ -345,6 +338,7 @@ function triggerTwistGlitch(durationMs = 1500) {
 function clearAutoTimers() {
   autoTimers.forEach((t) => clearTimeout(t));
   autoTimers = [];
+  clearTimeout(exitFadeTimer);
   cancelAnimationFrame(autoProgressRaf);
   autoProgressFill.style.width = "0%";
   twistFlash.classList.add("hidden");
@@ -357,7 +351,10 @@ function stopAutoDirector(exitCleanMode = true) {
   countdownOverlay.classList.add("hidden");
   if (exitCleanMode) {
     stageFrame.classList.remove("is-clean-rec");
-    document.getElementById("btn-clean-exit")?.classList.add("hidden");
+    if (btnCleanExit) {
+      btnCleanExit.classList.add("hidden");
+      btnCleanExit.classList.remove("is-faded");
+    }
     radio.stop();
   }
 }
@@ -377,7 +374,10 @@ function runAutoSequence(withCountdown = true) {
   stopAutoDirector(false);
   isAutoRunning = true;
   stageFrame.classList.add("is-clean-rec");
-  document.getElementById("btn-clean-exit")?.classList.remove("hidden");
+  if (btnCleanExit) {
+    btnCleanExit.classList.remove("hidden", "is-faded");
+    exitFadeTimer = setTimeout(() => btnCleanExit.classList.add("is-faded"), 1200);
+  }
 
   if (chkBgm?.checked && !radio.isPlaying) {
     radio.play();
@@ -389,7 +389,6 @@ function runAutoSequence(withCountdown = true) {
     setTrailerTheme("orbital-cyan");
     showScene("intro");
 
-    // Sau Intro 2.8s -> sang Cảnh Lướt Thẻ Nhân Vật & Kịch Bản
     autoTimers.push(setTimeout(() => {
       if (!isAutoRunning) return;
       showScene("showcase");
@@ -421,7 +420,6 @@ function runAutoSequence(withCountdown = true) {
             playSfxIfAllowed("playClickChime");
             autoTimers.push(setTimeout(() => {
               if (!isAutoRunning) return;
-              // Kết thúc đẹp, giữ màn outro thêm 1.5s rồi trả lại nút
               stopAutoDirector(true);
             }, 3400));
           }
@@ -488,7 +486,7 @@ window.addEventListener("pointermove", (e) => {
   const dxStep = e.clientX - dragLastX;
   dragLastX = e.clientX;
   dragMoved = Math.abs(dxTotal);
-  const stepPx = Math.max(150, (carouselViewport?.clientWidth || 320) * 0.54);
+  const stepPx = getSpacing();
   carouselPos = dragStartPos - dxTotal / stepPx;
   dragVel = -dxStep / stepPx;
 });
@@ -508,7 +506,6 @@ function finishDrag(e) {
 window.addEventListener("pointerup", finishDrag);
 window.addEventListener("pointercancel", finishDrag);
 
-// Nút bấm trái / phải & bàn phím
 document.getElementById("tr-btn-prev")?.addEventListener("click", () => { stopAutoDirector(false); selectCard(activeIdx - 1, true); });
 document.getElementById("tr-btn-next")?.addEventListener("click", () => { stopAutoDirector(false); selectCard(activeIdx + 1, true); });
 window.addEventListener("keydown", (e) => {
@@ -517,7 +514,6 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") { stopAutoDirector(false); selectCard(activeIdx + 1, true); }
 });
 
-// Nút Intro / Mobile / Director Dock
 document.getElementById("btn-intro-start")?.addEventListener("click", () => {
   showScene("showcase");
   selectCard(0, true);
@@ -530,7 +526,7 @@ document.getElementById("btn-mobile-manual")?.addEventListener("click", () => {
   selectCard(activeIdx, true);
 });
 document.getElementById("btn-stop-auto")?.addEventListener("click", () => stopAutoDirector(true));
-document.getElementById("btn-clean-exit")?.addEventListener("click", () => stopAutoDirector(true));
+btnCleanExit?.addEventListener("click", () => stopAutoDirector(true));
 document.getElementById("btn-outro-replay")?.addEventListener("click", () => runAutoSequence(false));
 
 document.getElementById("btn-jump-intro")?.addEventListener("click", () => { stopAutoDirector(true); showScene("intro"); });
@@ -543,7 +539,6 @@ rngDwell?.addEventListener("input", () => {
   if (lblDwellSec) lblDwellSec.textContent = `${sec.toFixed(1)}s`;
 });
 
-// Nạp thử ảnh từ máy ngay trong Director Dock để quay video nhanh
 document.getElementById("dock-upload-avatar")?.addEventListener("change", (e) => {
   const file = e.target.files?.[0];
   e.target.value = "";
@@ -560,8 +555,9 @@ document.getElementById("dock-upload-avatar")?.addEventListener("change", (e) =>
 });
 
 window.addEventListener("resize", layoutCards);
+window.addEventListener("orientationchange", () => setTimeout(layoutCards, 120));
+window.visualViewport?.addEventListener("resize", layoutCards);
 
-// Khởi tạo
 buildCastCards();
 setTrailerTheme("orbital-cyan");
 showScene("intro");
