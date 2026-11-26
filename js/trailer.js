@@ -161,7 +161,7 @@ function syncBgForTheme(themeName) {
   const imgUrl = (cfg?.byTheme && cfg.byTheme[themeName]) || cfg?.defaultUrl || "";
   if (imgUrl.trim()) {
     bgImageLayer.style.backgroundImage = `url("${imgUrl.trim()}")`;
-    bgImageLayer.style.opacity = String(cfg.opacity ?? 0.42);
+    bgImageLayer.style.opacity = "0.26";
   } else {
     bgImageLayer.style.backgroundImage = "none";
     bgImageLayer.style.opacity = "0";
@@ -314,14 +314,20 @@ function selectCard(idx, withSfx = false) {
   const cy = (stageFrame.clientHeight || 640) * 0.4;
   vrBg.spawnTouchRipple(cx, cy);
 }
-
 function showScene(name) {
   sceneIntro.classList.toggle("hidden", name !== "intro");
   sceneShowcase.classList.toggle("hidden", name !== "showcase");
   sceneOutro.classList.toggle("hidden", name !== "outro");
-  if (name === "intro") badgeScene.textContent = "INTRO // 00";
+  cardCounter?.classList.toggle("hidden", name !== "showcase");
+  if (name === "intro") {
+    badgeScene.textContent = "INTRO // 00";
+    setTrailerTheme("orbital-cyan");
+  }
   if (name === "showcase") badgeScene.textContent = "CHỌN KỊCH BẢN // 9:16";
-  if (name === "outro") badgeScene.textContent = "OUTRO // VR-00";
+  if (name === "outro") {
+    badgeScene.textContent = "OUTRO // VR-00";
+    setTrailerTheme("orbital-cyan");
+  }
   if (name === "showcase") requestAnimationFrame(layoutCards);
 }
 

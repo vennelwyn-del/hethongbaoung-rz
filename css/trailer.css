@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAILER 9:16 DỌC — CHỌN THẺ NHÂN VẬT & KỊCH BẢN (ANDROID, IOS & OBS PC)
+   TRAILER 9:16 DỌC — DỊU MẮT, TƯƠNG PHẢN CAO (ANDROID, IOS & OBS PC)
    ========================================================================== */
 
 * {
@@ -62,6 +62,7 @@ html, body {
   background-position: center;
   background-size: cover;
   opacity: 0;
+  filter: brightness(0.58) saturate(1.06);
   pointer-events: none;
   z-index: 0;
   transition: opacity 0.45s ease;
@@ -72,14 +73,22 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
+  opacity: 0.6;
+  filter: brightness(0.72);
   pointer-events: none;
   z-index: 1;
 }
 
+/* Phủ tối dịu ở cả vùng trung tâm để chữ & thẻ nổi bật, không bị lóa trắng */
 .trailer-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 42%, transparent 32%, rgba(1, 3, 12, 0.86) 100%);
+  background: radial-gradient(
+    circle at 50% 46%,
+    rgba(2, 6, 18, 0.44) 0%,
+    rgba(2, 6, 18, 0.65) 48%,
+    rgba(1, 3, 12, 0.92) 100%
+  );
   pointer-events: none;
   z-index: 2;
 }
@@ -110,7 +119,7 @@ html, body {
   gap: 7px;
   padding: 4px 10px;
   border: 1px solid rgba(var(--rgb-primary), 0.45);
-  background: rgba(2, 8, 22, 0.72);
+  background: rgba(2, 8, 22, 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: var(--c-primary);
@@ -132,7 +141,7 @@ html, body {
 .tr-card-counter {
   padding: 4px 9px;
   border: 1px solid rgba(var(--rgb-secondary), 0.45);
-  background: rgba(2, 8, 22, 0.72);
+  background: rgba(2, 8, 22, 0.8);
   color: var(--c-secondary);
   font-weight: 700;
 }
@@ -153,7 +162,7 @@ html, body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  gap: 20px;
+  gap: 18px;
 }
 
 .intro-gate-rings {
@@ -163,7 +172,7 @@ html, body {
   display: grid;
   place-items: center;
   pointer-events: none;
-  opacity: 0.68;
+  opacity: 0.42;
 }
 .intro-gate-rings .ring {
   position: absolute;
@@ -180,18 +189,28 @@ html, body {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 8px 10px;
-  border-left: 2px solid var(--c-primary);
-  background: rgba(2, 8, 22, 0.75);
+  padding: 9px 11px;
+  border-left: 2.5px solid var(--c-primary);
+  background: rgba(2, 8, 22, 0.84);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   font-size: 0.64rem;
   color: var(--c-primary);
   text-align: left;
   line-height: 1.55;
 }
 
+/* Khung kính tối bọc chữ Intro để nổi chữ rõ ràng, không bị lóa */
 .intro-headline-box {
   position: relative;
   z-index: 2;
+  width: 100%;
+  padding: 18px 14px;
+  border: 1px solid rgba(var(--rgb-primary), 0.36);
+  background: linear-gradient(170deg, rgba(2, 8, 24, 0.78), rgba(2, 5, 16, 0.88));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -203,16 +222,17 @@ html, body {
 }
 .intro-headline-box h1 {
   font-family: "Chakra Petch", monospace;
-  font-size: clamp(2.1rem, 8vw, 2.7rem);
+  font-size: clamp(2.05rem, 8vw, 2.65rem);
   line-height: 1.06;
   letter-spacing: 0.08em;
-  text-shadow: 0 0 24px var(--glow-primary);
+  color: #f3faff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.92), 0 0 14px rgba(var(--rgb-primary), 0.42);
 }
 .intro-headline-box p {
   font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-  padding: 0 8px;
+  line-height: 1.52;
+  color: #d6ecff;
+  padding: 0 4px;
 }
 .intro-headline-box strong {
   color: var(--c-secondary);
@@ -221,20 +241,23 @@ html, body {
 .intro-tap-start {
   position: relative;
   z-index: 2;
-  margin-top: 8px;
-  padding: 10px 18px;
-  border: 1px solid var(--c-primary);
-  background: rgba(var(--rgb-primary), 0.14);
-  color: var(--c-primary);
+  margin-top: 4px;
+  padding: 11px 20px;
+  border: 1.5px solid var(--c-primary);
+  background: rgba(2, 10, 26, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #e8f8ff;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   cursor: pointer;
+  box-shadow: 0 0 18px rgba(var(--rgb-primary), 0.22);
   animation: pulseFade 1.5s infinite;
 }
 @keyframes pulseFade {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.65; transform: scale(0.97); }
+  50% { opacity: 0.72; transform: scale(0.975); }
 }
 
 /* CẢNH 1: LƯỚT THẺ 3D */
@@ -256,7 +279,7 @@ html, body {
   font-family: "Chakra Petch", monospace;
   font-size: 1.15rem;
   letter-spacing: 0.12em;
-  text-shadow: 0 0 14px var(--glow-primary);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 12px rgba(var(--rgb-primary), 0.4);
 }
 
 .tr-carousel-wrap {
@@ -287,7 +310,7 @@ html, body {
   transform: translateX(-50%);
   width: 82%;
   height: 44px;
-  background: radial-gradient(ellipse at center, rgba(var(--rgb-primary), 0.45), transparent 72%);
+  background: radial-gradient(ellipse at center, rgba(var(--rgb-primary), 0.34), transparent 72%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -307,7 +330,7 @@ html, body {
   width: 32px;
   height: 68px;
   border: 1px solid rgba(var(--rgb-primary), 0.55);
-  background: rgba(2, 8, 22, 0.72);
+  background: rgba(2, 8, 22, 0.8);
   color: var(--c-primary);
   font-size: 1.5rem;
   cursor: pointer;
@@ -329,7 +352,7 @@ html, body {
   height: min(92%, 336px);
   padding: 10px;
   border: 1.5px solid rgba(var(--rgb-primary), 0.52);
-  background: linear-gradient(170deg, rgba(4, 14, 34, 0.86), rgba(2, 5, 14, 0.95));
+  background: linear-gradient(170deg, rgba(3, 11, 28, 0.9), rgba(2, 5, 14, 0.96));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   backface-visibility: hidden;
@@ -341,12 +364,12 @@ html, body {
   text-align: left;
   color: var(--text-main);
   cursor: pointer;
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.85);
   touch-action: pan-y;
 }
 .tr-char-card.is-active {
   border-color: var(--c-secondary);
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.88), 0 0 34px var(--glow-primary), inset 0 0 22px rgba(var(--rgb-secondary), 0.18);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9), 0 0 28px rgba(var(--rgb-primary), 0.42), inset 0 0 20px rgba(var(--rgb-secondary), 0.16);
 }
 
 .tr-card-meta {
@@ -370,7 +393,7 @@ html, body {
   flex: 1;
   min-height: 120px;
   border: 1px solid rgba(var(--rgb-primary), 0.36);
-  background: radial-gradient(circle at 50% 35%, rgba(var(--rgb-primary), 0.24), rgba(2, 6, 18, 0.92));
+  background: radial-gradient(circle at 50% 35%, rgba(var(--rgb-primary), 0.18), rgba(2, 6, 18, 0.94));
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -391,7 +414,7 @@ html, body {
 }
 .tr-portrait-placeholder span {
   font-size: 3rem;
-  filter: drop-shadow(0 0 14px var(--glow-primary));
+  filter: drop-shadow(0 0 12px rgba(var(--rgb-primary), 0.5));
 }
 .tr-portrait-placeholder small {
   font-size: 0.54rem;
@@ -402,14 +425,14 @@ html, body {
   position: absolute;
   left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--c-secondary), #fff, var(--c-secondary), transparent);
-  box-shadow: 0 0 12px var(--glow-secondary);
+  background: linear-gradient(90deg, transparent, var(--c-secondary), rgba(255, 255, 255, 0.8), var(--c-secondary), transparent);
+  box-shadow: 0 0 10px var(--glow-secondary);
   animation: beamSweep 2.6s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes beamSweep {
-  0%, 100% { top: 6%; opacity: 0.35; }
-  50% { top: 92%; opacity: 0.95; }
+  0%, 100% { top: 6%; opacity: 0.3; }
+  50% { top: 92%; opacity: 0.85; }
 }
 
 .tr-char-name {
@@ -418,7 +441,7 @@ html, body {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--text-main);
-  text-shadow: 0 0 10px var(--glow-primary);
+  text-shadow: 0 0 8px rgba(var(--rgb-primary), 0.45);
 }
 .tr-char-role {
   font-size: 0.6rem;
@@ -444,14 +467,14 @@ html, body {
 .tr-dot.is-active {
   width: 30px;
   background: var(--c-secondary);
-  box-shadow: 0 0 10px var(--glow-secondary);
+  box-shadow: 0 0 8px var(--glow-secondary);
 }
 
 /* BẢNG KỊCH BẢN PHÍA DƯỚI */
 .tr-dossier-panel {
   padding: 11px 12px 10px;
   border: 1px solid rgba(var(--rgb-primary), 0.45);
-  background: linear-gradient(165deg, rgba(2, 10, 26, 0.84), rgba(2, 5, 16, 0.94));
+  background: linear-gradient(165deg, rgba(2, 9, 24, 0.9), rgba(2, 5, 16, 0.96));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
@@ -487,7 +510,7 @@ html, body {
 .tr-scenario-story {
   font-size: 0.69rem;
   line-height: 1.44;
-  color: var(--text-muted);
+  color: #d6ecff;
   min-height: 40px;
 }
 .tr-scenario-quote {
@@ -522,8 +545,8 @@ html, body {
 }
 .outro-core-ring {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 124px;
+  height: 124px;
   display: grid;
   place-items: center;
 }
@@ -532,7 +555,7 @@ html, body {
   inset: 0;
   border-radius: 50%;
   border: 2px solid var(--c-primary);
-  box-shadow: 0 0 24px var(--glow-primary);
+  box-shadow: 0 0 18px rgba(var(--rgb-primary), 0.45);
   animation: spinCW 10s linear infinite;
 }
 .outro-core-ring i:last-child {
@@ -546,13 +569,13 @@ html, body {
   font-family: "Chakra Petch", monospace;
   font-size: 2rem;
   letter-spacing: 0.12em;
-  text-shadow: 0 0 24px var(--glow-primary);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 14px rgba(var(--rgb-primary), 0.45);
 }
-.tr-scene-outro p { font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; max-width: 90%; }
+.tr-scene-outro p { font-size: 0.76rem; color: #d6ecff; line-height: 1.5; max-width: 90%; }
 .outro-cta-pill {
   padding: 8px 16px;
   border: 1px solid var(--c-secondary);
-  background: rgba(var(--rgb-secondary), 0.16);
+  background: rgba(2, 10, 26, 0.85);
   color: var(--c-secondary);
   font-size: 0.72rem;
   font-weight: 700;
@@ -599,7 +622,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 50;
-  background: rgba(2, 6, 18, 0.85);
+  background: rgba(2, 6, 18, 0.88);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -610,7 +633,7 @@ html, body {
   font-family: "Chakra Petch", monospace;
   font-size: 4.5rem;
   color: var(--c-primary);
-  text-shadow: 0 0 32px var(--glow-primary);
+  text-shadow: 0 0 28px var(--glow-primary);
 }
 .tr-countdown-overlay small { font-size: 0.72rem; color: var(--c-secondary); letter-spacing: 0.12em; }
 
@@ -632,7 +655,7 @@ html, body {
   color: #030712;
 }
 .tr-btn.ghost {
-  background: rgba(var(--rgb-primary), 0.08);
+  background: rgba(2, 10, 26, 0.82);
   border-color: rgba(var(--rgb-primary), 0.45);
   color: var(--text-main);
 }
@@ -643,7 +666,7 @@ html, body {
   display: none;
   gap: 8px;
   padding: 8px 12px calc(10px + var(--safe-bottom, 0px));
-  background: rgba(2, 6, 18, 0.9);
+  background: rgba(2, 6, 18, 0.92);
   border-top: 1px solid rgba(var(--rgb-primary), 0.3);
 }
 .tr-mobile-bar > * { flex: 1; }
