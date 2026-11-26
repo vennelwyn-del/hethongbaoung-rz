@@ -46,7 +46,7 @@ const TRAILER_CAST = [
     code: "ID // BLACK-77",
     badge: "CHỢ ĐEN",
     emblem: "🦊",
-    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 3 VÀO ĐÂY
+    avatarUrl: "./assets/assets/OPW/Hethongbaoung/03.png", // <-- DÁN LINK ẢNH NHÂN VẬT 3 VÀO ĐÂY
     name: "MẶC CỬU CA",
     role: "Chủ Tiệm Cầm Đồ Điểm Mù • Trùm Buôn Lậu",
     theme: "acid",
@@ -62,7 +62,7 @@ const TRAILER_CAST = [
     code: "ID // VIP-04",
     badge: "GIÁM NGỤC",
     emblem: "🦩",
-    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 4 VÀO ĐÂY
+    avatarUrl: "./assets/assets/OPW/Hethongbaoung/04.png", // <-- DÁN LINK ẢNH NHÂN VẬT 4 VÀO ĐÂY
     name: "DIỆP THANH YÊN",
     role: "Độc Hậu Truyền Thông • Giám Ngục Điện Đố Kỵ",
     theme: "cyber-violet",
@@ -78,7 +78,7 @@ const TRAILER_CAST = [
     code: "ID // #808",
     badge: "XUI XẺO S+",
     emblem: "🦜",
-    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 5 VÀO ĐÂY
+    avatarUrl: "./assets/assets/OPW/Hethongbaoung/05.png", // <-- DÁN LINK ẢNH NHÂN VẬT 5 VÀO ĐÂY
     name: "A LỤC (#808)",
     role: "Thực Tập Sinh Sao Quả Tạ • Cục Tầng Dưới",
     theme: "acid",
@@ -94,7 +94,7 @@ const TRAILER_CAST = [
     code: "OMEGA // ???",
     badge: "NIÊM PHONG",
     emblem: "🦈",
-    avatarUrl: "", // <-- DÁN LINK ẢNH NHÂN VẬT 6 VÀO ĐÂY
+    avatarUrl: "./assets/assets/OPW/Hethongbaoung/06.png", // <-- DÁN LINK ẢNH NHÂN VẬT 6 VÀO ĐÂY
     name: "QUÝ CÔ [V.00]",
     role: "Chủ Nợ Tối Cao • Người Viết Lại Luật Nhân Quả",
     theme: "crimson-karma",
